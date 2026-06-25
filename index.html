@@ -4,8 +4,18 @@
 <html lang="en" data-redirect-timezone="1">
 <head>
 	<style>
+		/* Make the website act like an app, not a document */
+		html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img {
+			-webkit-user-select: none !important;
+			user-select: none !important;
+		}
+		input, textarea, [contenteditable="true"] {
+			-webkit-user-select: auto !important;
+			user-select: auto !important;
+		}
+		
 		/* Absolute brute-force to stop any editing capabilities on non-inputs */
-		[contenteditable] {
+		[contenteditable]:not(input):not(textarea) {
 			-webkit-user-modify: read-only !important;
 			user-modify: read-only !important;
 			caret-color: transparent !important;
