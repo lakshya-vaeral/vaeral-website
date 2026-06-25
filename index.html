@@ -3,10 +3,18 @@
 <!-- Published May 27, 2026, 12:09 PM UTC -->
 <html lang="en" data-redirect-timezone="1">
 <head>
+	<style>
+		/* Absolute brute-force to stop any editing capabilities on non-inputs */
+		[contenteditable] {
+			-webkit-user-modify: read-only !important;
+			user-modify: read-only !important;
+			caret-color: transparent !important;
+		}
+	</style>
 	<script>
-		// Override Framer's editor mode to prevent texts from showing a blinking cursor
+		// Override Framer's editor mode for ANY contenteditable value (e.g. plaintext-only)
 		const observer = new MutationObserver(() => {
-			document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+			document.querySelectorAll('[contenteditable]').forEach(el => {
 				el.removeAttribute('contenteditable');
 			});
 		});
