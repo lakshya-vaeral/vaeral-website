@@ -22,14 +22,17 @@ stays exactly as-is. We are only replacing the home-grown "CMS" with a proper on
 
 If any of these change, update this file and [docs/CMS-PLAN.md](docs/CMS-PLAN.md) in the same change.
 
-## The old "CMS" we are replacing (do not extend it)
+## The old "CMS" we replaced (do not reintroduce it)
 
 A floating `contenteditable` "LIVE ADMIN" bar captured raw page HTML, an API route committed
 a JSON blob to GitHub, and a build script cloned a Framer blog template by **string-matching
-the sentence "Reddit has a way…"**. It is fragile and insecure (single shared password, raw
-HTML injection). Files involved, all slated for removal once the new system works:
-`api/publish.js`, `setup_admin_ui.js`, the `contenteditable` block in `public/admin/editor.html`,
-and the text-matching logic in `build_blog.js`.
+the sentence "Reddit has a way…"**. It was fragile and insecure (single shared password, raw
+HTML injection). **All of it is now removed** (Phase 5, 2026-06-29): `api/publish.js`,
+`setup_admin_ui.js`, and `public/admin/editor.html` deleted; `build_blog.js` was already
+replaced by the marker-based `build.js` in Phase 4. The editor is now **Decap CMS**
+(`public/admin/`) with a **GitHub OAuth proxy** (`api/auth.js`, `api/callback.js`); setup steps
+in [docs/CMS-ADMIN-SETUP.md](docs/CMS-ADMIN-SETUP.md). Do not bring back password auth, raw-HTML
+capture, or text-matching injection.
 
 ## Repo layout (current)
 
