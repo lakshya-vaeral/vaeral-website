@@ -4,6 +4,7 @@ slug: "viral-negative"
 date: 2022-03-15
 description: "Reddit has a way of catching brands off guard. One day everything is fine, and the next morning your marketing team is staring at a thread on r/india or r/technology with 8,000 upvotes, 2,400 comments, and a screenshot being passed around on Twitter."
 coverImage: "/assets/blog-viral-negative.jpg"
+coverAlt: "Smartphone showing social media app icons"
 readTime: 8
 draft: false
 ---
