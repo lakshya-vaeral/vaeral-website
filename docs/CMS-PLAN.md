@@ -1,6 +1,6 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phases 1–4 DONE (Phase 4: 2026-06-29). **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Status:** Approved; Phases 1–5 code DONE (Phase 5: 2026-06-29 — OAuth App/env/onboarding pending human action). **Branch:** `feature/proper-cms` (all work here, never `main`).
 **Editor end-user:** non-technical marketer. **Last updated:** 2026-06-29.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
@@ -325,10 +325,33 @@ across tags):**
 - Re-verify after any change on a real browser: open `/blog/using-reddit-marketing`, let JS run, and
   confirm the body stays the reddit-marketing article (not viral-negative).
 
-### Phase 5 — Decap CMS  ☐
-- [ ] `public/admin/index.html` + `config.yml` (blog + case-studies collections + media).
-- [ ] GitHub OAuth proxy on Vercel; marketer onboarded as collaborator; end-to-end publish test.
-- [ ] Remove old CMS: `api/publish.js`, `contenteditable` editor, `setup_admin_ui.js`.
+### Phase 5 — Decap CMS  ☑ (2026-06-29, code) — OAuth App/env/onboarding pending human action
+- [x] `public/admin/index.html` → Decap loader (`decap-cms@^3`, `noindex`). `public/admin/config.yml`
+      with **blog** + **case-studies** collections matching §3 frontmatter exactly (blog:
+      title/slug/date/description/coverImage/coverAlt?/readTime?/draft/body; case study:
+      title/slug/category/tags-list/date/description/coverImage?/draft/problem/whatWeDid/results,
+      no body). `media_folder: public/assets`, `public_folder: /assets`. `slug: "{{fields.slug}}"`
+      keeps filename = frontmatter slug = output folder (holiday-memebership kept as-is). Per-collection
+      `editor.preview: false` (Framer design can't render in Decap). `local_backend: true` for
+      `npx decap-server`. `backend.branch: feature/proper-cms` (flips to `main` at Phase-6 cutover).
+- [x] **GitHub OAuth proxy** as two Vercel serverless fns: `api/auth.js` (redirect to GitHub authorize,
+      `repo,user` scope, CSRF state cookie) + `api/callback.js` (verify state, exchange code→token with
+      the client secret, postMessage handshake `authorization:github:success:…` back to Decap). Secret
+      stays server-side via `OAUTH_GITHUB_CLIENT_ID`/`OAUTH_GITHUB_CLIENT_SECRET`. `redirect_uri` is
+      derived from the request host so the same code works on production + preview deploys.
+- [x] Removed old CMS: `api/publish.js` (password publish), `public/admin/editor.html` (297KB
+      contenteditable Framer copy), `setup_admin_ui.js` (LIVE ADMIN injector). No live code referenced
+      them. CLAUDE.md "old CMS" note updated to past tense.
+- [ ] **Human action (one-time, see [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md)):** create the GitHub
+      OAuth App (callback `https://vaeral.com/api/callback`), set the two Vercel env vars, add the
+      marketer as a **Write** collaborator, then run the **end-to-end publish test** on a preview deploy.
+
+**Decisions (2026-06-29):** Used a **self-hosted OAuth proxy** (not a third-party like Netlify) since we're
+on Vercel — Decap `base_url`/`auth_endpoint` point at our own `/api`. `base_url: https://vaeral.com`;
+preview testing requires temporarily pointing `base_url` + the OAuth App callback at the preview origin
+(documented). Kept `backend.branch` on `feature/proper-cms` so the CMS is testable before merge — house
+rule "never touch main" holds until cutover. Setup steps a human must do are in CMS-ADMIN-SETUP.md (the
+OAuth App + secrets + collaborator invite can't be done from code).
 
 ### Phase 6 — Polish & launch  ☐
 - [ ] Per-post SEO/OG, image upload flow, sitemap if needed, GA stays `G-NYP7J14402`.
