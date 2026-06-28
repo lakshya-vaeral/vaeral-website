@@ -293,17 +293,27 @@ across tags):**
   each build so CMS image uploads ship. `dist/` stays committed (current repo convention + static
   fallback).
 
-**Hydration check (§5) — partial:**
-- **Case studies: SAFE (verified statically).** The body text appears **0 times** inside any
-  `<script>` in `templates/source/*.html` — the Framer runtime has no serialized copy to re-render,
-  so injected content cannot be clobbered.
-- **Blog: UNVERIFIED here (open item).** Body/date/read-time **are** serialized in the
-  `<script type="framer/handover">` island. For a post built from its own source template the island
-  matches; for *other* posts it still holds the template post's text, so **iff** the runtime
-  re-renders RichTextContainers from handover, those would show stale content. No headless browser is
-  available in this environment, so this must be confirmed on a **Vercel preview deploy**: open
-  `/blog/using-reddit-marketing` and confirm the visible body is the reddit-marketing article (not
-  viral-negative). This matches the proven old `build_blog.js`, which also left handover untouched.
+**Hydration check (§5) — RESOLVED (2026-06-29):**
+- Tested locally: the blog DID clobber. Blog pages are Framer **CMS-collection pages** — the runtime
+  (`script_main.mjs`) hydrates and re-renders title/date/read-time/**body** from an embedded CMS
+  record in the `<script type="framer/handover">` island. DOM-only injection was overwritten on
+  hydration: a post built from the shared template showed the *template* post's content. (The old
+  `build_blog.js` had the same latent bug; it was just never exercised with a second post.)
+- **Fix:** `build.js` now also rewrites that CMS record per blog post — `patchBlogHandover()` sets
+  the title/description/date/read-time scalars and regenerates the body as Framer's rich-text AST
+  (`[1,[4,"tag",attrs,…],[5,"text"],…]`; blocks get `dir:auto`, headings wrap in `<strong>`, no
+  Framer classes — the RichText component applies presets on render). It asserts the handover's
+  known shape first and throws if the template drifts, so it can never silently corrupt. The visible
+  DOM markers are still filled too (correct pre-hydration paint + no-JS fallback).
+- **Why this works without touching JS:** appear-animations (the `opacity:0`→visible reveal) are run
+  by **inline** scripts (`animator` + a self-invoking appear runner), independent of the module — so
+  we keep the runtime (animations intact) and simply feed it the right content. Verified statically:
+  each post's handover + DOM now carry only that post's content; the only cross-post text is the
+  legitimate sibling related-post card Framer embeds for navigation.
+- **Case studies: SAFE (unchanged).** They are static pages — body text appears **0 times** in any
+  `<script>`, so their handover has nothing to re-render and needs no patch.
+- Re-verify after any change on a real browser: open `/blog/using-reddit-marketing`, let JS run, and
+  confirm the body stays the reddit-marketing article (not viral-negative).
 
 ### Phase 5 — Decap CMS  ☐
 - [ ] `public/admin/index.html` + `config.yml` (blog + case-studies collections + media).
