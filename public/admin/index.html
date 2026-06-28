@@ -6,6 +6,9 @@
   <!-- Keep this admin out of search results. -->
   <meta name="robots" content="noindex" />
   <title>Vaeral CMS</title>
+  <!-- Load config from an absolute path. Without this, visiting /admin (no
+       trailing slash) makes Decap fetch /config.yml at the site root → 404. -->
+  <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
   <!-- Decap CMS — the entire editor UI. Config lives in ./config.yml -->
