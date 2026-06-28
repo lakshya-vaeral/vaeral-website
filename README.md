@@ -1,6 +1,6 @@
 # Vaeral website
 
-Marketing site for **Vaeral** (vaeral.com) — a Reddit/Quora/ORM agency.
+Marketing site for **Vaeral** (vaeral.com) — a Reddit/Quora/ORM agency
 
 ## What this actually is
 
