@@ -1,6 +1,6 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phases 1–3 DONE (Phase 3: 2026-06-29). **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Status:** Approved; Phases 1–4 DONE (Phase 4: 2026-06-29). **Branch:** `feature/proper-cms` (all work here, never `main`).
 **Editor end-user:** non-technical marketer. **Last updated:** 2026-06-29.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
@@ -253,9 +253,57 @@ across tags):**
   as the old build does. Whether hydration clobbers the injected content must be verified on the
   first real build (Phase 4).
 
-### Phase 4 — Build pipeline  ☐
-- [ ] `build.js` renders all content → `dist/...`. Verify hydration doesn't clobber content.
-- [ ] Blog index page generation. URL/redirect parity with old paths.
+### Phase 4 — Build pipeline  ☑ (2026-06-29)
+- [x] `build.js` renders all content → `dist/...`. Replaces `build_blog.js` (deleted). Reads
+      `content/blog/*.md` + `content/case-studies/*.md`, skips `draft: true`, renders body with
+      `marked`, fills `<!--CMS:*-->` markers via `split/join` (no text matching), writes
+      `dist/blog/<slug>/index.html` and `dist/<slug>/index.html`.
+- [x] Blog index generation (`dist/blog/index.html`) + URL parity: blog `/blog/<slug>`, case study
+      `/<slug>` (top-level, matches homepage `./<slug>` links), listing `/blog`. `cleanUrls` on.
+- [x] `package.json` `build` → `node build.js`; `vercel.json` `buildCommand: npm run build`,
+      `outputDirectory: dist`.
+
+**How it was done (2026-06-29):**
+- **Body fidelity (re-emit Framer presets).** Rich fields empty their Framer container, so marked's
+  plain `<p>/<ul>/<a>/…` would lose the `.framer-text` presets. `build.js` re-applies exact preset
+  class/attr/style maps captured from the live export (`BLOG_PRESETS`, `CASE_PRESETS`). For case
+  studies the light text-color style is **required for legibility** on the dark section background
+  (without it injected text would be near-black on dark). Lists are normalised to the Framer
+  `<li data-preset-tag="p"><p>…</p></li>` shape. Verified: injected paragraphs/lists carry the same
+  classes + color as the original `online-pharmacy` / `viral-negative` markup.
+- **Tag chips.** Cloned **byte-exact** from the `templates/source/online-pharmacy.html` Highlights
+  prototype (3 chip nodes) with only the `<p>` text swapped; cycles the 3 prototypes if a future
+  case study has >3 tags. All 5 current case studies have exactly 3 tags.
+- **Read time.** Added `<!--CMS:READTIME-->` + `<!--CMS:DATETIME-->` markers to `templates/blog.html`
+  (visible DOM only; the `framer/handover` copies untouched). New optional frontmatter field
+  `readTime` (added to the 2 existing posts: 8 / 6 to preserve the original displayed values).
+  Absent → computed as `round(words/200)`. **Why a field:** the original Framer read-times are
+  inconsistent / not reproducible from word count, and the template hard-coded "8 min read" which
+  would have mis-shipped on every other post (the §5 flag). Datetime attr now also matches the post.
+- **SEO/OG.** `og:image`/`twitter:image` made absolute (`https://vaeral.com` + `coverImage`; falls
+  back to `/assets/og-image.png`). `canonical`/`og:url` derived from slug. Title is HTML-escaped so
+  the same value is safe in both attribute (`&quot;`) and text contexts (e.g. online-pharmacy's
+  quoted title).
+- **Blog listing** (`templates/blog-index.html`) is a new **lightweight standalone page** (GA
+  `G-NYP7J14402` + Figtree + dark theme + `<!--CMS:POSTS-->`), **not** a Framer export — no design
+  source for a `/blog` listing exists in the repo. Known limitation; upgradeable if a Framer listing
+  design is provided.
+- **Homepage `dist/index.html` is NOT touched** (deployed Framer export, out of CMS scope; it also
+  differs from root `index.html`, the anti-edit copy). `public/assets` is synced → `dist/assets`
+  each build so CMS image uploads ship. `dist/` stays committed (current repo convention + static
+  fallback).
+
+**Hydration check (§5) — partial:**
+- **Case studies: SAFE (verified statically).** The body text appears **0 times** inside any
+  `<script>` in `templates/source/*.html` — the Framer runtime has no serialized copy to re-render,
+  so injected content cannot be clobbered.
+- **Blog: UNVERIFIED here (open item).** Body/date/read-time **are** serialized in the
+  `<script type="framer/handover">` island. For a post built from its own source template the island
+  matches; for *other* posts it still holds the template post's text, so **iff** the runtime
+  re-renders RichTextContainers from handover, those would show stale content. No headless browser is
+  available in this environment, so this must be confirmed on a **Vercel preview deploy**: open
+  `/blog/using-reddit-marketing` and confirm the visible body is the reddit-marketing article (not
+  viral-negative). This matches the proven old `build_blog.js`, which also left handover untouched.
 
 ### Phase 5 — Decap CMS  ☐
 - [ ] `public/admin/index.html` + `config.yml` (blog + case-studies collections + media).
