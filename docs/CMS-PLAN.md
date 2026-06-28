@@ -284,6 +284,16 @@ across tags):**
   back to `/assets/og-image.png`). `canonical`/`og:url` derived from slug. Title is HTML-escaped so
   the same value is safe in both attribute (`&quot;`) and text contexts (e.g. online-pharmacy's
   quoted title).
+- **Hero image (2026-06-29 follow-up).** Originally the visible hero `<img>` was left as the
+  template post's photo (no marker) — so every blog post showed viral-negative's hero. Fixed: added
+  `<!--CMS:HERO_SRC/HERO_ALT/HERO_W/HERO_H-->` markers (the framer CDN `srcset`/`sizes` were dropped
+  in favour of the local `/assets` image) and `patchBlogHandover` now also rewrites the handover
+  cover-image field (`src`/`srcSet`/`pixelWidth`/`pixelHeight`/`alt` at indices 16–20) so hydration
+  doesn't re-assert the template photo. New optional `coverAlt` frontmatter field (falls back to
+  title). Intrinsic dimensions are read from the file header by `imageSize()`. **Asset quirk:** the
+  local `blog-*.jpg` covers are actually **WebP** (RIFF/`VP8X`) with a `.jpg` extension — browsers
+  render them fine (content sniffing), and `imageSize()` handles WebP/PNG/JPEG. Heroes use the local
+  `/assets` image (not framer CDN) so marketer-uploaded covers will work going forward.
 - **Blog listing** (`templates/blog-index.html`) is a new **lightweight standalone page** (GA
   `G-NYP7J14402` + Figtree + dark theme + `<!--CMS:POSTS-->`), **not** a Framer export — no design
   source for a `/blog` listing exists in the repo. Known limitation; upgradeable if a Framer listing
