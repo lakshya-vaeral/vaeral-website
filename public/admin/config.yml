@@ -10,10 +10,12 @@ backend:
   # rules). At cutover (Phase 6) flip this to `main`.
   branch: feature/proper-cms
   # Self-hosted GitHub OAuth proxy (Vercel serverless fns in /api). base_url is
-  # the origin that hosts /api/auth + /api/callback. For preview-deploy testing,
-  # temporarily point this at the preview URL (and add that callback URL to the
-  # GitHub OAuth App). See docs/CMS-ADMIN-SETUP.md.
-  base_url: https://vaeral.com
+  # the origin that hosts /api/auth + /api/callback, and must match the origin
+  # /admin is loaded from + the GitHub OAuth App's callback URL.
+  # CURRENT (pre-cutover): the Vercel deploy of this branch, with Production
+  # Branch temporarily set to feature/proper-cms. At cutover (Phase 6) merge to
+  # main and switch this to https://vaeral.com. See docs/CMS-ADMIN-SETUP.md.
+  base_url: https://vaeral-website.vercel.app
   auth_endpoint: api/auth
 
 # Lets `npx decap-server` drive a local git checkout (only active on localhost;
