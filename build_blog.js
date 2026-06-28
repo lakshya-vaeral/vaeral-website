@@ -2,21 +2,27 @@ import fs from 'fs';
 import path from 'path';
 import * as cheerio from 'cheerio';
 
-const postsDir = path.join(process.cwd(), 'data', 'posts');
+const postsDir = path.join(process.cwd(), 'public', 'admin', 'data');
 const templatePath = path.join(process.cwd(), 'blog', 'viral-negative', 'index.html');
+const manifestPath = path.join(process.cwd(), 'public', 'admin', 'posts.json');
 
 function buildBlogs() {
     try {
         if (!fs.existsSync(postsDir)) {
-            console.log("No data/posts directory found. Skipping blog generation.");
+            console.log("No public/admin/data directory found. Skipping blog generation.");
+            // Create empty manifest
+            fs.writeFileSync(manifestPath, JSON.stringify([]));
             return;
         }
 
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
         const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.json'));
 
+        const manifest = [];
+
         if (files.length === 0) {
-            console.log("No blog posts found in data/posts. Skipping blog generation.");
+            console.log("No blog posts found. Skipping blog generation.");
+            fs.writeFileSync(manifestPath, JSON.stringify([]));
             return;
         }
 
@@ -24,6 +30,13 @@ function buildBlogs() {
             const filePath = path.join(postsDir, file);
             const post = JSON.parse(fs.readFileSync(filePath, 'utf8'));
             
+            // Add to manifest
+            manifest.push({
+                title: post.title,
+                slug: post.slug,
+                date: post.date
+            });
+
             console.log(`Generating HTML for: ${post.slug}`);
             const $ = cheerio.load(templateHtml);
 
@@ -34,10 +47,8 @@ function buildBlogs() {
             $('meta[name="twitter:title"]').attr('content', post.title);
 
             // 2. Replace the Body
-            // We find the parent container of the original article text.
             const originalTextNode = $('*').filter((i, el) => $(el).text().includes("Reddit has a way of catching brands")).first();
             if (originalTextNode.length) {
-                // The body is exactly the innerHTML of the container from the Live Preview editor
                 originalTextNode.parent().html(post.body);
             }
 
@@ -48,6 +59,12 @@ function buildBlogs() {
             
             console.log(`Saved ${post.slug} successfully!`);
         }
+
+        // Save manifest for the Dashboard Hub
+        manifest.sort((a, b) => new Date(b.date) - new Date(a.date));
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+        console.log("Saved posts.json manifest successfully.");
+
     } catch (err) {
         console.error("Error building blogs:", err.message);
     }
