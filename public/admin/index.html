@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaeral Admin</title>
+    <!-- Include Quill stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --primary: #ffffff;
+            --primary-hover: #e4e4e7;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            margin: 40px 20px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #52525b;
+        }
+
+        /* Quill overrides for dark mode */
+        .ql-toolbar.ql-snow {
+            background: #27272a;
+            border: 1px solid var(--border);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .ql-container.ql-snow {
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            background: var(--bg);
+            min-height: 300px;
+            font-size: 16px;
+        }
+        .ql-snow .ql-stroke {
+            stroke: #a1a1aa;
+        }
+        .ql-snow .ql-fill {
+            fill: #a1a1aa;
+        }
+        .ql-snow .ql-picker {
+            color: #a1a1aa;
+        }
+        
+        button {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--bg);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Vaeral Blog Admin</h1>
+        
+        <form id="publishForm">
+            <div class="form-group">
+                <label for="password">Admin Password</label>
+                <input type="password" id="password" required placeholder="Enter the secure admin password">
+            </div>
+
+            <div class="form-group">
+                <label for="title">Post Title</label>
+                <input type="text" id="title" required placeholder="e.g. How to use Reddit Marketing">
+            </div>
+
+            <div class="form-group">
+                <label for="slug">URL Slug</label>
+                <input type="text" id="slug" required placeholder="e.g. reddit-marketing-guide" pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens">
+            </div>
+
+            <div class="form-group">
+                <label>Post Body</label>
+                <div id="editor"></div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                Publish Post <div class="spinner" id="spinner"></div>
+            </button>
+        </form>
+
+        <div id="statusMsg" class="status"></div>
+    </div>
+
+    <!-- Include the Quill library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        // Initialize Quill editor
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function(e) {
+            const slugInput = document.getElementById('slug');
+            if (!slugInput.dataset.manual) {
+                slugInput.value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            }
+        });
+        
+        document.getElementById('slug').addEventListener('input', function() {
+            this.dataset.manual = 'true';
+        });
+
+        document.getElementById('publishForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const statusMsg = document.getElementById('statusMsg');
+            
+            const password = document.getElementById('password').value;
+            const title = document.getElementById('title').value;
+            const slug = document.getElementById('slug').value;
+            const body = quill.root.innerHTML;
+
+            if (quill.getText().trim().length === 0) {
+                statusMsg.className = 'status error';
+                statusMsg.textContent = 'Post body cannot be empty.';
+                return;
+            }
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            statusMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password, title, slug, body })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusMsg.className = 'status success';
+                    statusMsg.textContent = data.message;
+                    // Reset form except password
+                    document.getElementById('title').value = '';
+                    document.getElementById('slug').value = '';
+                    document.getElementById('slug').dataset.manual = '';
+                    quill.setContents([]);
+                } else {
+                    throw new Error(data.error || 'Failed to publish post');
+                }
+            } catch (err) {
+                statusMsg.className = 'status error';
+                statusMsg.textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
