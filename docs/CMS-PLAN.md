@@ -1,6 +1,6 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phases 1–5 code DONE (Phase 5: 2026-06-29 — OAuth App/env/onboarding pending human action). **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Status:** Approved; Phases 1–5 DONE (Phase 5: 2026-06-29 — Decap CMS live + tested on the Vercel branch deploy). Phase 6 (cutover to `main`/`vaeral.com`) remaining. **Branch:** `feature/proper-cms` (all work here, never `main`).
 **Editor end-user:** non-technical marketer. **Last updated:** 2026-06-29.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
@@ -325,7 +325,7 @@ across tags):**
 - Re-verify after any change on a real browser: open `/blog/using-reddit-marketing`, let JS run, and
   confirm the body stays the reddit-marketing article (not viral-negative).
 
-### Phase 5 — Decap CMS  ☑ (2026-06-29, code) — OAuth App/env/onboarding pending human action
+### Phase 5 — Decap CMS  ☑ (2026-06-29) — DONE, tested end-to-end on the Vercel branch deploy
 - [x] `public/admin/index.html` → Decap loader (`decap-cms@^3`, `noindex`). `public/admin/config.yml`
       with **blog** + **case-studies** collections matching §3 frontmatter exactly (blog:
       title/slug/date/description/coverImage/coverAlt?/readTime?/draft/body; case study:
@@ -342,9 +342,24 @@ across tags):**
 - [x] Removed old CMS: `api/publish.js` (password publish), `public/admin/editor.html` (297KB
       contenteditable Framer copy), `setup_admin_ui.js` (LIVE ADMIN injector). No live code referenced
       them. CLAUDE.md "old CMS" note updated to past tense.
-- [ ] **Human action (one-time, see [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md)):** create the GitHub
-      OAuth App (callback `https://vaeral.com/api/callback`), set the two Vercel env vars, add the
-      marketer as a **Write** collaborator, then run the **end-to-end publish test** on a preview deploy.
+- [x] **Human action (one-time, see [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md)):** GitHub OAuth App created,
+      two Vercel env vars set, marketer added as a **Write** collaborator. **End-to-end test PASSED
+      (2026-06-29)** on `https://vaeral-website.vercel.app/admin`: GitHub login round-trip, collections
+      load, edit → publish → commit → rebuild all work.
+
+**Test setup used (pre-cutover):** Vercel **Production Branch temporarily set to `feature/proper-cms`**
+so `https://vaeral-website.vercel.app` serves this branch (vaeral.com DNS not yet repointed). OAuth App
+homepage/callback + `config.yml` `base_url` all on `https://vaeral-website.vercel.app`. Root Directory left
+at repo root. At cutover (Phase 6): merge to `main`, flip Production Branch back to `main`, switch
+`base_url` + OAuth callback to `https://vaeral.com`.
+
+**Two blockers found & fixed during testing (2026-06-29):**
+- **`/admin` not shipped.** `build.js` copied only `public/assets` → `dist/assets`; Vercel serves only
+  `dist/`, so the Decap editor never reached `dist/admin` and `/admin` 404'd. Fixed: build now also copies
+  `public/admin` → `dist/admin` (commit `fe61481`).
+- **`config.yml` 404 at `/admin` (no trailing slash).** Decap's relative `config.yml` fetch resolved to
+  `/config.yml` at the site root. Fixed with an absolute `<link rel="cms-config-url" href="/admin/config.yml">`
+  in the loader (commit `b2e6ac6`).
 
 **Decisions (2026-06-29):** Used a **self-hosted OAuth proxy** (not a third-party like Netlify) since we're
 on Vercel — Decap `base_url`/`auth_endpoint` point at our own `/api`. `base_url: https://vaeral.com`;
