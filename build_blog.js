@@ -37,11 +37,8 @@ function buildBlogs() {
             // We find the parent container of the original article text.
             const originalTextNode = $('*').filter((i, el) => $(el).text().includes("Reddit has a way of catching brands")).first();
             if (originalTextNode.length) {
-                // Since the Admin Dashboard uses Quill (which outputs raw HTML)
-                // we can inject it directly into the parent container.
-                // We wrap it in a div that inherits the class to preserve styling.
-                const newHtml = `<div class="${originalTextNode.attr('class')}">${post.body}</div>`;
-                originalTextNode.parent().html(newHtml);
+                // The body is exactly the innerHTML of the container from the Live Preview editor
+                originalTextNode.parent().html(post.body);
             }
 
             // 3. Save the new HTML
