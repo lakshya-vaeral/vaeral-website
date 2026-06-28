@@ -4,6 +4,7 @@ slug: "using-reddit-marketing"
 date: 2026-04-08
 description: "Over 92% of buyers trust what laymen say more than standard ads, which is exactly why reddit marketing has become a must-have strategy to build genuine trust."
 coverImage: "/assets/blog-reddit-marketing.jpg"
+readTime: 6
 draft: false
 ---
 
