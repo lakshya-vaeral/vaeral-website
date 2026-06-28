@@ -1,6 +1,6 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phase 1 DONE (2026-06-28). **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Status:** Approved; Phases 1–2 DONE (2026-06-28). **Branch:** `feature/proper-cms` (all work here, never `main`).
 **Editor end-user:** non-technical marketer. **Last updated:** 2026-06-28.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
@@ -180,12 +180,34 @@ Tick boxes as you go. Each phase should end with a commit and a note here.
       the committed `dist/` for now; the build command gets wired in once `build.js` lands (Phase 4).
 - [x] Add `CLAUDE.md` + this plan.
 
-### Phase 2 — Content model & migration  ☐
-- [ ] Create `content/blog/` with the 2 existing posts converted HTML→Markdown
-      (`using-reddit-marketing`, `viral-negative`).
-- [ ] Create `content/case-studies/` with the 5 case studies (all source HTML in hand, §4).
-- [ ] Clean migration artifacts: the corrupted "**esults**" heading and encoding mojibake
-      (`brandâs`→`brand's`, `3.2Ã`→`3.2×`, `Â©ï¸`→`©`, etc.).
+### Phase 2 — Content model & migration  ☑ (2026-06-28)
+- [x] Create `content/blog/` with the 2 existing posts converted HTML→Markdown
+      (`using-reddit-marketing`, `viral-negative`). Dates taken from each page's own
+      visible header: `2026-04-08` and `2022-03-15`. Covers point at the existing local
+      assets (`/assets/blog-reddit-marketing.jpg`, `/assets/blog-viral-negative.jpg`).
+- [x] Create `content/case-studies/` with the 5 case studies (§4). Tags captured per-page
+      (they vary). No per-page date exists in the source, so all 5 use `date: 2026-05-27`
+      (the §3 reference date) — adjust later if real dates surface. `coverImage` points at the
+      shared `/assets/case-study-hero.jpg` (only localized case-study asset; optional field).
+      `description` derived from each Problem intro (~160 chars) since the source `<head>` only
+      carries the generic homepage meta.
+- [x] Clean migration artifacts. **Findings (2026-06-28):**
+      - Dropped the corrupted "**esults**" paragraph after every Results heading.
+      - **No mojibake in `templates/source/*.html`** — all 5 are clean (0 high-byte
+        sequences); `3.2×`, `©️` etc. are already correct. The mojibake noted earlier
+        (`brandâs`, `3.2Ã`, `Â©ï¸`) lived in the older live-page snapshot, not these sources,
+        so no character fixups were needed.
+      - Unwrapped `<strong>`-wrapped section bodies (kept inline stat emphasis like
+        `**84%**`, `**3.2× increase**`). H3 sub-headings were also `<strong>`-wrapped — unwrapped.
+      - Excluded the hidden duplicate bottom title by stopping extraction at the footer
+        ("Join newsletter").
+      - Stripped silver-jewellery's redundant `The Problem:` body prefix (duplicated the heading).
+- **Known fidelity note:** 4 of 5 case studies (holiday, premium-pet, b2b-fintech,
+  silver-jewellery) authored their Results as a single flat run of text in the source (no
+  `<li>`/`<br>` — some stats run together, e.g. "693 comments 350+ neutralisation"). Migrated
+  faithfully as single paragraphs rather than inventing bullet boundaries; only `online-pharmacy`
+  has a real bullet list. The marketer can reformat in the CMS later.
+- **Commits:** `cce55fb` (blog), `52305cd` (case studies).
 
 ### Phase 3 — Templates  ☐
 - [ ] `templates/blog.html` with `<!--CMS:*-->` markers.
