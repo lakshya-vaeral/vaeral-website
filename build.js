@@ -63,6 +63,48 @@ function absImage(coverImage) {
   return /^https?:\/\//.test(coverImage) ? coverImage : SITE + coverImage;
 }
 
+// Intrinsic dimensions of a local image, read straight from the file header (JPEG/PNG).
+// Used only as an aspect-ratio hint — the hero renders at 100%x100% with object-fit:cover —
+// so a sensible fallback is harmless if a format isn't recognised.
+function imageSize(coverImage) {
+  const fallback = { width: 1600, height: 900 };
+  if (!coverImage || /^https?:\/\//.test(coverImage)) return fallback;
+  const file = path.join(PUBLIC_ASSETS, path.basename(coverImage));
+  if (!fs.existsSync(file)) return fallback;
+  const buf = fs.readFileSync(file);
+  // PNG: width/height are big-endian u32 in the IHDR chunk at bytes 16/20.
+  if (buf.length > 24 && buf.readUInt32BE(0) === 0x89504e47) {
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  }
+  // WebP (RIFF....WEBP) — these local assets are WebP despite a .jpg extension.
+  if (buf.length > 30 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+    const fourcc = buf.toString('ascii', 12, 16);
+    if (fourcc === 'VP8X') {
+      return { width: (buf.readUIntLE(24, 3) & 0xffffff) + 1, height: (buf.readUIntLE(27, 3) & 0xffffff) + 1 };
+    }
+    if (fourcc === 'VP8 ') {
+      return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+    }
+    if (fourcc === 'VP8L') {
+      const b = buf.readUInt32LE(21);
+      return { width: (b & 0x3fff) + 1, height: ((b >> 14) & 0x3fff) + 1 };
+    }
+  }
+  // JPEG: scan segments for a Start-Of-Frame marker; height/width follow at +5/+7.
+  if (buf.length > 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < buf.length) {
+      if (buf[i] !== 0xff) { i++; continue; }
+      const marker = buf[i + 1];
+      const isSOF = marker >= 0xc0 && marker <= 0xcf &&
+        marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+      if (isSOF) return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+  }
+  return fallback;
+}
+
 // Replace every <!--CMS:KEY--> with value (split/join avoids regex-escaping the value).
 function fill(template, map) {
   let out = template;
@@ -230,16 +272,19 @@ function mdToFramerBody(markdown) {
 }
 
 // Positional value indices in templates/blog.html's handover (current-record fields).
-const HANDOVER = { TITLE: 7, DESCRIPTION: 9, DATE: 12, READTIME: 22, BODY: 27 };
+// Cover image is a responsiveimage object: {src:16, srcSet:17, pixelWidth:18, pixelHeight:19, alt:20}.
+const HANDOVER = { TITLE: 7, DESCRIPTION: 9, DATE: 12, READTIME: 22, BODY: 27,
+  IMG_SRC: 16, IMG_SRCSET: 17, IMG_W: 18, IMG_H: 19, IMG_ALT: 20 };
 
-function patchBlogHandover(html, a, body) {
+function patchBlogHandover(html, a, body, hero) {
   const re = /(<script[^>]*id="__framer__handoverData"[^>]*>)([\s\S]*?)(<\/script>)/;
   if (!re.test(html)) throw new Error('blog handover island not found in template');
   return html.replace(re, (_m, open, json, close) => {
     const arr = JSON.parse(json);
     // Fail loudly if the template's handover layout drifts — never silently corrupt.
     const shapeOk =
-      arr[6] === 'string' && arr[11] === 'date' && arr[24] === 'richtext' &&
+      arr[6] === 'string' && arr[11] === 'date' && arr[14] === 'responsiveimage' &&
+      arr[24] === 'richtext' &&
       typeof arr[HANDOVER.BODY] === 'string' && arr[HANDOVER.BODY].startsWith('[1,');
     if (!shapeOk) throw new Error('blog handover layout changed — re-map HANDOVER indices in build.js');
     arr[HANDOVER.TITLE] = a.title;
@@ -247,6 +292,12 @@ function patchBlogHandover(html, a, body) {
     arr[HANDOVER.DATE] = isoDate(a.date);
     arr[HANDOVER.READTIME] = readTimeLabel(a, body);
     arr[HANDOVER.BODY] = mdToFramerBody(body);
+    // Cover image (so hydration doesn't re-assert the template post's hero photo).
+    arr[HANDOVER.IMG_SRC] = hero.src;
+    arr[HANDOVER.IMG_SRCSET] = hero.src; // single local file, no responsive variants
+    arr[HANDOVER.IMG_W] = hero.width;
+    arr[HANDOVER.IMG_H] = hero.height;
+    arr[HANDOVER.IMG_ALT] = hero.alt;
     return open + JSON.stringify(arr) + close;
   });
 }
@@ -281,6 +332,7 @@ function renderChips(tags) {
 
 function buildBlogPost({ attributes: a, body }) {
   const url = `${SITE}/blog/${a.slug}`;
+  const hero = { src: a.coverImage || '/assets/og-image.png', alt: a.coverAlt || a.title, ...imageSize(a.coverImage) };
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
     DESCRIPTION: escapeHtml(a.description),
@@ -289,10 +341,14 @@ function buildBlogPost({ attributes: a, body }) {
     DATE: escapeHtml(fmtDate(a.date)),
     DATETIME: escapeHtml(isoDate(a.date)),
     READTIME: escapeHtml(readTimeLabel(a, body)),
+    HERO_SRC: escapeHtml(hero.src),
+    HERO_ALT: escapeHtml(hero.alt),
+    HERO_W: String(hero.width),
+    HERO_H: String(hero.height),
     BODY: restyle(marked.parse(body), BLOG_PRESETS),
   });
   // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
-  html = patchBlogHandover(html, a, body);
+  html = patchBlogHandover(html, a, body, hero);
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
