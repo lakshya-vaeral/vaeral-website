@@ -1,24 +1,16 @@
 {
-  "name": "vaeral-self-hosted",
+  "name": "vaeral-website",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node build_blog.js",
-    "preview": "vite preview --port 4173"
+    "build": "node build_blog.js",
+    "preview": "npx serve dist"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "front-matter": "^4.0.2",
-    "marked": "^18.0.5",
-    "puppeteer": "^25.2.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.2"
+    "marked": "^18.0.5"
   }
 }
