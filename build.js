@@ -24,6 +24,8 @@ const TEMPLATES = path.join(ROOT, 'templates');
 const DIST = path.join(ROOT, 'dist');
 const PUBLIC_ASSETS = path.join(ROOT, 'public', 'assets');
 const DIST_ASSETS = path.join(DIST, 'assets');
+const PUBLIC_ADMIN = path.join(ROOT, 'public', 'admin');
+const DIST_ADMIN = path.join(DIST, 'admin');
 // Source of truth for the tag-chip markup (byte-exact Framer prototype).
 const CHIP_SOURCE = path.join(TEMPLATES, 'source', 'online-pharmacy.html');
 
@@ -410,6 +412,9 @@ function main() {
 
   // Ship CMS-uploaded / localized images into the deploy root.
   copyDir(PUBLIC_ASSETS, DIST_ASSETS);
+
+  // Ship the Decap CMS editor (index.html + config.yml) so /admin is served.
+  copyDir(PUBLIC_ADMIN, DIST_ADMIN);
 
   const blog = readMarkdownDir(path.join(CONTENT, 'blog'));
   const cases = readMarkdownDir(path.join(CONTENT, 'case-studies'));

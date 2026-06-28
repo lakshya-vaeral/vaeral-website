@@ -1,0 +1,75 @@
+# Decap CMS configuration for the Vaeral site.
+# The marketer edits forms here; Decap commits Markdown to GitHub; Vercel
+# rebuilds (npm run build → node build.js) and serves dist/. See docs/CMS-PLAN.md.
+
+backend:
+  name: github
+  repo: lakshya-vaeral/vaeral-website
+  # Branch Decap reads from and commits to. While the CMS is still being rolled
+  # out this stays on the feature branch (production main is untouched per house
+  # rules). At cutover (Phase 6) flip this to `main`.
+  branch: feature/proper-cms
+  # Self-hosted GitHub OAuth proxy (Vercel serverless fns in /api). base_url is
+  # the origin that hosts /api/auth + /api/callback. For preview-deploy testing,
+  # temporarily point this at the preview URL (and add that callback URL to the
+  # GitHub OAuth App). See docs/CMS-ADMIN-SETUP.md.
+  base_url: https://vaeral.com
+  auth_endpoint: api/auth
+
+# Lets `npx decap-server` drive a local git checkout (only active on localhost;
+# harmless in production). Run the proxy-free local flow per the setup doc.
+local_backend: true
+
+# Uploaded images land in public/assets (build syncs → dist/assets) and are
+# referenced in content as /assets/<file>, matching the existing content.
+media_folder: "public/assets"
+public_folder: "/assets"
+
+collections:
+  # ---------------------------------------------------------------- Blog posts
+  - name: "blog"
+    label: "Blog posts"
+    folder: "content/blog"
+    extension: "md"
+    format: "frontmatter"
+    create: true
+    slug: "{{fields.slug}}"          # filename = slug = output folder name
+    identifier_field: title
+    summary: "{{title}}  ·  /blog/{{slug}}"
+    editor:
+      preview: false                 # Framer design can't render here; avoid a misleading preview
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "URL slug", name: "slug", widget: "string", hint: "Lowercase words with hyphens. Becomes /blog/<slug>. Don't change after publishing — it changes the URL." }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { label: "Description", name: "description", widget: "text", hint: "Meta description + listing excerpt. ~150–160 characters." }
+      - { label: "Cover image", name: "coverImage", widget: "image", choose_url: false, media_library: { config: { multiple: false } } }
+      - { label: "Cover image alt text", name: "coverAlt", widget: "string", required: false, hint: "Describes the cover image for screen readers / SEO. Optional — falls back to the title." }
+      - { label: "Read time (minutes)", name: "readTime", widget: "number", required: false, value_type: "int", min: 1, hint: "Optional. Leave blank to auto-calculate from word count." }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # --------------------------------------------------------------- Case studies
+  - name: "case-studies"
+    label: "Case studies"
+    folder: "content/case-studies"
+    extension: "md"
+    format: "frontmatter"
+    create: true
+    slug: "{{fields.slug}}"          # filename = slug = top-level output folder
+    identifier_field: title
+    summary: "{{title}}  ·  /{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "URL slug", name: "slug", widget: "string", hint: "Lowercase words with hyphens. Becomes /<slug> (top level). Don't change after publishing — it changes the URL." }
+      - { label: "Category", name: "category", widget: "string", hint: "e.g. \"Online Pharmacy / Health & Wellness\". Shown under the title." }
+      - { label: "Tags", name: "tags", widget: "list", hint: "The badge chips. Press enter after each tag." }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { label: "Description", name: "description", widget: "text", hint: "Meta / social-share description. ~150–160 characters." }
+      - { label: "Cover image", name: "coverImage", widget: "image", required: false, choose_url: false, media_library: { config: { multiple: false } } }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "The Problem", name: "problem", widget: "markdown", hint: "Rich text for the \"The Problem\" section." }
+      - { label: "What We Did", name: "whatWeDid", widget: "markdown", hint: "Rich text for the \"What We Did\" section." }
+      - { label: "The Results", name: "results", widget: "markdown", hint: "Rich text for the \"The Results\" section. Use a bulleted list for stats." }
