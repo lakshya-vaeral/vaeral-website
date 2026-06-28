@@ -368,9 +368,88 @@ preview testing requires temporarily pointing `base_url` + the OAuth App callbac
 rule "never touch main" holds until cutover. Setup steps a human must do are in CMS-ADMIN-SETUP.md (the
 OAuth App + secrets + collaborator invite can't be done from code).
 
-### Phase 6 — Polish & launch  ☐
-- [ ] Per-post SEO/OG, image upload flow, sitemap if needed, GA stays `G-NYP7J14402`.
-- [ ] Redirects for any changed URLs. Full QA on mobile + desktop. Cut over.
+### Phase 6 — Cutover to production (`main` / `vaeral.com`)  ☐
+
+Goal: move the CMS from the pre-cutover test setup (Production Branch =
+`feature/proper-cms`, everything pointed at `vaeral-website.vercel.app`) to real
+production (Production Branch = `main`, everything on `vaeral.com`) **with no
+broken login window and a clean rollback**. Most steps are Vercel/GitHub dashboard
+actions by a human; the two repo edits are flagged **[repo]** (a dev/AI does them).
+
+**Who/what holds the moving parts (so nothing is forgotten):**
+- **Vercel project** — Production Branch, domains/DNS, env vars, build settings.
+- **GitHub** — the repo, the OAuth App (Client ID/secret), the marketer's collaborator access.
+- **This repo** — `public/admin/config.yml` (`base_url`, `backend.branch`).
+- The Framer CDN dependency and homepage hardcoded cards are unchanged (see §9).
+
+#### 6.0 Pre-flight (before touching anything)
+- [ ] Confirm Phase 5 still green on `vaeral-website.vercel.app/admin` (login + publish).
+- [ ] Note the **current production** that `vaeral.com` serves today (the old Framer
+      site on a different host, or nothing). Have its DNS records saved so rollback is possible.
+- [ ] Decide OAuth App strategy: **(A)** reuse the one OAuth App and repoint its
+      callback to `vaeral.com` (simplest; briefly breaks login on the `.vercel.app`
+      URL), or **(B)** create a second "Vaeral CMS (prod)" OAuth App for `vaeral.com`
+      and keep the test app for `.vercel.app`. **Recommended: A** (one source of truth).
+
+#### 6.1 Cutover sequence (ordered to avoid a broken-login window)
+1. [ ] **Add the domain in Vercel** (Project → Settings → Domains → add `vaeral.com`,
+       and `www.vaeral.com` if used). Update DNS at the registrar per Vercel's
+       instructions; wait for Vercel to show **Valid Configuration** + issued SSL.
+       At this point `vaeral.com` serves the *current production deployment* (still
+       the `feature/proper-cms` branch build — fine, it's the same code).
+2. [ ] **[repo]** Edit `public/admin/config.yml`: `base_url: https://vaeral.com` and
+       `backend.branch: main`. Commit on `feature/proper-cms`.
+       (Exact diff: the two lines changed from `https://vaeral-website.vercel.app`
+       and `feature/proper-cms`. `npm run build` to refresh `dist/admin/config.yml`,
+       commit both. **Do this just before the merge** — once changed, `/admin` only
+       works at `vaeral.com`, so don't apply it while still testing on `.vercel.app`.)
+3. [ ] **Open PR `feature/proper-cms` → `main` and merge** (the first time `main` is
+       touched — Phase-6-only, per house rules). After merge, `main` contains the full
+       CMS incl. the `vaeral.com` config.
+4. [ ] **Update the GitHub OAuth App** (strategy A): Homepage `https://vaeral.com`,
+       Authorization callback `https://vaeral.com/api/callback`.
+5. [ ] **Flip Vercel Production Branch → `main`** (Settings → Git). Trigger/await the
+       production build of `main`. `vaeral.com` now serves `main`.
+6. [ ] **Verify env vars** still set on Production scope: `OAUTH_GITHUB_CLIENT_ID`,
+       `OAUTH_GITHUB_CLIENT_SECRET` (redeploy if you changed them).
+
+#### 6.2 Post-cutover verification (do all on `vaeral.com`)
+- [ ] `vaeral.com/admin` loads the config (no 404), shows **Login with GitHub**.
+- [ ] Login round-trips through `vaeral.com/api/auth` → GitHub → `/api/callback` → editor.
+- [ ] Both collections list existing entries (now read from `main`).
+- [ ] Make a trivial edit → **Publish** → confirm the commit lands on **`main`** →
+      Vercel production rebuilds → change is live on `vaeral.com`.
+- [ ] Image upload: add a cover via the CMS → confirm it commits to `public/assets`
+      and renders at `/assets/...` after rebuild.
+- [ ] Spot-check a blog post and a case study page render correctly (hydration intact —
+      see §5/Phase-4 hydration note) on **mobile + desktop**.
+- [ ] All 5 case-study routes + 2 blog routes resolve (incl. the `holiday-memebership`
+      typo'd slug). `/blog` listing renders.
+
+#### 6.3 Cleanup
+- [ ] Delete unused legacy Vercel env vars: `ADMIN_PASSWORD`, `GITHUB_PAT`, `GITHUB_REPO`.
+- [ ] (Optional) Delete the merged `feature/proper-cms` branch, or keep it for history.
+- [ ] (Optional) Restrict/secure `/admin` further if desired (it's `noindex`; access is
+      already gated by GitHub repo write-access — only collaborators can publish).
+
+#### 6.4 Polish (can ship before or after cutover)
+- [ ] **SEO/OG:** per-post `og:image`/`canonical`/`og:url` already generated by `build.js`
+      (Phase 4). Confirm they're correct on a couple of live pages; add a default OG image
+      check. GA stays **`G-NYP7J14402`** (present in templates + blog listing).
+- [ ] **Sitemap/robots:** add `dist/sitemap.xml` (+ reference in `robots.txt`) if SEO wants
+      one — not currently generated. Low priority; note as a follow-up if skipped.
+- [ ] **Redirects:** no URL changes are expected (blog `/blog/<slug>`, case studies `/<slug>`
+      match the old routes). If any slug changed, add a Vercel redirect. Verify no 404s from
+      external inbound links.
+- [ ] **Homepage cards** for new content stay manual (§9, accepted) — brief the marketer that
+      new posts appear on `/blog` and at their own URL, but the homepage feature cards are a
+      dev task until/unless the build is extended.
+
+#### 6.5 Rollback (if cutover misbehaves)
+- [ ] Flip Vercel **Production Branch back to `feature/proper-cms`** (instant revert to the
+      known-good test build) — or repoint `vaeral.com` DNS back to the old host using the saved
+      records. Revert the OAuth App callback to `vaeral-website.vercel.app` if you changed it.
+      `main` already has the code, so re-cutover later is just the branch flip again.
 
 ---
 
@@ -391,3 +470,39 @@ OAuth App + secrets + collaborator invite can't be done from code).
 - **Full build:** after Phase 4, `npm run build` → regenerates `dist/`.
 - **Decap admin locally:** `npx decap-server` + open `/admin` (after Phase 5), or test on a
   Vercel preview deploy. `vercel dev` runs serverless functions (the OAuth proxy) locally.
+
+## 11. Handover — onboarding a new developer
+
+Everything needed to *understand and continue* the work is committed: this plan
+(decisions + dates + phase status), [CLAUDE.md](../CLAUDE.md) (house rules +
+orientation), [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md) (OAuth/admin setup), the
+build (`build.js`), templates (`templates/`), content (`content/`), the Decap
+editor (`public/admin/`), and the OAuth proxy (`api/auth.js`, `api/callback.js`).
+A new dev can read those and pick up with full context.
+
+**What is deliberately NOT in the repo (must be transferred out-of-band — these
+are secrets/access, not code):**
+- **GitHub OAuth App** Client ID + **Client secret** — live only in the GitHub
+  OAuth App settings and the Vercel env vars (`OAUTH_GITHUB_CLIENT_ID`,
+  `OAUTH_GITHUB_CLIENT_SECRET`). A new dev needs access to the GitHub account/org
+  (`lakshya-vaeral`) that owns the OAuth App, or must register a new one.
+- **Vercel project access** — Production Branch, domains/DNS, env vars, build
+  settings all live in the Vercel dashboard. Invite the new dev to the Vercel team.
+- **GitHub repo admin** — to manage the marketer's collaborator access and the
+  OAuth App. Invite the new dev with appropriate rights.
+- The **marketer's GitHub account** (the publishing identity) — just needs Write
+  collaborator access on the repo; not a secret, but worth noting who it is.
+
+**First-15-minutes checklist for the new dev:**
+1. Read [CLAUDE.md](../CLAUDE.md) then this plan top-to-bottom.
+2. `npm install` (package-lock is gitignored; deps: cheerio/marked/front-matter/dotenv).
+3. `npm run build` → confirm `dist/` regenerates clean (incl. `dist/admin/`).
+4. Get invited to the **Vercel project** and **GitHub repo**; locate the OAuth App.
+5. Current state: **Phases 1–5 done**, CMS live + tested on `vaeral-website.vercel.app`
+   (Production Branch temporarily on `feature/proper-cms`). **Phase 6 (cutover) is next** — §8.
+
+**Gotchas already paid for (don't rediscover them):** `/admin` must be copied into
+`dist/` by the build; Decap needs the absolute `cms-config-url` link or it 404s the
+config at `/admin`; blog pages need the `framer/handover` CMS record patched or
+hydration clobbers injected content (Phase 4); local `blog-*.jpg` covers are actually
+WebP; keep the `holiday-memebership` typo'd slug.
