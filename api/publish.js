@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const filePath = `data/posts/${slug}.json`;
+        const filePath = `public/admin/data/${slug}.json`;
         const fileContent = JSON.stringify({ title, slug, body, date: new Date().toISOString() }, null, 2);
         const encodedContent = Buffer.from(fileContent).toString('base64');
 
