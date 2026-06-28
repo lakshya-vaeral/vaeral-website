@@ -178,6 +178,79 @@ function restyle(html, presets) {
   return $.html();
 }
 
+// --- Framer rich-text AST (blog handover hydration) ------------------------
+//
+// Blog pages are Framer CMS-collection pages: the runtime (script_main.mjs) hydrates
+// and re-renders title/date/read-time/body from an embedded CMS record in the
+// <script type="framer/handover"> island, overwriting the SSR DOM we injected. So a
+// post built from a shared template would show the TEMPLATE post's content after JS runs.
+// We therefore also rewrite that record. The body is stored as Framer's rich-text AST:
+//   element  -> [4, "tag", attrsObjOrNull, ...children]
+//   text     -> [5, "text"]
+//   document -> [1, ...blockNodes]
+// Blocks carry {"dir":"auto"}; headings wrap content in <strong>; NO Framer classes
+// (the RichText component applies presets on render). (Case-study pages are static —
+// their handover has no body — so they need no such patch.)
+
+const AST_BLOCK = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote']);
+const AST_HEADING = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+
+function nodeToAst($, el) {
+  if (el.type === 'text') {
+    if (/^\s*$/.test(el.data)) return null; // drop formatting whitespace between blocks
+    return [5, el.data];
+  }
+  if (el.type !== 'tag') return null;
+  const tag = el.name;
+  if (tag === 'br') return [4, 'br', null];
+
+  let kids = [];
+  for (const c of el.children || []) {
+    const a = nodeToAst($, c);
+    if (a) kids.push(a);
+  }
+  if (AST_HEADING.has(tag)) kids = [[4, 'strong', null, ...kids]];
+
+  let attrs;
+  if (AST_BLOCK.has(tag)) attrs = { dir: 'auto' };
+  else if (tag === 'a') attrs = { href: $(el).attr('href') || '', rel: 'noopener', target: '_blank' };
+  else attrs = null;
+
+  return [4, tag, attrs, ...kids];
+}
+
+function mdToFramerBody(markdown) {
+  const $ = cheerio.load(marked.parse(markdown || '')); // default decodeEntities -> real chars
+  const blocks = [];
+  $('body').contents().each((_, el) => {
+    const a = nodeToAst($, el);
+    if (a) blocks.push(a);
+  });
+  return JSON.stringify([1, ...blocks]);
+}
+
+// Positional value indices in templates/blog.html's handover (current-record fields).
+const HANDOVER = { TITLE: 7, DESCRIPTION: 9, DATE: 12, READTIME: 22, BODY: 27 };
+
+function patchBlogHandover(html, a, body) {
+  const re = /(<script[^>]*id="__framer__handoverData"[^>]*>)([\s\S]*?)(<\/script>)/;
+  if (!re.test(html)) throw new Error('blog handover island not found in template');
+  return html.replace(re, (_m, open, json, close) => {
+    const arr = JSON.parse(json);
+    // Fail loudly if the template's handover layout drifts — never silently corrupt.
+    const shapeOk =
+      arr[6] === 'string' && arr[11] === 'date' && arr[24] === 'richtext' &&
+      typeof arr[HANDOVER.BODY] === 'string' && arr[HANDOVER.BODY].startsWith('[1,');
+    if (!shapeOk) throw new Error('blog handover layout changed — re-map HANDOVER indices in build.js');
+    arr[HANDOVER.TITLE] = a.title;
+    arr[HANDOVER.DESCRIPTION] = a.description;
+    arr[HANDOVER.DATE] = isoDate(a.date);
+    arr[HANDOVER.READTIME] = readTimeLabel(a, body);
+    arr[HANDOVER.BODY] = mdToFramerBody(body);
+    return open + JSON.stringify(arr) + close;
+  });
+}
+
 // --- tag chips (byte-exact Framer prototype, text swapped) -----------------
 
 let _chipProtos = null;
@@ -208,7 +281,7 @@ function renderChips(tags) {
 
 function buildBlogPost({ attributes: a, body }) {
   const url = `${SITE}/blog/${a.slug}`;
-  const html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog.html'), 'utf8'), {
+  let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
     DESCRIPTION: escapeHtml(a.description),
     OG_IMAGE: escapeHtml(absImage(a.coverImage)),
@@ -218,6 +291,8 @@ function buildBlogPost({ attributes: a, body }) {
     READTIME: escapeHtml(readTimeLabel(a, body)),
     BODY: restyle(marked.parse(body), BLOG_PRESETS),
   });
+  // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
+  html = patchBlogHandover(html, a, body);
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
