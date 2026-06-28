@@ -1,6 +1,6 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phase 1 not started. **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Status:** Approved; Phase 1 DONE (2026-06-28). **Branch:** `feature/proper-cms` (all work here, never `main`).
 **Editor end-user:** non-technical marketer. **Last updated:** 2026-06-28.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
@@ -167,12 +167,17 @@ template fill; drop the "Reddit has a way" matching):
 
 Tick boxes as you go. Each phase should end with a commit and a note here.
 
-### Phase 1 — Cleanup & docs  ☐
-- [ ] Delete scratch files: `check_*.js`, `find_*.js`, `extract.js`, `replace_assets.js`,
-      `extracted_styles.css`. Remove `setup_admin_ui.js` once its output is captured in templates.
-- [ ] Rewrite `README.md` to describe reality (remove false "dependency-free", non-existent
+### Phase 1 — Cleanup & docs  ☑ (2026-06-28)
+- [x] Delete scratch files: `check_*.js`, `find_*.js`, `extract.js`, `replace_assets.js`,
+      `extracted_styles.css`. `setup_admin_ui.js` **kept** — remove it in Phase 5 once its
+      output is captured in templates.
+- [x] Rewrite `README.md` to describe reality (removed false "dependency-free", non-existent
       `src/`, `dist/styles.css`, `dist/app.js`, `_redirects` claims).
-- [ ] Fix `package.json` scripts and add `vercel.json`. Confirm Vercel project settings.
+- [x] Fix `package.json` scripts and add `vercel.json`. **Decisions (2026-06-28):** dropped the
+      dead Vite/React/puppeteer deps (no `src/`, no vite config); `build` → `node build_blog.js`,
+      `preview` → `npx serve dist`; kept `cheerio`/`marked`/`front-matter`/`dotenv`. `vercel.json`:
+      `outputDirectory: dist`, `cleanUrls: true`, **no build command** — Vercel statically serves
+      the committed `dist/` for now; the build command gets wired in once `build.js` lands (Phase 4).
 - [x] Add `CLAUDE.md` + this plan.
 
 ### Phase 2 — Content model & migration  ☐
