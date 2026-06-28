@@ -1,7 +1,7 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phases 1–2 DONE (2026-06-28). **Branch:** `feature/proper-cms` (all work here, never `main`).
-**Editor end-user:** non-technical marketer. **Last updated:** 2026-06-28.
+**Status:** Approved; Phases 1–3 DONE (Phase 3: 2026-06-29). **Branch:** `feature/proper-cms` (all work here, never `main`).
+**Editor end-user:** non-technical marketer. **Last updated:** 2026-06-29.
 **Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
 each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
 
@@ -209,10 +209,49 @@ Tick boxes as you go. Each phase should end with a commit and a note here.
   has a real bullet list. The marketer can reformat in the CMS later.
 - **Commits:** `cce55fb` (blog), `52305cd` (case studies).
 
-### Phase 3 — Templates  ☐
-- [ ] `templates/blog.html` with `<!--CMS:*-->` markers.
-- [ ] `templates/case-study.html` with `<!--CMS:*-->` markers.
+### Phase 3 — Templates  ☑ (2026-06-29)
+- [x] `templates/blog.html` with `<!--CMS:*-->` markers (from `blog/viral-negative/index.html`).
+- [x] `templates/case-study.html` with `<!--CMS:*-->` markers (from `templates/source/online-pharmacy.html`).
 - [x] 5 case-study source HTML files saved in `templates/source/<slug>.html` (done 2026-06-28).
+
+**How it was done (2026-06-29):** a one-shot cheerio generator (not kept — it's recoverable from
+`templates/source/` + this spec) loaded each source with `decodeEntities:false`, navigated by
+`data-framer-name`, and replaced container contents with comment markers. The deployed pages
+already round-trip through cheerio (the old `build_blog.js` writes `$.html()`), so generating the
+templates this way produces exactly what the build will emit — cheerio's reserialization
+(doctype case, quote/whitespace normalization) is the same churn the pipeline already accepts.
+Commit: `d7e085c`.
+
+**Marker vocabulary (shared tokens — Phase 4 does one string-replace per token; values repeat
+across tags):**
+- `CMS:TITLE` → `<title>`, `og:title`, `twitter:title`, visible `<h1>`, **and** the case study's
+  hidden Framer search-index mirror `<p>` (the only `<p>` with no `data-framer-name` ancestor —
+  selected structurally, not by text; blog has no such mirror).
+- `CMS:DESCRIPTION` → meta description, `og:description`, `twitter:description`.
+- `CMS:OG_IMAGE` → `og:image`, `twitter:image` (fill from frontmatter `coverImage`).
+- `CMS:URL` → `<link rel="canonical">`, `og:url` (derive from slug: blog `/blog/<slug>`,
+  case study `/<slug>`).
+- Blog body: `CMS:DATE` (inside `[data-framer-name="Date"] <time>`, datetime attr kept),
+  `CMS:BODY` (the inner article `[data-framer-name="Content"] > [data-framer-name="Content"]`).
+- Case study body (scoped to `Card CS › Content`): `CMS:CATEGORY` (kept inside its styled `<p>`),
+  `CMS:TAGS` (the `Highlights` chip group, emptied), `CMS:PROBLEM`/`CMS:WHATWEDID`/`CMS:RESULTS`
+  (the section body containers). The shared `data-framer-name="Short description"` was targeted
+  **positionally** within `Card CS › Content` (7 in order: category, _The Problem_, problem,
+  _What We Did_, whatwedid, _The Results_, results) — the 3 section **headings** stay static.
+
+**Targeting notes / decisions:**
+- Single-line fields (TITLE/CATEGORY/DATE) keep their styled inner element (`h1`/`p`/`time`) with
+  the marker inside, preserving the Framer text-preset classes. Rich/multi-paragraph fields
+  (BODY/PROBLEM/WHATWEDID/RESULTS/TAGS) empty the container; Phase 4 injects rendered markup. This
+  matches the proven old build (`originalTextNode.parent().html(post.body)`), so the inner
+  paragraphs lose their `.framer-text` classes — a **Phase 4 concern**: the build (and/or the
+  chip prototype recoverable from `templates/source/`) must re-emit styled markup for fidelity.
+- **Read time** ("8 min read") is left static — there is no frontmatter field for it (§3). Phase
+  4/6 can compute it from word count; flagged so it isn't shipped wrong silently.
+- **Hydration risk (§5) still open:** the Framer runtime's serialized component tree (a `<script>`
+  data island) still holds the *old* body text — the markers only touch the visible DOM, exactly
+  as the old build does. Whether hydration clobbers the injected content must be verified on the
+  first real build (Phase 4).
 
 ### Phase 4 — Build pipeline  ☐
 - [ ] `build.js` renders all content → `dist/...`. Verify hydration doesn't clobber content.
