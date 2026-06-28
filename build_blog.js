@@ -1,40 +1,29 @@
 import fs from 'fs';
 import path from 'path';
-import { createClient } from '@sanity/client';
 import * as cheerio from 'cheerio';
-import dotenv from 'dotenv';
-dotenv.config();
 
-// Initialize Sanity Client
-// We use process.env to allow the user to supply these via Vercel later
-const client = createClient({
-  projectId: process.env.SANITY_PROJECT_ID || 'your_project_id',
-  dataset: process.env.SANITY_DATASET || 'production',
-  useCdn: false, // Ensure fresh data on build
-  apiVersion: '2024-01-01',
-});
-
-// Read the master template (the viral-negative blog we perfected)
+const postsDir = path.join(process.cwd(), 'data', 'posts');
 const templatePath = path.join(process.cwd(), 'blog', 'viral-negative', 'index.html');
-const templateHtml = fs.readFileSync(templatePath, 'utf8');
 
-async function buildBlogs() {
+function buildBlogs() {
     try {
-        console.log("Fetching blog posts from Sanity...");
-        // Query Sanity for all blog posts
-        // This query expects a 'post' schema with title, slug, body, etc.
-        const posts = await client.fetch(`*[_type == "post"]{
-            title,
-            "slug": slug.current,
-            body
-        }`);
-
-        if (!posts || posts.length === 0) {
-            console.log("No blog posts found in Sanity. Skipping blog generation.");
+        if (!fs.existsSync(postsDir)) {
+            console.log("No data/posts directory found. Skipping blog generation.");
             return;
         }
 
-        for (const post of posts) {
+        const templateHtml = fs.readFileSync(templatePath, 'utf8');
+        const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.json'));
+
+        if (files.length === 0) {
+            console.log("No blog posts found in data/posts. Skipping blog generation.");
+            return;
+        }
+
+        for (const file of files) {
+            const filePath = path.join(postsDir, file);
+            const post = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            
             console.log(`Generating HTML for: ${post.slug}`);
             const $ = cheerio.load(templateHtml);
 
@@ -45,16 +34,14 @@ async function buildBlogs() {
             $('meta[name="twitter:title"]').attr('content', post.title);
 
             // 2. Replace the Body
-            // Framer encapsulates the rich text in a specific div.
             // We find the parent container of the original article text.
             const originalTextNode = $('*').filter((i, el) => $(el).text().includes("Reddit has a way of catching brands")).first();
             if (originalTextNode.length) {
-                // Here you would convert the Sanity Portable Text 'post.body' to HTML
-                // For simplicity in this skeleton, we inject raw HTML if it was provided,
-                // or just stringify the block. A proper Portable Text to HTML converter 
-                // like @portabletext/to-html should be used for rich text formatting.
-                const simpleBodyHtml = post.body.map(block => `<p class="${originalTextNode.attr('class')}">${block.children.map(c => c.text).join('')}</p>`).join('');
-                originalTextNode.parent().html(simpleBodyHtml);
+                // Since the Admin Dashboard uses Quill (which outputs raw HTML)
+                // we can inject it directly into the parent container.
+                // We wrap it in a div that inherits the class to preserve styling.
+                const newHtml = `<div class="${originalTextNode.attr('class')}">${post.body}</div>`;
+                originalTextNode.parent().html(newHtml);
             }
 
             // 3. Save the new HTML
@@ -65,8 +52,7 @@ async function buildBlogs() {
             console.log(`Saved ${post.slug} successfully!`);
         }
     } catch (err) {
-        // If the project ID isn't set, it will fail gracefully here
-        console.error("Error building blogs. Make sure SANITY_PROJECT_ID is configured:", err.message);
+        console.error("Error building blogs:", err.message);
     }
 }
 
