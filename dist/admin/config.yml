@@ -5,16 +5,12 @@
 backend:
   name: github
   repo: lakshya-vaeral/vaeral-website
-  # Branch Decap reads from and commits to. While the CMS is still being rolled
-  # out this stays on the feature branch (production main is untouched per house
-  # rules). At cutover (Phase 6) flip this to `main`.
-  branch: feature/proper-cms
+  # Branch Decap reads from and commits to. We are cutting over to main so
+  # that posts published in the CMS go live on the main deployment instantly.
+  branch: main
   # Self-hosted GitHub OAuth proxy (Vercel serverless fns in /api). base_url is
   # the origin that hosts /api/auth + /api/callback, and must match the origin
   # /admin is loaded from + the GitHub OAuth App's callback URL.
-  # CURRENT (pre-cutover): the Vercel deploy of this branch, with Production
-  # Branch temporarily set to feature/proper-cms. At cutover (Phase 6) merge to
-  # main and switch this to https://vaeral.com. See docs/CMS-ADMIN-SETUP.md.
   base_url: https://vaeral-website.vercel.app
   auth_endpoint: api/auth
 
