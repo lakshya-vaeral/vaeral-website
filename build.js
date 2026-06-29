@@ -454,6 +454,15 @@ function main() {
   buildBlogIndex(publishedPosts);
   console.log(`  ✓ blog listing -> dist/blog/index.html (${publishedPosts.length} posts)`);
 
+  // Force hard navigation for blog links on the homepage to bypass Framer SPA router
+  const indexFile = path.join(DIST, 'index.html');
+  if (fs.existsSync(indexFile)) {
+    let indexHtml = fs.readFileSync(indexFile, 'utf8');
+    indexHtml = indexHtml.replace(/href="\.\/blog/g, 'target="_top" href="/blog');
+    fs.writeFileSync(indexFile, indexHtml);
+    console.log(`  ✓ patched dist/index.html to disable SPA routing for /blog`);
+  }
+
   console.log(`\nBuild complete: ${publishedPosts.length} posts, ${cases.filter((c) => !c.attributes.draft).length} case studies.`);
 }
 
