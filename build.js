@@ -351,6 +351,18 @@ function buildBlogPost({ attributes: a, body }) {
   });
   // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
   html = patchBlogHandover(html, a, body, hero);
+  
+  // Inject CSS to disable the sticky scroll effect on the Newsletter box
+  html = html.replace('</head>', `
+<style>
+  @media (min-width: 1280px) {
+    .framer-1q32mfl {
+      position: static !important;
+    }
+  }
+</style>
+</head>`);
+
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
