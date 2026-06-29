@@ -399,7 +399,7 @@ function buildBlogPost({ attributes: a, body }) {
 
 function buildCaseStudy({ attributes: a }) {
   const url = `${SITE}/${a.slug}`;
-  const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
+  let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
     DESCRIPTION: escapeHtml(a.description),
     OG_IMAGE: escapeHtml(absImage(a.coverImage)),
@@ -433,7 +433,7 @@ function buildBlogIndex(posts) {
   const cards = ordered.length
     ? ordered.map(blogCard).join('\n')
     : '    <p class="empty">No posts published yet.</p>';
-  const html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog-index.html'), 'utf8'), {
+  let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog-index.html'), 'utf8'), {
     TITLE: escapeHtml('Blog — Vaeral'),
     URL: escapeHtml(`${SITE}/blog`),
     POSTS: cards,
