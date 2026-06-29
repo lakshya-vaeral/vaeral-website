@@ -416,7 +416,40 @@ function buildCaseStudy({ attributes: a }) {
   });
   html = disableSPARouting(html);
   writePage(path.join(DIST, a.slug), html);
-  return { slug: a.slug, title: a.title };
+  return { 
+    slug: a.slug, 
+    title: a.title, 
+    description: a.description, 
+    coverImage: a.coverImage, 
+    category: a.category, 
+    date: a.date 
+  };
+}
+
+function caseStudyCard(p) {
+  const cover = absImage(p.coverImage).replace(SITE, '');
+  return `    <a class="card" href="/${p.slug}">
+      <img class="cover" src="${escapeHtml(cover)}" alt="${escapeHtml(p.title)}" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>${escapeHtml(p.category || 'Case Study')}</span></div>
+        <h2>${escapeHtml(p.title)}</h2>
+        <p class="excerpt">${escapeHtml(p.description)}</p>
+        <span class="more">Read case study &rarr;</span>
+      </div>
+    </a>`;
+}
+
+function buildCaseStudyIndex(cases) {
+  const ordered = [...cases].sort((a, b) => toDate(b.date) - toDate(a.date));
+  const cards = ordered.length
+    ? ordered.map(caseStudyCard).join('\n')
+    : '    <p class="empty">No case studies published yet.</p>';
+  let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
+    TITLE: escapeHtml('Case Studies — Vaeral'),
+    URL: escapeHtml(`${SITE}/casestudies`),
+    CASES: cards,
+  });
+  writePage(path.join(DIST, 'casestudies'), disableSPARouting(html));
 }
 
 function blogCard(p) {
@@ -469,22 +502,38 @@ function main() {
     console.log(`  ✓ blog/${entry.attributes.slug} -> dist/blog/${entry.attributes.slug}/index.html`);
   }
 
+  const publishedCases = [];
   for (const entry of cases) {
     if (entry.attributes.draft) {
       console.log(`  · skip (draft): case-studies/${entry.file}`);
       continue;
     }
-    buildCaseStudy(entry);
+    publishedCases.push(buildCaseStudy(entry));
     console.log(`  ✓ case-study/${entry.attributes.slug} -> dist/${entry.attributes.slug}/index.html`);
   }
 
   buildBlogIndex(publishedPosts);
   console.log(`  ✓ blog listing -> dist/blog/index.html (${publishedPosts.length} posts)`);
+  
+  buildCaseStudyIndex(publishedCases);
+  console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
 
   // Force hard navigation for all internal links on the homepage to bypass Framer SPA router
   const indexFile = path.join(DIST, 'index.html');
   if (fs.existsSync(indexFile)) {
     let indexHtml = fs.readFileSync(indexFile, 'utf8');
+
+    // Inject "View all Case Studies" button
+    const buttonHtml = `\n<div class="framer-11slc2n-container" style="margin-top: 40px; display: flex; justify-content: center; width: 100%;"><a class="framer-7W2hy framer-HSXLe framer-1r2rpbk framer-v-1r2rpbk framer-wrl6m0" data-framer-name="Variant 1" target="_top" href="/casestudies"><div class="framer-12d9ns1" data-framer-component-type="RichTextContainer" style="--extracted-r6o4lv:var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255));--framer-link-text-color:rgb(0, 153, 255);--framer-link-text-decoration:underline;transform:none"><p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" style="--framer-text-color:var(--extracted-r6o4lv, var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255)))">View all Case Studies</p></div><div data-framer-component-type="SVG" data-framer-name="Icon" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1b8vfkj" aria-hidden="true" style="image-rendering:pixelated;flex-shrink:0;background-size:100% 100%;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 xmlns:xlink=%22http://www.w3.org/1999/xlink%22 viewBox=%220 0 16 14%22><path d=%22M 15.206 7.331 L 9.581 12.956 C 9.398 13.139 9.102 13.139 8.919 12.956 C 8.736 12.773 8.736 12.477 8.919 12.294 L 13.743 7.469 L 1.125 7.469 C 0.866 7.469 0.656 7.259 0.656 7 C 0.656 6.741 0.866 6.531 1.125 6.531 L 13.743 6.531 L 8.919 1.706 C 8.755 1.52 8.764 1.239 8.939 1.064 C 9.114 0.889 9.395 0.88 9.581 1.044 L 15.206 6.669 C 15.388 6.852 15.388 7.148 15.206 7.331 Z%22 fill=%22rgb(255,255,255)%22></path></svg>')"></div></a></div>\n`;
+    const $ = cheerio.load(indexHtml, { recognizeNoValueAttribute: true });
+    const grid = $('.framer-fbd1z7');
+    if (grid.length) {
+      const gridHtml = $.html(grid);
+      if (indexHtml.includes(gridHtml)) {
+        indexHtml = indexHtml.replace(gridHtml, gridHtml + buttonHtml);
+      }
+    }
+
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(indexFile, indexHtml);
     console.log(`  ✓ patched dist/index.html to disable SPA routing site-wide`);
