@@ -116,25 +116,29 @@ function fill(template, map) {
   return out;
 }
 
-// Disables Framer's SPA router for internal links so CMS-generated HTML is properly loaded.
-function disableSPARouting(html, isHomepage = false) {
-  let out = html;
-  if (isHomepage) {
-    // Fix anchor links on homepage so they smooth-scroll instead of reloading the page
-    out = out.replace(/href="\.\/#/g, 'href="#');
-  }
-  out = out.replace(/<a([^>]+)href="([^"]+)"([^>]*)>/g, (match, before, href, after) => {
-    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-      return match; // Keep anchor and mail links intact
-    }
-    if (/_blank/.test(before) || /_blank/.test(after)) {
-      return match; // Keep external links opening in new tabs intact
-    }
-    // Remove existing target attributes to prevent duplicates
-    const stripTarget = (str) => str.replace(/target="[^"]*"\s*/g, '');
-    return `<a${stripTarget(before)}target="_top" href="${href}"${stripTarget(after)}>`;
-  });
-  return out;
+// Disables Framer's SPA router for internal links by injecting a capture-phase click interceptor.
+// This survives React hydration and guarantees all cross-page links do a hard native navigation.
+function disableSPARouting(html) {
+  const script = `
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
+</body>`;
+  return html.replace('</body>', script);
 }
 
 function writePage(dir, html) {
