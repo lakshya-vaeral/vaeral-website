@@ -62,13 +62,13 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <a class="brand" target="_top" href="/"><img src="/assets/vaeral-logo.svg" alt="Vaeral" onerror="this.style.display='none'"></a>
-    <a class="home" target="_top" href="/">&larr; Back to home</a>
+    <a class="brand" href="/"><img src="/assets/vaeral-logo.svg" alt="Vaeral" onerror="this.style.display='none'"></a>
+    <a class="home" href="/">&larr; Back to home</a>
   </div>
   <h1 class="title">Blog</h1>
   <p class="lede">Field notes on Reddit, Quora and community-led marketing &mdash; how brands earn trust where buyers actually decide.</p>
   <div class="grid">
-    <a class="card" target="_top" href="/blog/test-blog-1">
+    <a class="card" href="/blog/test-blog-1">
       <img class="cover" src="/assets/og-image.png" alt="test blog 1" loading="lazy">
       <div class="body">
         <div class="meta"><span>Jun 28, 2026</span><span class="dot"></span><span>1 min read</span></div>
@@ -77,7 +77,7 @@
         <span class="more">Read article &rarr;</span>
       </div>
     </a>
-    <a class="card" target="_top" href="/blog/using-reddit-marketing">
+    <a class="card" href="/blog/using-reddit-marketing">
       <img class="cover" src="/assets/blog-reddit-marketing.jpg" alt="How to use reddit for marketing: A step-by-step guide" loading="lazy">
       <div class="body">
         <div class="meta"><span>Apr 8, 2026</span><span class="dot"></span><span>6 min read</span></div>
@@ -86,7 +86,7 @@
         <span class="more">Read article &rarr;</span>
       </div>
     </a>
-    <a class="card" target="_top" href="/blog/viral-negative">
+    <a class="card" href="/blog/viral-negative">
       <img class="cover" src="/assets/blog-viral-negative.jpg" alt="How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide" loading="lazy">
       <div class="body">
         <div class="meta"><span>Mar 15, 2022</span><span class="dot"></span><span>8 min read</span></div>
@@ -97,5 +97,23 @@
     </a>
   </div>
 </div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
 </body>
 </html>
