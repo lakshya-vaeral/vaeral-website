@@ -45,7 +45,7 @@ collections:
       - { label: "Cover image alt text", name: "coverAlt", widget: "string", required: false, hint: "Describes the cover image for screen readers / SEO. Optional — falls back to the title." }
       - { label: "Read time (minutes)", name: "readTime", widget: "number", required: false, value_type: "int", min: 1, hint: "Optional. Leave blank to auto-calculate from word count." }
       - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", hint: "Write the article content. Do not use Heading 1 or 2 (H1/H2) inside the body, as the Title is already the main heading. Use Heading 3 (H3) for main sections." }
 
   # --------------------------------------------------------------- Case studies
   - name: "case-studies"
