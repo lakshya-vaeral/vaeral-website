@@ -1,36 +1,51 @@
-﻿# Vaeral self-hosted rebuild
+# Vaeral website
 
-This repository contains a dependency-free static rebuild of the Framer-origin Vaeral site.
+Marketing site for **Vaeral** (vaeral.com) — a Reddit/Quora/ORM agency
 
-## Deployable output
+## What this actually is
 
-Use `dist/` as the deploy root for Vercel, Netlify, Cloudflare Pages, or any static host.
+The site was **designed and built in Framer**, then run through a third-party static
+exporter. The deployable files are large, frozen HTML exports that **still load fonts,
+images, and the Framer runtime from `framerusercontent.com`**. This is **not** a
+hand-written, dependency-free site — it depends on Framer's CDN at runtime.
 
-Key files:
-- `dist/index.html` - app shell, SEO metadata, Google Analytics, header/footer
-- `dist/styles.css` - responsive dark/purple visual system
-- `dist/app.js` - client-side routing, page content, carousel, mobile nav, newsletter state
-- `dist/assets/` - copied local assets from the Framer export
-- `dist/_redirects` and `dist/vercel.json` - SPA fallback rules
+We are **not rebuilding** the design. The Framer export stays as-is. The active work is
+replacing the old ad-hoc "CMS" with a proper, git-based one (Decap CMS) for blog posts and
+case studies. See [docs/CMS-PLAN.md](docs/CMS-PLAN.md) for the full plan and
+[CLAUDE.md](CLAUDE.md) for orientation.
 
-Physical route folders are also present in `dist/` so direct URLs work on simple static servers that do not support rewrites.
+## Layout
 
-## Local preview
+- `index.html` — the localized/anti-edit-patched Framer homepage export (~700KB).
+- `vaeral_live.html` — the raw original homepage export (kept for reference).
+- `dist/` — the deployed output: homepage (`dist/index.html`) + localized `dist/assets/`.
+  This is the deploy root.
+- `blog/<slug>/index.html` — published blog posts. `blog/viral-negative` is the template source.
+- `templates/source/<slug>.html` — the 5 case-study source pages (CMS migration source of truth).
+- `public/admin/` — the CMS UI (old custom dashboard, being replaced by Decap).
+- `public/assets/`, `dist/assets/` — localized images (logo, og, founder, etc.).
+- `build_blog.js` — current blog build (to be rewritten as a marker-based `build.js`, Phase 4).
+
+## Dependencies
+
+Runtime: the published pages pull fonts/images/runtime from `framerusercontent.com`.
+
+Build tooling (Node): `cheerio` (template fill), `marked` (Markdown → HTML), `front-matter`
+(parse content frontmatter). There is **no** Vite/React app — content flows through the
+build pipeline, not a SPA.
+
+## Running locally
+
+Static site — no build needed just to view the homepage:
 
 ```bash
-npm run preview
+npx serve dist
 ```
 
-Then open http://127.0.0.1:4173/.
+Blog pages and the admin UI require the build / the `public/` copy. The full Decap + Vercel
+dev flow is documented in [docs/CMS-PLAN.md](docs/CMS-PLAN.md) §10.
 
-## Verification
+## Hosting
 
-```bash
-npm run build
-```
-
-This performs a JavaScript syntax check for the static router. Browser checks were run against the local preview for homepage, blog routes, case-study routes, utility routes, and mobile nav.
-
-## Notes
-
-A Vite/React source scaffold is present under `src/`, but the production deliverable is the static `dist/` build. Vite build execution was blocked in this sandbox by `esbuild` spawn permissions, so the final deliverable avoids any runtime or build dependency on Vite, React, Framer, or Framer Motion.
+Deployed on **Vercel**; source of truth is this Git repo. Pushing to `main` triggers a
+rebuild. CMS work happens on the `feature/proper-cms` branch.

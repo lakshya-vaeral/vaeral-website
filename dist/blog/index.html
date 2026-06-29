@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog — Vaeral</title>
+<meta name="description" content="Insights on Reddit, Quora and community-led marketing from the Vaeral team.">
+<link rel="canonical" href="https://vaeral.com/blog">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Blog — Vaeral">
+<meta property="og:description" content="Insights on Reddit, Quora and community-led marketing from the Vaeral team.">
+<meta property="og:url" content="https://vaeral.com/blog">
+<meta property="og:image" content="https://vaeral.com/assets/og-image.png">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NYP7J14402"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NYP7J14402');
+</script>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #040128;
+    color: #dedaff;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 56px; }
+  .top a.home { font-weight: 600; font-size: 15px; color: #9b9bbd; }
+  .top a.home:hover { color: #fff; }
+  .brand img { height: 28px; display: block; }
+  h1.title { font-size: clamp(34px, 5vw, 52px); font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; color: #fff; }
+  p.lede { font-size: 18px; color: #9b9bbd; margin: 0 0 48px; max-width: 60ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
+  .card {
+    display: flex; flex-direction: column;
+    background: rgba(119, 117, 153, 0.08);
+    border: 1px solid rgba(119, 117, 153, 0.28);
+    border-radius: 14px; overflow: hidden;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .card:hover { border-color: rgba(119, 117, 153, 0.6); transform: translateY(-2px); }
+  .card .cover { aspect-ratio: 16 / 9; width: 100%; object-fit: cover; background: #0d0a3a; display: block; }
+  .card .body { padding: 22px 22px 26px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .card .meta { font-size: 13px; color: #9b9bbd; display: flex; gap: 10px; align-items: center; }
+  .card .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #9b9bbd; }
+  .card h2 { font-size: 20px; font-weight: 600; line-height: 1.3; margin: 0; color: #fff; letter-spacing: -0.01em; }
+  .card p.excerpt { font-size: 15px; line-height: 1.55; color: #b9b7d4; margin: 0; }
+  .card .more { margin-top: auto; padding-top: 6px; font-weight: 600; font-size: 14px; color: #fff; }
+  .empty { color: #9b9bbd; font-size: 17px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="/"><img src="/assets/vaeral-logo.svg" alt="Vaeral" onerror="this.style.display='none'"></a>
+    <a class="home" href="/">&larr; Back to home</a>
+  </div>
+  <h1 class="title">Blog</h1>
+  <p class="lede">Field notes on Reddit, Quora and community-led marketing &mdash; how brands earn trust where buyers actually decide.</p>
+  <div class="grid">
+    <a class="card" href="/blog/using-reddit-marketing">
+      <img class="cover" src="/assets/blog-reddit-marketing.jpg" alt="How to use reddit for marketing: A step-by-step guide" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>Apr 8, 2026</span><span class="dot"></span><span>6 min read</span></div>
+        <h2>How to use reddit for marketing: A step-by-step guide</h2>
+        <p class="excerpt">Over 92% of buyers trust what laymen say more than standard ads, which is exactly why reddit marketing has become a must-have strategy to build genuine trust.</p>
+        <span class="more">Read article &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/blog/viral-negative">
+      <img class="cover" src="/assets/blog-viral-negative.jpg" alt="How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>Mar 15, 2022</span><span class="dot"></span><span>8 min read</span></div>
+        <h2>How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide</h2>
+        <p class="excerpt">Reddit has a way of catching brands off guard. One day everything is fine, and the next morning your marketing team is staring at a thread on r/india or r/technology with 8,000 upvotes, 2,400 comments, and a screenshot being passed around on Twitter.</p>
+        <span class="more">Read article &rarr;</span>
+      </div>
+    </a>
+  </div>
+</div>
+</body>
+</html>
