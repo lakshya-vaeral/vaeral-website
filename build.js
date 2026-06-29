@@ -116,6 +116,27 @@ function fill(template, map) {
   return out;
 }
 
+// Disables Framer's SPA router for internal links so CMS-generated HTML is properly loaded.
+function disableSPARouting(html, isHomepage = false) {
+  let out = html;
+  if (isHomepage) {
+    // Fix anchor links on homepage so they smooth-scroll instead of reloading the page
+    out = out.replace(/href="\.\/#/g, 'href="#');
+  }
+  out = out.replace(/<a([^>]+)href="([^"]+)"([^>]*)>/g, (match, before, href, after) => {
+    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+      return match; // Keep anchor and mail links intact
+    }
+    if (/_blank/.test(before) || /_blank/.test(after)) {
+      return match; // Keep external links opening in new tabs intact
+    }
+    // Remove existing target attributes to prevent duplicates
+    const stripTarget = (str) => str.replace(/target="[^"]*"\s*/g, '');
+    return `<a${stripTarget(before)}target="_top" href="${href}"${stripTarget(after)}>`;
+  });
+  return out;
+}
+
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'index.html'), html);
@@ -364,6 +385,7 @@ function buildBlogPost({ attributes: a, body }) {
 </style>
 </head>`);
 
+  html = disableSPARouting(html);
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
@@ -388,6 +410,7 @@ function buildCaseStudy({ attributes: a }) {
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS),
   });
+  html = disableSPARouting(html);
   writePage(path.join(DIST, a.slug), html);
   return { slug: a.slug, title: a.title };
 }
@@ -415,7 +438,7 @@ function buildBlogIndex(posts) {
     URL: escapeHtml(`${SITE}/blog`),
     POSTS: cards,
   });
-  writePage(path.join(DIST, 'blog'), html);
+  writePage(path.join(DIST, 'blog'), disableSPARouting(html));
 }
 
 // --- main ------------------------------------------------------------------
@@ -454,13 +477,13 @@ function main() {
   buildBlogIndex(publishedPosts);
   console.log(`  ✓ blog listing -> dist/blog/index.html (${publishedPosts.length} posts)`);
 
-  // Force hard navigation for blog links on the homepage to bypass Framer SPA router
+  // Force hard navigation for all internal links on the homepage to bypass Framer SPA router
   const indexFile = path.join(DIST, 'index.html');
   if (fs.existsSync(indexFile)) {
     let indexHtml = fs.readFileSync(indexFile, 'utf8');
-    indexHtml = indexHtml.replace(/href="\.\/blog/g, 'target="_top" href="/blog');
+    indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(indexFile, indexHtml);
-    console.log(`  ✓ patched dist/index.html to disable SPA routing for /blog`);
+    console.log(`  ✓ patched dist/index.html to disable SPA routing site-wide`);
   }
 
   console.log(`\nBuild complete: ${publishedPosts.length} posts, ${cases.filter((c) => !c.attributes.draft).length} case studies.`);
