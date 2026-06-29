@@ -358,6 +358,7 @@ function buildBlogPost({ attributes: a, body }) {
   @media (min-width: 1280px) {
     .framer-1q32mfl {
       position: relative !important;
+      top: 0 !important;
     }
   }
 </style>
