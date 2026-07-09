@@ -524,7 +524,7 @@ function main() {
     let indexHtml = fs.readFileSync(indexFile, 'utf8');
 
     // Robust injection: use CSS to prevent overflow clipping
-    const styleFix = `\n<style>\n  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }\n  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }\n  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }\n</style>\n`;
+    const styleFix = `\n<style>\n  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }\n  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }\n  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }\n  .framer-1tpw1b9, .framer-1tpw1b9 * { overflow: visible !important; line-height: normal !important; padding-bottom: 2px !important; }\n</style>\n`;
     
     if (indexHtml.includes('</body>')) {
       indexHtml = indexHtml.replace('</body>', styleFix + '</body>');
