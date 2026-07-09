@@ -469,5 +469,23 @@
     } catch (err) {}
   }, { capture: true });
 </script>
+\n<style>\n  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }\n  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }\n  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }\n</style>\n\n<script>\n  setInterval(() => {\n    document.querySelectorAll('nav a[href="#contact"]').forEach(contactLink => {\n      // Find the top-level container of the link within the nav to clone\n      let container = contactLink;\n      while (container.parentElement && container.parentElement.tagName.toLowerCase() !== 'nav') {\n        if (container.parentElement.style.display === 'contents' || container.parentElement.style.display === 'flex') break;\n        container = container.parentElement;\n      }\n      \n      if (!container.parentElement.querySelector('.nav-blog-injected')) {\n        const blogNode = container.cloneNode(true);\n        blogNode.classList.add('nav-blog-injected');\n        \n        // Update link and text\n        const a = blogNode.tagName === 'A' ? blogNode : blogNode.querySelector('a');\n        if (a) {\n          a.href = '/blog';\n          a.target = '_top';\n        }\n        \n        const textNode = blogNode.querySelector('p, span');\n        if (textNode) textNode.textContent = 'Blogs';\n        \n        // Insert before Contact\n        container.parentNode.insertBefore(blogNode, container);\n      }\n    });\n  }, 500);\n</script>\n
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
 </body>
 </html>
