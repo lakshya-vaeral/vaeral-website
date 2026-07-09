@@ -522,7 +522,7 @@ function main() {
   // First, copy the source index.html into dist if it doesn't already exist
   const indexFile = path.join(DIST, 'index.html');
   const sourceIndex = path.join(path.dirname(DIST), 'index.html');
-  if (!fs.existsSync(indexFile) && fs.existsSync(sourceIndex)) {
+  if (fs.existsSync(sourceIndex)) {
     fs.copyFileSync(sourceIndex, indexFile);
   }
   if (fs.existsSync(indexFile)) {
