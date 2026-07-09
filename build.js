@@ -519,18 +519,75 @@ function main() {
   console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
 
   // Force hard navigation for all internal links on the homepage to bypass Framer SPA router
+  // First, copy the source index.html into dist if it doesn't already exist
   const indexFile = path.join(DIST, 'index.html');
+  const sourceIndex = path.join(path.dirname(DIST), 'index.html');
+  if (!fs.existsSync(indexFile) && fs.existsSync(sourceIndex)) {
+    fs.copyFileSync(sourceIndex, indexFile);
+  }
   if (fs.existsSync(indexFile)) {
     let indexHtml = fs.readFileSync(indexFile, 'utf8');
 
-    // Robust injection: use CSS to prevent overflow clipping
-    const styleFix = `\n<style>\n  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }\n  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }\n  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }\n</style>\n`;
-    
-    // Safely inject the Blogs link into the navigation bar by cloning the Contact link
-    const jsFix = `\\n<script>\\n  setInterval(() => {\\n    document.querySelectorAll('nav a').forEach(contactLink => {\\n      if (contactLink.textContent.trim() !== 'Contact') return;\\n      \\n      // React hydration wraps the <a> tag in a container div at runtime.\\n      // We must clone the wrapper container if it exists, otherwise the new link gets trapped inside the single-link wrapper.\\n      let containerToClone = contactLink;\\n      if (contactLink.parentNode && contactLink.parentNode.tagName === 'DIV' && contactLink.parentNode.className.includes('-container')) {\\n        containerToClone = contactLink.parentNode;\\n      }\\n      \\n      if (!containerToClone.parentNode.querySelector('.nav-blog-injected')) {\\n        const blogNode = containerToClone.cloneNode(true);\\n        blogNode.classList.add('nav-blog-injected');\\n        \\n        const a = blogNode.tagName === 'A' ? blogNode : blogNode.querySelector('a');\\n        if (a) {\\n          a.href = '/blog';\\n          a.target = '_top';\\n        }\\n        \\n        // Update text\\n        const textNodes = Array.from(blogNode.querySelectorAll('*')).filter(el => el.childNodes.length === 1 && el.childNodes[0].nodeType === 3);\\n        if (textNodes.length > 0) {\\n          textNodes[0].textContent = 'Blogs';\\n        } else if (a) {\\n          a.textContent = 'Blogs';\\n        }\\n        \\n        // Reduce gap so 4 links fit in the space of 3\\n        if (containerToClone.parentNode) {\\n          containerToClone.parentNode.style.gap = '15px';\\n          containerToClone.parentNode.style.overflow = 'visible';\\n        }\\n        \\n        containerToClone.parentNode.insertBefore(blogNode, containerToClone);\\n      }\\n    });\\n  }, 500);\\n</script>\\n`;
-    
+    // --- Inject Blogs link into nav AFTER React hydration via JS ---
+    // Static HTML changes to Framer components are destroyed by React hydration.
+    // We must inject via JS that runs after hydration, using a MutationObserver
+    // to detect when React has finished mounting.
+    const blogNavScript = `
+<script>
+(function() {
+  setInterval(function() {
+    var navs = document.querySelectorAll('nav');
+    navs.forEach(function(nav) {
+      if (nav.querySelector('.vaeral-blogs-link')) return;
+      
+      var links = nav.querySelectorAll('a');
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].textContent.trim() !== 'Contact') continue;
+        var container = links[i].parentElement;
+        if (!container || !container.className || !container.className.includes('-container')) continue;
+        var flexRow = container.parentElement;
+        if (!flexRow || !flexRow.textContent.includes('About')) continue;
+        
+        var blogNode = container.cloneNode(true);
+        blogNode.classList.add('vaeral-blogs-link');
+        
+        var blogA = blogNode.querySelector('a') || blogNode;
+        if (blogA.tagName === 'A') {
+          blogA.href = '/blog';
+          blogA.target = '_top';
+        }
+        
+        var spans = blogNode.querySelectorAll('span');
+        for (var s = 0; s < spans.length; s++) {
+          if (spans[s].childNodes.length === 1 && spans[s].childNodes[0].nodeType === 3) {
+            spans[s].textContent = 'Blogs';
+            break;
+          }
+        }
+        
+        flexRow.insertBefore(blogNode, container);
+        break;
+      }
+    });
+  }, 500);
+})();
+</script>
+`;
+
+    // CSS overrides to make the nav flex container fit 4 links
+    const styleFix = `
+<style>
+  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }
+  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }
+  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }
+  .framer-1tnpw2r { gap: 15px !important; width: auto !important; overflow: visible !important; }
+  .framer-8gg6gi-container { width: auto !important; overflow: visible !important; }
+  .framer-1y9d1w4 { overflow: visible !important; }
+</style>
+`;
+
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + jsFix + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + '</body>');
     }
 
     indexHtml = disableSPARouting(indexHtml, true);
