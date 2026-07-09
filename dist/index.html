@@ -591,5 +591,29 @@
     } catch (err) {}
   }, { capture: true });
 </script>
+
+<style>
+  html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }
+  input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }
+  [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }
+</style>
+\n<script>\n  setInterval(() => {\n    document.querySelectorAll('nav a').forEach(contactLink => {\n      if (contactLink.textContent.trim() !== 'Contact') return;\n      \n      // React hydration wraps the <a> tag in a container div at runtime.\n      // We must clone the wrapper container if it exists, otherwise the new link gets trapped inside the single-link wrapper.\n      let containerToClone = contactLink;\n      if (contactLink.parentNode && contactLink.parentNode.tagName === 'DIV' && contactLink.parentNode.className.includes('-container')) {\n        containerToClone = contactLink.parentNode;\n      }\n      \n      if (!containerToClone.parentNode.querySelector('.nav-blog-injected')) {\n        const blogNode = containerToClone.cloneNode(true);\n        blogNode.classList.add('nav-blog-injected');\n        \n        const a = blogNode.tagName === 'A' ? blogNode : blogNode.querySelector('a');\n        if (a) {\n          a.href = '/blog';\n          a.target = '_top';\n        }\n        \n        // Update text\n        const textNodes = Array.from(blogNode.querySelectorAll('*')).filter(el => el.childNodes.length === 1 && el.childNodes[0].nodeType === 3);\n        if (textNodes.length > 0) {\n          textNodes[0].textContent = 'Blogs';\n        } else if (a) {\n          a.textContent = 'Blogs';\n        }\n        \n        // Reduce gap so 4 links fit in the space of 3\n        if (containerToClone.parentNode) {\n          containerToClone.parentNode.style.gap = '15px';\n          containerToClone.parentNode.style.overflow = 'visible';\n        }\n        \n        containerToClone.parentNode.insertBefore(blogNode, containerToClone);\n      }\n    });\n  }, 500);\n</script>\n
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
 </body>
 </html>
