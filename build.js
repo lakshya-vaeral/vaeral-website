@@ -580,9 +580,13 @@ function main() {
   html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }
   input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }
   [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }
-  .framer-1tnpw2r { gap: 15px !important; width: auto !important; overflow: visible !important; }
-  .framer-8gg6gi-container { width: auto !important; overflow: visible !important; }
-  .framer-1y9d1w4 { overflow: visible !important; }
+  
+  /* ONLY use overflow: visible without changing the fixed width of the containers.
+     This ensures the flex calculation (justify-content: center) remains identical, 
+     keeping the Logo perfectly aligned, while the 4th link visually spills to the right */
+  .framer-1tnpw2r { gap: 15px !important; overflow: visible !important; width: 187.453px !important; }
+  .framer-8gg6gi-container { overflow: visible !important; width: 187.453px !important; }
+  .framer-1y9d1w4 { overflow: visible !important; width: 374.453px !important; }
 </style>
 `;
 
