@@ -594,9 +594,19 @@ function main() {
       indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + '</body>');
     }
 
+    const preloads = `
+<link rel="preload" as="image" href="https://framerusercontent.com/images/r0nnngidlqmFQKjVhqENbu42IA.png?width=1316&height=574">
+<link rel="preload" as="image" href="https://framerusercontent.com/images/sNKeQAU4GFrqfgvCqAIvZCU1KRA.png?scale-down-to=1024&width=1161&height=1080">
+<link rel="preload" as="image" href="https://framerusercontent.com/images/n2ZMsJIF5MgwK89prVzJKbCUcS0.jpg?scale-down-to=1024&width=6000&height=4000">
+<link rel="preload" as="image" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
+`;
+    if (indexHtml.includes('</head>')) {
+      indexHtml = indexHtml.replace('</head>', preloads + '</head>');
+    }
+
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(indexFile, indexHtml);
-    console.log(`  ✓ patched dist/index.html to disable SPA routing site-wide`);
+    console.log(`  ✓ patched dist/index.html to disable SPA routing and preload LCP images`);
   }
 
   console.log(`\nBuild complete: ${publishedPosts.length} posts, ${cases.filter((c) => !c.attributes.draft).length} case studies.`);
