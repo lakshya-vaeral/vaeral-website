@@ -590,8 +590,72 @@ function main() {
 </style>
 `;
 
+    const contactFormScript = `
+<script>
+(function() {
+  setInterval(function() {
+    var formContainer = document.querySelector('.framer-d4nayf form');
+    if (!formContainer || formContainer.dataset.injected) return;
+    
+    formContainer.dataset.injected = "true";
+    
+    formContainer.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      var nameInput = formContainer.querySelector('input[name="Name"]');
+      var emailInput = formContainer.querySelector('input[name="Email"]');
+      var phoneInput = formContainer.querySelector('input[name="Phone"]');
+      var submitBtn = formContainer.querySelector('input[type="submit"]');
+      
+      var name = nameInput ? nameInput.value.trim() : '';
+      var email = emailInput ? emailInput.value.trim() : '';
+      var phone = phoneInput ? phoneInput.value.trim() : '';
+      
+      if (!name || !email || !phone) {
+        alert("Please fill in Name, Email, and Phone.");
+        return;
+      }
+      
+      var originalBtnText = submitBtn.value;
+      submitBtn.value = "Sending...";
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = "0.7";
+      
+      try {
+        var res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, phone: phone })
+        });
+        
+        if (res.ok) {
+          submitBtn.value = "Message Sent!";
+          submitBtn.style.backgroundColor = "#4CAF50";
+          if(nameInput) nameInput.value = '';
+          if(emailInput) emailInput.value = '';
+          if(phoneInput) phoneInput.value = '';
+        } else {
+          var data = await res.json();
+          alert("Error: " + (data.message || "Failed to send message."));
+          submitBtn.value = originalBtnText;
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = "1";
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error occurred.");
+        submitBtn.value = originalBtnText;
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+      }
+    });
+  }, 1000);
+})();
+</script>
+`;
+
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + contactFormScript + '</body>');
     }
 
     const preloads = `

@@ -1,0 +1,210 @@
+[
+  {
+    "action": "file:///C:/Users/laksh/Documents/VAERAL/dist/index.html",
+    "method": "get",
+    "className": "framer-d4nayf",
+    "inputs": [
+      {
+        "name": "Name",
+        "type": "text",
+        "placeholder": "Full name",
+        "id": "",
+        "className": "framer-form-input framer-form-input-empty"
+      },
+      {
+        "name": "Email",
+        "type": "email",
+        "placeholder": "Email",
+        "id": "",
+        "className": "framer-form-input framer-form-input-empty"
+      },
+      {
+        "name": "Phone",
+        "type": "tel",
+        "placeholder": "Phone number",
+        "id": "",
+        "className": "framer-form-input framer-form-input-empty"
+      },
+      {
+        "name": "website",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "company",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "message",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "subject",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "feedback",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "details",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "remarks",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "comments",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Submit",
+        "type": "submit"
+      }
+    ]
+  },
+  {
+    "action": "file:///C:/Users/laksh/Documents/VAERAL/dist/index.html",
+    "method": "get",
+    "className": "framer-w8wwxz",
+    "inputs": [
+      {
+        "name": "Email",
+        "type": "email",
+        "placeholder": "Write you email here...",
+        "id": "",
+        "className": "framer-form-input framer-form-input-empty"
+      },
+      {
+        "name": "website",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "company",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "message",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "subject",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "feedback",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "details",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "remarks",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      },
+      {
+        "name": "comments",
+        "type": "text",
+        "placeholder": "",
+        "id": "",
+        "className": ""
+      }
+    ],
+    "buttons": [
+      {
+        "text": "Join newsletter",
+        "type": "submit"
+      }
+    ]
+  }
+]
