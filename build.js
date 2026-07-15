@@ -597,9 +597,9 @@ function main() {
     var nameField = document.querySelector('input[placeholder="Full name"]');
     if (!nameField) return;
     var form = nameField.closest('form');
-    if (!form || form.dataset.vaералInjected) return;
+    if (!form || form.dataset.vaeralInjected) return;
     
-    form.dataset.vaералInjected = "true";
+    form.dataset.vaeralInjected = "true";
     
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
