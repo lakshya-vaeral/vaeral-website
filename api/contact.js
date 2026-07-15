@@ -62,23 +62,23 @@ export default async function handler(req, res) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a;padding:40px 20px;">
+<body style="margin:0;padding:0;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
     <tr>
       <td align="center">
         <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
           
           <!-- Header -->
           <tr>
-            <td style="padding:32px 40px 24px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:16px 16px 0 0;border-bottom:2px solid #6c63ff;">
+            <td style="padding:28px 40px 20px;background-color:#ffffff;border-radius:12px 12px 0 0;border-bottom:3px solid #6c63ff;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <h1 style="margin:0 0 4px;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">New Contact Inquiry</h1>
-                    <p style="margin:0;font-size:13px;color:#8b8fa3;">vaeral.com · ${submittedAt}</p>
+                    <h1 style="margin:0 0 4px;font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">New Contact Inquiry</h1>
+                    <p style="margin:0;font-size:13px;color:#888;">vaeral.com &middot; ${submittedAt}</p>
                   </td>
                   <td align="right" valign="top">
-                    <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#6c63ff,#3b82f6);display:inline-block;text-align:center;line-height:42px;font-size:20px;color:#fff;">✉</div>
+                    <div style="width:42px;height:42px;border-radius:10px;background:#6c63ff;display:inline-block;text-align:center;line-height:42px;font-size:20px;color:#fff;">&#9993;</div>
                   </td>
                 </tr>
               </table>
@@ -87,26 +87,26 @@ export default async function handler(req, res) {
 
           <!-- Body -->
           <tr>
-            <td style="padding:0;background-color:#111827;">
+            <td style="padding:0;background-color:#ffffff;">
 
               <!-- Contact Details -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:28px 40px;">
                 <tr>
-                  <td style="padding-bottom:24px;">
-                    <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Full Name</p>
-                    <p style="margin:0;font-size:18px;color:#f1f5f9;font-weight:600;">${name}</p>
+                  <td style="padding-bottom:20px;">
+                    <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Full Name</p>
+                    <p style="margin:0;font-size:18px;color:#1a1a1a;font-weight:600;">${name}</p>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding-bottom:24px;">
-                    <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Email Address</p>
-                    <a href="mailto:${email}" style="font-size:16px;color:#60a5fa;text-decoration:none;font-weight:500;">${email}</a>
+                  <td style="padding-bottom:20px;">
+                    <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Email Address</p>
+                    <a href="mailto:${email}" style="font-size:16px;color:#2563eb;text-decoration:none;font-weight:500;">${email}</a>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding-bottom:8px;">
-                    <p style="margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Phone Number</p>
-                    <a href="tel:${phone}" style="font-size:16px;color:#60a5fa;text-decoration:none;font-weight:500;">${phone}</a>
+                    <p style="margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#6c63ff;font-weight:600;">Phone Number</p>
+                    <a href="tel:${phone}" style="font-size:16px;color:#2563eb;text-decoration:none;font-weight:500;">${phone}</a>
                   </td>
                 </tr>
               </table>
@@ -115,16 +115,16 @@ export default async function handler(req, res) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding:0 40px;">
-                    <div style="height:1px;background:linear-gradient(90deg,transparent,#374151,transparent);"></div>
+                    <div style="height:1px;background-color:#e5e7eb;"></div>
                   </td>
                 </tr>
               </table>
 
               <!-- Quick Action -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 40px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 40px 28px;">
                 <tr>
                   <td align="center">
-                    <a href="mailto:${email}?subject=Re: Your inquiry on Vaeral" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#6c63ff,#3b82f6);color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:0.3px;">Reply to ${name.split(' ')[0]}</a>
+                    <a href="mailto:${email}?subject=Re: Your inquiry on Vaeral" style="display:inline-block;padding:12px 32px;background-color:#6c63ff;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px;">Reply to ${name.split(' ')[0]}</a>
                   </td>
                 </tr>
               </table>
@@ -134,10 +134,9 @@ export default async function handler(req, res) {
 
           <!-- Footer -->
           <tr>
-            <td style="padding:20px 40px;background-color:#0d1117;border-radius:0 0 16px 16px;border-top:1px solid #1e293b;">
-              <p style="margin:0;font-size:12px;color:#4b5563;text-align:center;">
-                Sent from the contact form at <a href="https://www.vaeral.com" style="color:#6c63ff;text-decoration:none;">vaeral.com</a><br>
-                Source: ${sourcePage}
+            <td style="padding:16px 40px;background-color:#f9fafb;border-radius:0 0 12px 12px;border-top:1px solid #e5e7eb;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">
+                Sent from the contact form at <a href="https://www.vaeral.com" style="color:#6c63ff;text-decoration:none;">vaeral.com</a>
               </p>
             </td>
           </tr>
