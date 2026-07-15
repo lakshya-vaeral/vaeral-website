@@ -1,0 +1,305 @@
+{
+  "name": "Reddit Scraper (API-Free)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 120]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000002",
+      "name": "Run Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 340]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-001",
+              "name": "subreddits",
+              "value": "python,webdev,datascience,machinelearning",
+              "type": "string"
+            },
+            {
+              "id": "cfg-002",
+              "name": "posts_per_sub",
+              "value": "100",
+              "type": "string"
+            },
+            {
+              "id": "cfg-003",
+              "name": "sort",
+              "value": "hot",
+              "type": "string"
+            },
+            {
+              "id": "cfg-004",
+              "name": "time_filter",
+              "value": "week",
+              "type": "string"
+            },
+            {
+              "id": "cfg-005",
+              "name": "script_path",
+              "value": "/home/node/scripts/reddit_stealth_scraper.py",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000003",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [300, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// TIER 1: Reddit Public JSON API (No API Key Needed!)\n// ============================================================\n// Every Reddit page has a .json version:\n//   https://www.reddit.com/r/python/hot.json?limit=100\n// This is completely free and requires no authentication.\n// Rate limit: ~60 requests/min per IP.\n// ============================================================\n\nconst config = $input.first().json;\nconst subreddits = config.subreddits.split(',').map(s => s.trim()).filter(s => s);\nconst limit = parseInt(config.posts_per_sub) || 100;\nconst sort = config.sort || 'hot';\nconst timeFilter = config.time_filter || 'week';\nconst allPosts = [];\nconst errors = [];\n\nfor (const sub of subreddits) {\n  let after = null;\n  let fetched = 0;\n  let pageNum = 0;\n\n  while (fetched < limit) {\n    pageNum++;\n    const batchSize = Math.min(100, limit - fetched);\n    let url = `https://www.reddit.com/r/${sub}/${sort}.json?limit=${batchSize}&raw_json=1`;\n    if (sort === 'top' || sort === 'controversial') {\n      url += `&t=${timeFilter}`;\n    }\n    if (after) {\n      url += `&after=${after}`;\n    }\n\n    try {\n      const response = await this.helpers.httpRequest({\n        method: 'GET',\n        url: url,\n        headers: {\n          'User-Agent': 'n8n-reddit-scraper:v1.0.0 (educational-project)',\n          'Accept': 'application/json'\n        },\n        returnFullResponse: true,\n        ignoreHttpStatusErrors: true\n      });\n\n      // Check for rate limiting or blocking\n      if (response.statusCode === 429 || response.statusCode === 403) {\n        errors.push(`r/${sub}: HTTP ${response.statusCode} - blocked`);\n        break;\n      }\n      if (response.statusCode !== 200) {\n        errors.push(`r/${sub}: HTTP ${response.statusCode}`);\n        break;\n      }\n\n      const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;\n      const children = body?.data?.children || [];\n      if (children.length === 0) break;\n\n      for (const child of children) {\n        if (child.kind !== 't3') continue;\n        const d = child.data;\n        allPosts.push({\n          id: d.id,\n          fullname: d.name,\n          subreddit: d.subreddit,\n          title: d.title,\n          author: d.author,\n          score: d.score,\n          upvote_ratio: d.upvote_ratio || 0,\n          num_comments: d.num_comments,\n          created_utc: d.created_utc,\n          created_date: new Date(d.created_utc * 1000).toISOString(),\n          url: d.url,\n          selftext: (d.selftext || '').substring(0, 5000),\n          permalink: 'https://reddit.com' + d.permalink,\n          is_self: d.is_self,\n          link_flair_text: d.link_flair_text || '',\n          thumbnail: d.thumbnail || '',\n          domain: d.domain || '',\n          over_18: d.over_18 || false,\n          scrape_tier: 'tier_1_json_api',\n          scraped_at: new Date().toISOString()\n        });\n      }\n\n      fetched += children.length;\n      after = body?.data?.after;\n      if (!after) break;\n\n      // Rate limit delay: 1.5s between pages\n      await new Promise(resolve => setTimeout(resolve, 1500));\n\n    } catch (error) {\n      errors.push(`r/${sub} page ${pageNum}: ${error.message}`);\n      break;\n    }\n  }\n}\n\n// Return posts if we got any, otherwise return empty marker\nif (allPosts.length > 0) {\n  return allPosts.map(post => ({ json: post }));\n} else {\n  return [{ json: { _empty: true, _error: errors.join('; '), _tier: 1 } }];\n}\n",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000004",
+      "name": "Tier 1: Reddit JSON API",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [620, 220],
+      "notesInFlow": true,
+      "notes": "Fetches reddit.com/r/{sub}/{sort}.json — No API key needed! Handles pagination automatically."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "conditions": [
+            {
+              "id": "cond-001",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000005",
+      "name": "Got Posts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [940, 220]
+    },
+    {
+      "parameters": {
+        "command": "={{ 'python3 ' + $('Configuration').first().json.script_path + ' --subreddits \"' + $('Configuration').first().json.subreddits + '\" --limit ' + $('Configuration').first().json.posts_per_sub + ' --sort ' + $('Configuration').first().json.sort + ' --time_filter ' + $('Configuration').first().json.time_filter }}"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000006",
+      "name": "Tier 2+3: Python Fallback Scraper",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1200, 420],
+      "notesInFlow": true,
+      "notes": "Runs the Python script which tries Agent-Reach → Scrapling → CloakBrowser → basic HTTP (in order)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// Parse the Python scraper's stdout output\n// The script outputs a JSON array of post objects\n// ============================================================\n\nconst rawOutput = $input.first().json.stdout || '';\n\ntry {\n  // Find the JSON array in the output (skip any non-JSON lines)\n  const jsonMatch = rawOutput.match(/\\[\\s*\\{[\\s\\S]*\\}\\s*\\]/);\n  if (!jsonMatch) {\n    return [{ json: { _empty: true, _error: 'No JSON found in scraper output', _tier: 'python_fallback' } }];\n  }\n\n  const posts = JSON.parse(jsonMatch[0]);\n  if (!Array.isArray(posts) || posts.length === 0) {\n    return [{ json: { _empty: true, _error: 'Empty results from scraper', _tier: 'python_fallback' } }];\n  }\n\n  return posts.map(post => ({ json: post }));\n} catch (error) {\n  return [{ json: { _empty: true, _error: 'Failed to parse scraper output: ' + error.message, _tier: 'python_fallback', raw: rawOutput.substring(0, 500) } }];\n}\n",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000007",
+      "name": "Parse Scraper Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1480, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// DEDUPLICATE & ENRICH\n// ============================================================\n// Removes duplicate posts (by id) and adds metadata\n// ============================================================\n\nconst items = $input.all();\nconst seen = new Set();\nconst unique = [];\n\nfor (const item of items) {\n  const post = item.json;\n  // Skip empty markers\n  if (post._empty) continue;\n  // Skip duplicates\n  if (seen.has(post.id)) continue;\n  seen.add(post.id);\n\n  // Enrich with additional computed fields\n  post.engagement_ratio = post.num_comments > 0\n    ? (post.score / post.num_comments).toFixed(2)\n    : '0';\n  post.age_hours = post.created_utc\n    ? ((Date.now() / 1000 - post.created_utc) / 3600).toFixed(1)\n    : '0';\n  post.is_popular = post.score > 100;\n\n  unique.push({ json: post });\n}\n\n// Sort by score descending\nunique.sort((a, b) => (b.json.score || 0) - (a.json.score || 0));\n\n// Add summary as first item\nconst subreddits = [...new Set(unique.map(i => i.json.subreddit))];\nconst summary = {\n  json: {\n    _type: 'summary',\n    total_posts: unique.length,\n    subreddits_scraped: subreddits.join(', '),\n    subreddit_count: subreddits.length,\n    highest_score: unique.length > 0 ? unique[0].json.score : 0,\n    scrape_completed_at: new Date().toISOString(),\n    scrape_tier: unique.length > 0 ? unique[0].json.scrape_tier : 'none'\n  }\n};\n\nreturn [summary, ...unique];\n",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000008",
+      "name": "Deduplicate & Enrich",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 220],
+      "notesInFlow": true,
+      "notes": "Removes duplicates, sorts by score, adds engagement metrics"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================================\n// CONVERT RESULTS TO DOWNLOADABLE JSON FILE\n// ============================================================\n\nconst items = $input.all();\nconst posts = items.map(i => i.json);\nconst jsonString = JSON.stringify(posts, null, 2);\nconst timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);\nconst fileName = `reddit_scrape_${timestamp}.json`;\n\nconst binaryData = await this.helpers.prepareBinaryData(\n  Buffer.from(jsonString, 'utf-8'),\n  fileName,\n  'application/json'\n);\n\nreturn [{\n  json: {\n    message: `Saved ${posts.length} items to ${fileName}`,\n    total_items: posts.length,\n    file_name: fileName,\n    file_size_kb: (jsonString.length / 1024).toFixed(1)\n  },\n  binary: {\n    data: binaryData\n  }\n}];\n",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000009",
+      "name": "Create JSON File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2100, 220],
+      "notesInFlow": true,
+      "notes": "Creates a downloadable JSON file with all scraped data"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udce1 Reddit Scraper (100% API-Free)\n\n### How to use:\n1. Edit the **Configuration** node to set your subreddits, limits, and sort order\n2. Click **Test Workflow** to run manually\n3. Activate the workflow for automatic scraping every 6 hours\n\n### How it works:\n- **Tier 1**: Fetches `reddit.com/r/{sub}.json` \u2014 No API key needed!\n- **Tier 2+3**: Falls back to Python script (Agent-Reach \u2192 Scrapling \u2192 CloakBrowser)\n\n### Configuration options:\n- `subreddits`: Comma-separated list (e.g., `python,webdev,datascience`)\n- `posts_per_sub`: Number of posts per subreddit (max ~1000)\n- `sort`: `hot`, `new`, `top`, `rising`, `controversial`\n- `time_filter`: `hour`, `day`, `week`, `month`, `year`, `all` (only for `top`/`controversial`)\n- `script_path`: Path to `reddit_stealth_scraper.py` on your server\n\n### Adding output:\nConnect the **Deduplicate & Enrich** node to: Google Sheets, PostgreSQL, Airtable, Slack, Email, etc.",
+        "height": 540,
+        "width": 420
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000010",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-460, -40]
+    },
+    {
+      "parameters": {
+        "content": "### \u26a0\ufe0f Fallback Tier\nThis runs ONLY if Tier 1 (JSON API) fails.\nRequires Python 3.10+ and the script installed on the server.\nSee `setup_guide.md` for installation instructions.",
+        "height": 200,
+        "width": 560,
+        "color": 5
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000011",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1140, 340]
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Tier 1: Reddit JSON API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tier 1: Reddit JSON API": {
+      "main": [
+        [
+          {
+            "node": "Got Posts?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Got Posts?": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate & Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tier 2+3: Python Fallback Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tier 2+3: Python Fallback Scraper": {
+      "main": [
+        [
+          {
+            "node": "Parse Scraper Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Scraper Output": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate & Enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate & Enrich": {
+      "main": [
+        [
+          {
+            "node": "Create JSON File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "scraping",
+      "id": "tag-001"
+    },
+    {
+      "name": "reddit",
+      "id": "tag-002"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2026-07-13T03:20:00.000Z",
+  "versionId": "1"
+}
