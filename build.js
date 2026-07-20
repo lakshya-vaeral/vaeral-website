@@ -671,8 +671,81 @@ function main() {
 </script>
 `;
 
+    const newsletterFormScript = `
+<script>
+(function() {
+  setInterval(function() {
+    var forms = document.querySelectorAll('form.framer-w8wwxz');
+    forms.forEach(function(form) {
+      if (form.dataset.vaeralNewsletterInjected) return;
+      form.dataset.vaeralNewsletterInjected = "true";
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        var emailInput = form.querySelector('input[type="email"]');
+        var submitBtn = form.querySelector('button[type="submit"]');
+
+        var email = emailInput ? emailInput.value.trim() : '';
+        if (!email) {
+          alert("Please enter your email address.");
+          return;
+        }
+
+        var originalText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.textContent = "Subscribing...";
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = "0.7";
+        }
+
+        try {
+          var res = await fetch('/api/newsletter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          });
+
+          if (res.ok) {
+            if (submitBtn) {
+              submitBtn.textContent = "Subscribed ✓";
+              submitBtn.style.opacity = "1";
+            }
+            if (emailInput) emailInput.value = '';
+            setTimeout(function() {
+              if (submitBtn) {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+              }
+            }, 4000);
+          } else {
+            var data = await res.json().catch(function() { return {}; });
+            alert("Error: " + (data.message || "Failed to subscribe."));
+            if (submitBtn) {
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = "1";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Network error. Please try again.");
+          if (submitBtn) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+          }
+        }
+      });
+    });
+  }, 1000);
+})();
+</script>
+`;
+
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + contactFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + contactFormScript + newsletterFormScript + '</body>');
     }
 
     const preloads = `
