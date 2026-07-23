@@ -143,7 +143,7 @@ function disableSPARouting(html) {
 
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), html);
+  fs.writeFileSync(path.join(dir, 'index.html'), html.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
 }
 
 function copyDir(src, dst) {
@@ -759,7 +759,7 @@ function main() {
     }
 
     indexHtml = disableSPARouting(indexHtml, true);
-    fs.writeFileSync(indexFile, indexHtml);
+    fs.writeFileSync(indexFile, indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
     console.log(`  ✓ patched dist/index.html to disable SPA routing and preload LCP images`);
   }
 
