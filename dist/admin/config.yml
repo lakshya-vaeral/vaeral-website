@@ -11,7 +11,7 @@ backend:
   # Self-hosted GitHub OAuth proxy (Vercel serverless fns in /api). base_url is
   # the origin that hosts /api/auth + /api/callback, and must match the origin
   # /admin is loaded from + the GitHub OAuth App's callback URL.
-  base_url: https://vaeral-website.vercel.app
+  base_url: https://www.vaeral.com
   auth_endpoint: api/auth
 
 # Lets `npx decap-server` drive a local git checkout (only active on localhost;

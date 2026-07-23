@@ -4,13 +4,13 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "redirects": [
-    { "source": "/polysports/?", "destination": "/b2b-fintech-platform", "permanent": true },
-    { "source": "/stockgro-2/?", "destination": "/b2b-fintech-platform", "permanent": true },
-    { "source": "/boult-audio-2/?", "destination": "/silver-jewellery", "permanent": true },
-    { "source": "/author/admin/?", "destination": "/", "permanent": true },
-    { "source": "/category/marketing/?", "destination": "/", "permanent": true },
-    { "source": "/tag/seo/?", "destination": "/", "permanent": true },
-    { "source": "/feed/?", "destination": "/", "permanent": true },
+    { "source": "/polysports", "destination": "/b2b-fintech-platform", "permanent": true },
+    { "source": "/stockgro-2", "destination": "/b2b-fintech-platform", "permanent": true },
+    { "source": "/boult-audio-2", "destination": "/silver-jewellery", "permanent": true },
+    { "source": "/author/admin", "destination": "/", "permanent": true },
+    { "source": "/category/marketing", "destination": "/", "permanent": true },
+    { "source": "/tag/seo", "destination": "/", "permanent": true },
+    { "source": "/feed", "destination": "/", "permanent": true },
     { "source": "/page/(.*)", "destination": "/", "permanent": true }
   ]
 }
