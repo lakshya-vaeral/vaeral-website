@@ -4,13 +4,455 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "redirects": [
-    { "source": "/polysports", "destination": "/b2b-fintech-platform", "permanent": true },
-    { "source": "/stockgro-2", "destination": "/b2b-fintech-platform", "permanent": true },
-    { "source": "/boult-audio-2", "destination": "/silver-jewellery", "permanent": true },
-    { "source": "/author/admin", "destination": "/", "permanent": true },
-    { "source": "/category/marketing", "destination": "/", "permanent": true },
-    { "source": "/tag/seo", "destination": "/", "permanent": true },
-    { "source": "/feed", "destination": "/", "permanent": true },
-    { "source": "/page/(.*)", "destination": "/", "permanent": true }
+    {
+      "source": "/polysports",
+      "destination": "/b2b-fintech-platform",
+      "permanent": true
+    },
+    {
+      "source": "/stockgro-2",
+      "destination": "/b2b-fintech-platform",
+      "permanent": true
+    },
+    {
+      "source": "/boult-audio-2",
+      "destination": "/silver-jewellery",
+      "permanent": true
+    },
+    {
+      "source": "/author/admin",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/marketing",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tag/seo",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/feed",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/page/(.*)",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/polysports/",
+      "destination": "/b2b-fintech-platform",
+      "permanent": true
+    },
+    {
+      "source": "/stockgro-2/",
+      "destination": "/b2b-fintech-platform",
+      "permanent": true
+    },
+    {
+      "source": "/boult-audio-2/",
+      "destination": "/silver-jewellery",
+      "permanent": true
+    },
+    {
+      "source": "/author/admin/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/marketing/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tag/seo/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/feed/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/page/(.*)/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/services/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/case-studies/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/community",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/community/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/work",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/work/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/corporates-large-enterprises",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/corporates-large-enterprises/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/growing-brands",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/growing-brands/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/startups-entrepreneurs",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/startups-entrepreneurs/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cheerio",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cheerio/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cheerio-2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cheerio-2/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/reliance",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/reliance/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/reliance-2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/reliance-2/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/colibri-wp",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/colibri-wp/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/sample-page",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/sample-page/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/sample-page-2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/sample-page-2/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/adminvaeral",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/adminvaeral/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/mod",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/mod/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/user",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/author/user/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/blog",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/blog/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/uncategorized",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category/uncategorized/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tag/uncategorized",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/tag/uncategorized/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/comments/feed",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/comments/feed/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/10",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/10/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2020/11/17/hello-world-2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2020/11/17/hello-world-2/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/04/15/hello-world",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/04/15/hello-world/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/10/04/hello-world",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/10/04/hello-world/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/features-of-learning-functional-programming",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/features-of-learning-functional-programming/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/fundamentals-of-classroom-managements",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/fundamentals-of-classroom-managements/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/integration-of-technology-into-education",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/integration-of-technology-into-education/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/the-role-of-the-elementary-teacher-in-education",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/2021/08/27/the-role-of-the-elementary-teacher-in-education/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/community-form",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/community-form/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/home-page-signup",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/home-page-signup/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/new-form-1689073077",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/metform-form/new-form-1689073077/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/insights",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/insights/",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/boult-audio",
+      "destination": "/silver-jewellery",
+      "permanent": true
+    },
+    {
+      "source": "/boult-audio/",
+      "destination": "/silver-jewellery",
+      "permanent": true
+    }
   ]
 }
