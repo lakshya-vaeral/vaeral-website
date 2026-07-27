@@ -1,8 +1,9 @@
 ---
 title: "How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide"
+seoTitle: "How to Handle a Viral Negative Reddit Post | Vaeral"
 slug: "viral-negative"
 date: 2022-03-15
-description: "Reddit has a way of catching brands off guard. One day everything is fine, and the next morning your marketing team is staring at a thread on r/india or r/technology with 8,000 upvotes, 2,400 comments, and a screenshot being passed around on Twitter."
+description: "A viral negative Reddit thread can blindside a brand overnight. A practical ORM playbook for responding fast without making the backlash worse."
 coverImage: "/assets/blog-viral-negative.jpg"
 coverAlt: "Smartphone showing social media app icons"
 readTime: 8
