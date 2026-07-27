@@ -73,3 +73,81 @@ collections:
       - { label: "The Problem", name: "problem", widget: "markdown", hint: "Rich text for the \"The Problem\" section." }
       - { label: "What We Did", name: "whatWeDid", widget: "markdown", hint: "Rich text for the \"What We Did\" section." }
       - { label: "The Results", name: "results", widget: "markdown", hint: "Rich text for the \"The Results\" section. Use a bulleted list for stats." }
+
+  # -------------------------------------------------------------- Service pages
+  # Reuses the case-study page design. The three sections below are the same three
+  # regions, with headings you control instead of "The Problem / What We Did /
+  # The Results".
+  - name: "services"
+    label: "Service pages"
+    folder: "content/services"
+    extension: "md"
+    format: "frontmatter"
+    create: true
+    slug: "{{fields.slug}}"          # filename = slug = /services/<slug>
+    identifier_field: title
+    summary: "{{title}}  ·  /services/{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { label: "Title (the heading on the page)", name: "title", widget: "string" }
+      - { label: "SEO title (browser tab / Google result)", name: "seoTitle", widget: "string", required: false, hint: "Optional. Overrides only the search-result and browser-tab title. Keep under 60 characters." }
+      - { label: "URL slug", name: "slug", widget: "string", hint: "Lowercase words with hyphens. Becomes /services/<slug>. Don't change after publishing — it changes the URL." }
+      - { label: "Category (small line above the title)", name: "category", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false, hint: "The badge chips. Press enter after each tag." }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { label: "Description", name: "description", widget: "text", hint: "Meta / social-share description. Keep under 155 characters." }
+      - { label: "Cover image", name: "coverImage", widget: "image", required: false, choose_url: false, media_library: { config: { multiple: false } } }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Section 1 heading", name: "sectionOneHeading", widget: "string", hint: "e.g. \"What this is\"" }
+      - { label: "Section 1 body", name: "sectionOne", widget: "markdown", hint: "Open with a direct 2-3 sentence answer to \"what is this and who is it for\" — this is the block AI answer engines lift." }
+      - { label: "Section 2 heading", name: "sectionTwoHeading", widget: "string", hint: "e.g. \"How it works\"" }
+      - { label: "Section 2 body", name: "sectionTwo", widget: "markdown", hint: "3-5 numbered steps. Use Heading 3 for each step." }
+      - { label: "Section 3 heading", name: "sectionThreeHeading", widget: "string", hint: "e.g. \"Who it's for\"" }
+      - { label: "Section 3 body", name: "sectionThree", widget: "markdown", hint: "Who it suits and who it does NOT. The honest negative case is disproportionately quoted by AI answers." }
+      - label: "FAQs"
+        name: "faqs"
+        widget: "list"
+        required: false
+        summary: "{{fields.question}}"
+        hint: "5-8 questions, phrased the way a customer would actually ask. These appear on the page AND as FAQ structured data — the two must match, so edit them here only."
+        fields:
+          - { label: "Question", name: "question", widget: "string" }
+          - { label: "Answer", name: "answer", widget: "text", hint: "Lead with a direct 2-3 sentence answer, then any detail. No statistics unless you can cite a source." }
+
+  # ---------------------------------------------------------------- Static pages
+  - name: "pages"
+    label: "Pages (About, etc.)"
+    folder: "content/pages"
+    extension: "md"
+    format: "frontmatter"
+    create: true
+    slug: "{{fields.slug}}"          # filename = slug = /<slug>
+    identifier_field: title
+    summary: "{{title}}  ·  /{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { label: "Title (the heading on the page)", name: "title", widget: "string" }
+      - { label: "SEO title (browser tab / Google result)", name: "seoTitle", widget: "string", required: false, hint: "Optional. Keep under 60 characters." }
+      - { label: "URL slug", name: "slug", widget: "string", hint: "Becomes /<slug> at the top level. Don't change after publishing — it changes the URL." }
+      - { label: "Category (small line above the title)", name: "category", widget: "string", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { label: "Description", name: "description", widget: "text", hint: "Meta / social-share description. Keep under 155 characters." }
+      - { label: "Cover image", name: "coverImage", widget: "image", required: false, choose_url: false, media_library: { config: { multiple: false } } }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Section 1 heading", name: "sectionOneHeading", widget: "string" }
+      - { label: "Section 1 body", name: "sectionOne", widget: "markdown" }
+      - { label: "Section 2 heading", name: "sectionTwoHeading", widget: "string" }
+      - { label: "Section 2 body", name: "sectionTwo", widget: "markdown" }
+      - { label: "Section 3 heading", name: "sectionThreeHeading", widget: "string" }
+      - { label: "Section 3 body", name: "sectionThree", widget: "markdown" }
+      - label: "FAQs"
+        name: "faqs"
+        widget: "list"
+        required: false
+        summary: "{{fields.question}}"
+        fields:
+          - { label: "Question", name: "question", widget: "string" }
+          - { label: "Answer", name: "answer", widget: "text" }
