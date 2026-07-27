@@ -444,8 +444,9 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
       '<meta property="og:type" content="article">',
       `<meta property="article:published_time" content="${escapeHtml(isoDate(a.date))}">`,
       `<meta property="article:modified_time" content="${escapeHtml(isoDate(a.date))}">`,
-      // article:author is intentionally omitted until bylines are agreed (P5-T2) —
-      // an org name here would be read as a person.
+      // article:author is intentionally absent: owner declined personal bylines
+      // (2026-07-27). Putting the organisation name in this field would be read
+      // as a person, so it is omitted rather than filled with the wrong entity.
     ].join('\n    '),
   );
 
