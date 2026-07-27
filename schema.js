@@ -25,7 +25,7 @@ export function organization(site) {
       'Vaeral is an online reputation management agency that builds brand credibility through Reddit marketing, Quora marketing, AI search visibility and review management.',
     email: 'contact@vaeral.com',
     telephone: '+91-9104491177',
-    foundingDate: '2023',
+    foundingDate: '2022',
     founder: { '@type': 'Person', name: 'Mayank Sureka', jobTitle: 'Founder' },
     areaServed: 'Worldwide',
     // City-level only, by owner's decision. The full registered office address
@@ -89,9 +89,9 @@ export function blogPosting({ site, url, attrs, image }) {
     datePublished: attrs.datePublished,
     dateModified: attrs.dateModified,
     // Credited to the organisation, which is accurate — Vaeral published these.
-    // A named person is the stronger E-E-A-T signal and is tracked separately as
-    // P5-T2; swap in a Person node once bylines are agreed. No author name is
-    // invented here.
+    // Owner decided against personal bylines (2026-07-27), so this is the final
+    // state, not a placeholder. A named Person would be the stronger E-E-A-T
+    // signal, but that is a consent decision and it was declined.
     author: { '@id': orgId(site) },
     publisher: { '@id': orgId(site) },
     mainEntityOfPage: url,
