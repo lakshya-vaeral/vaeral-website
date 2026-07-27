@@ -38,6 +38,7 @@ collections:
       preview: false                 # Framer design can't render here; avoid a misleading preview
     fields:
       - { label: "Title", name: "title", widget: "string" }
+      - { label: "SEO title (browser tab / Google result)", name: "seoTitle", widget: "string", required: false, hint: "Optional. Overrides only the search-result and browser-tab title — the heading on the page stays the Title above. Keep it under 60 characters. Leave blank to reuse the Title." }
       - { label: "URL slug", name: "slug", widget: "string", hint: "Lowercase words with hyphens. Becomes /blog/<slug>. Don't change after publishing — it changes the URL." }
       - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
       - { label: "Description", name: "description", widget: "text", hint: "Meta description + listing excerpt. ~150–160 characters." }
@@ -61,6 +62,7 @@ collections:
       preview: false
     fields:
       - { label: "Title", name: "title", widget: "string" }
+      - { label: "SEO title (browser tab / Google result)", name: "seoTitle", widget: "string", required: false, hint: "Optional. Overrides only the search-result and browser-tab title — the heading on the page stays the Title above. Keep it under 60 characters. Leave blank to reuse the Title." }
       - { label: "URL slug", name: "slug", widget: "string", hint: "Lowercase words with hyphens. Becomes /<slug> (top level). Don't change after publishing — it changes the URL." }
       - { label: "Category", name: "category", widget: "string", hint: "e.g. \"Online Pharmacy / Health & Wellness\". Shown under the title." }
       - { label: "Tags", name: "tags", widget: "list", hint: "The badge chips. Press enter after each tag." }
