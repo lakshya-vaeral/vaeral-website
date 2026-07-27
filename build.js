@@ -958,13 +958,48 @@ function writeLlmsTxt({ services, cases, posts, pages }) {
   console.log('  ✓ llms.txt -> dist/llms.txt');
 }
 
+// AI crawlers: ALLOWED, by owner decision 2026-07-27 (P6-T4).
+//
+// `User-agent: *` already permits these, so naming them changes nothing
+// technically. They are listed explicitly so the permissiveness reads as a
+// decision rather than an oversight — otherwise a future contributor has no way
+// to tell, and "tighten robots.txt" is a common drive-by change.
+//
+// The rationale: Vaeral sells AI search visibility. Retrieval crawlers are the
+// mechanism by which the site can be cited in AI answers at all, so blocking them
+// would contradict the service. Training crawlers are allowed too, as the same
+// decision.
+//
+// Note Google-Extended governs Gemini and AI Overviews grounding only — it has no
+// effect on ordinary Google Search ranking, which is a common misreading.
+const AI_CRAWLERS = [
+  ['OAI-SearchBot', 'ChatGPT search — retrieval for live answers'],
+  ['PerplexityBot', 'Perplexity — retrieval for live answers'],
+  ['Google-Extended', 'Gemini / AI Overviews grounding (not Search ranking)'],
+  ['GPTBot', 'OpenAI — training'],
+  ['ClaudeBot', 'Anthropic — training'],
+  ['CCBot', 'Common Crawl — feeds many downstream models'],
+];
+
 function writeRobots() {
-  // Deliberately does NOT add AI-crawler directives. Allowing or blocking GPTBot,
-  // ClaudeBot, PerplexityBot et al is an owner decision (P6-T4) with a real
-  // trade-off: allowing them is what makes AI citation possible, blocking them
-  // keeps content out of training sets. Absent a decision this stays permissive,
-  // which is the pre-existing state — not a choice made on the owner's behalf.
-  const body = ['User-agent: *', 'Allow: /', '', `Sitemap: ${SITE}/sitemap.xml`, ''].join('\n');
+  const aiSection = AI_CRAWLERS.flatMap(([agent, why]) => [
+    `# ${why}`,
+    `User-agent: ${agent}`,
+    'Allow: /',
+    '',
+  ]);
+
+  const body = [
+    'User-agent: *',
+    'Allow: /',
+    '',
+    '# AI crawlers are explicitly allowed. Vaeral works on AI search visibility,',
+    '# and these crawlers are what make citation in AI answers possible.',
+    '',
+    ...aiSection,
+    `Sitemap: ${SITE}/sitemap.xml`,
+    '',
+  ].join('\n');
   fs.writeFileSync(
     path.join(DIST, 'robots.txt'),
     body.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
