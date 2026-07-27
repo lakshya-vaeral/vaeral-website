@@ -1,6 +1,7 @@
 ---
 title: "How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online"
-slug: "holiday-memebership"
+seoTitle: "Travel & Hospitality Trust Building — Case Study | Vaeral"
+slug: "holiday-membership"
 category: "Holiday Memberships / Hospitality & Travel"
 tags: ["Reddit Marketing", "Quora Marketing", "Response Neutralisation"]
 date: 2026-05-27

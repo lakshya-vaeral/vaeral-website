@@ -1,10 +1,11 @@
 ---
 title: "How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?"
+seoTitle: "D2C Jewellery Brand Reputation Repair — Case Study | Vaeral"
 slug: "silver-jewellery"
 category: "Silver Jewellery / D2C & Gifting"
 tags: ["Reddit Marketing", "Quora Marketing", "AEO-First Community Seeding"]
 date: 2026-05-27
-description: "This brand had real demand, strong designs, and a growing D2C presence but online, the story was messier. Reddit threads questioned tarnishing and durability."
+description: "This D2C silver jewellery brand had real demand and strong designs, but Reddit threads questioned tarnishing and durability. Here is how we fixed it."
 coverImage: "/assets/case-study-hero.jpg"
 draft: false
 problem: |

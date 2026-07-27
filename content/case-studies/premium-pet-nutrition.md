@@ -1,5 +1,6 @@
 ---
 title: "How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash"
+seoTitle: "Pet Nutrition Reddit Backlash Recovery — Case Study | Vaeral"
 slug: "premium-pet-nutrition"
 category: "Premium Pet Nutrition / D2C & Subscription"
 tags: ["Reddit Marketing", "AEO-First Community Seeding", "Response Neutralisation"]
