@@ -834,6 +834,21 @@ function writeSitemap(entries) {
   console.log(`  ✓ sitemap -> dist/sitemap.xml (${entries.length} URLs)`);
 }
 
+// IndexNow lets us notify Bing (and Yandex, Seznam, Naver) of new or changed URLs
+// programmatically. Google does not participate, and its own Indexing API is
+// restricted to JobPosting/BroadcastEvent — Google URLs still have to be submitted
+// by hand in Search Console.
+//
+// The key is public by design: search engines verify ownership by fetching this
+// file from the site root and checking it matches the key in the submission. It is
+// not a secret and does not need protecting.
+const INDEXNOW_KEY = '578535072428959e7ab91a2f84141b9b';
+
+function writeIndexNowKey() {
+  fs.writeFileSync(path.join(DIST, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY);
+  console.log(`  ✓ indexnow key -> dist/${INDEXNOW_KEY}.txt`);
+}
+
 function writeRobots() {
   // Deliberately does NOT add AI-crawler directives. Allowing or blocking GPTBot,
   // ClaudeBot, PerplexityBot et al is an owner decision (P6-T4) with a real
@@ -993,6 +1008,7 @@ function main() {
     ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6' })),
   ]);
   writeRobots();
+  writeIndexNowKey();
 
   // Force hard navigation for all internal links on the homepage to bypass Framer SPA router
   // First, copy the source index.html into dist if it doesn't already exist
