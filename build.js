@@ -431,6 +431,12 @@ function buildCaseStudy({ attributes: a }) {
     URL: escapeHtml(url),
     CATEGORY: escapeHtml(a.category),
     TAGS: renderChips(a.tags),
+    // Defaults preserve the headings that were hardcoded in the Framer export,
+    // so existing case studies render byte-identically after the template was
+    // parameterised for reuse by service pages.
+    SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || 'The Problem'),
+    SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || 'What We Did'),
+    SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || 'The Results'),
     PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS),
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS),
@@ -466,6 +472,72 @@ function buildCaseStudy({ attributes: a }) {
   };
 }
 
+// Service pages and /about reuse the case-study shell rather than introducing new
+// UI. Same three rich-text regions, with the section headings supplied by
+// frontmatter instead of defaulting to the case-study wording.
+function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaType }) {
+  const url = `${SITE}/${dir ? `${dir}/` : ''}${a.slug}`;
+  const faqHtml = renderFaqs(a.faqs);
+
+  let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
+    TITLE: escapeHtml(a.title),
+    SEO_TITLE: escapeHtml(a.seoTitle || a.title),
+    DESCRIPTION: escapeHtml(a.description),
+    OG_IMAGE: escapeHtml(absImage(a.coverImage)),
+    URL: escapeHtml(url),
+    CATEGORY: escapeHtml(a.category || ''),
+    TAGS: renderChips(a.tags),
+    SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || ''),
+    SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || ''),
+    SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || ''),
+    PROBLEM: restyle(marked.parse(a.sectionOne || ''), CASE_PRESETS),
+    WHATWEDID: restyle(marked.parse(a.sectionTwo || ''), CASE_PRESETS),
+    // The FAQ renders inside the third region so the questions are visible page
+    // copy — FAQPage schema without visible Q&A breaches Google's policy.
+    RESULTS: restyle(marked.parse(a.sectionThree || ''), CASE_PRESETS) + faqHtml,
+    JSONLD: schema.renderJsonLd([
+      schema.caseStudyArticle({
+        site: SITE,
+        url,
+        image: absImage(a.coverImage),
+        attrs: {
+          title: a.title,
+          description: a.description,
+          category: a.category,
+          datePublished: isoDate(a.date),
+          dateModified: isoDate(a.date),
+        },
+        type: schemaType,
+      }),
+      a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
+      schema.breadcrumbList(
+        [
+          { name: 'Home', url: `${SITE}/` },
+          breadcrumbParent,
+          { name: a.title, url },
+        ].filter(Boolean),
+      ),
+    ]),
+  });
+
+  html = disableSPARouting(html);
+  writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
+  return { slug: a.slug, title: a.title, description: a.description, url };
+}
+
+// FAQ answers come from frontmatter so the visible copy and the schema share one
+// source — two sources here would drift and eventually breach the policy above.
+function renderFaqs(faqs) {
+  if (!faqs || !faqs.length) return '';
+  const items = faqs
+    .map(
+      ({ question, answer }) =>
+        `<h3>${escapeHtml(question)}</h3>\n<p>${escapeHtml(answer)}</p>`,
+    )
+    .join('\n');
+  return restyle(`<h2>Frequently asked questions</h2>\n${items}`, CASE_PRESETS);
+}
+
 function caseStudyCard(p) {
   const cover = absImage(p.coverImage).replace(SITE, '');
   return `    <a class="card" href="/${p.slug}">
@@ -486,6 +558,7 @@ function buildCaseStudyIndex(cases) {
     : '    <p class="empty">No case studies published yet.</p>';
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
     TITLE: escapeHtml('ORM Case Studies: Reddit & Quora Results | Vaeral'),
+    DESCRIPTION: escapeHtml('Explore our portfolio of successful projects and case studies.'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
     JSONLD: schema.renderJsonLd(
@@ -496,6 +569,53 @@ function buildCaseStudyIndex(cases) {
     ),
   });
   writePage(path.join(DIST, 'casestudies'), disableSPARouting(html));
+}
+
+// The /services hub. Reuses the case-study index template rather than adding new
+// UI, and gives the service-page breadcrumbs a real parent to point at instead of
+// a 404.
+function buildServiceIndex(services) {
+  const cards = services.length
+    ? services
+        .map(
+          (s) => `    <a class="card" href="/services/${s.slug}">
+      <div class="body">
+        <div class="meta"><span>Service</span></div>
+        <h2>${escapeHtml(s.title)}</h2>
+        <p class="excerpt">${escapeHtml(s.description)}</p>
+        <span class="more">Read more &rarr;</span>
+      </div>
+    </a>`,
+        )
+        .join('\n')
+    : '    <p class="empty">No services published yet.</p>';
+
+  const description =
+    'Reddit, Quora, Wikipedia, LinkedIn, review management and AI search visibility — what each service covers and who it suits.';
+
+  const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
+    TITLE: escapeHtml('ORM Services: Reddit, Quora & AI Search | Vaeral'),
+    DESCRIPTION: escapeHtml(description),
+    URL: escapeHtml(`${SITE}/services`),
+    CASES: cards,
+    JSONLD: schema.renderJsonLd([
+      schema.breadcrumbList([
+        { name: 'Home', url: `${SITE}/` },
+        { name: 'Services', url: `${SITE}/services` },
+      ]),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: services.map((s, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: s.title,
+          url: s.url,
+        })),
+      },
+    ]),
+  });
+  writePage(path.join(DIST, 'services'), disableSPARouting(html));
 }
 
 function blogCard(p) {
@@ -528,6 +648,47 @@ function buildBlogIndex(posts) {
     ),
   });
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
+}
+
+// --- sitemap & robots --------------------------------------------------------
+
+// Neither file existed before this (both returned 404), which meant nothing could
+// be submitted to Search Console and crawlers had no index to work from.
+// SITE is rewritten apex -> www on write, matching every canonical on the site.
+function writeSitemap(entries) {
+  const urls = entries
+    .map(
+      ({ loc, priority }) =>
+        `  <url>\n    <loc>${loc}</loc>\n    <priority>${priority}</priority>\n  </url>`,
+    )
+    .join('\n');
+  const xml =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    `${urls}\n` +
+    '</urlset>\n';
+  // No <lastmod>: the only date available is the content's frontmatter date, which
+  // is a publish date rather than a modification date. A wrong lastmod is worse
+  // than none, since crawlers use it to decide what to re-fetch.
+  fs.writeFileSync(
+    path.join(DIST, 'sitemap.xml'),
+    xml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
+  );
+  console.log(`  ✓ sitemap -> dist/sitemap.xml (${entries.length} URLs)`);
+}
+
+function writeRobots() {
+  // Deliberately does NOT add AI-crawler directives. Allowing or blocking GPTBot,
+  // ClaudeBot, PerplexityBot et al is an owner decision (P6-T4) with a real
+  // trade-off: allowing them is what makes AI citation possible, blocking them
+  // keeps content out of training sets. Absent a decision this stays permissive,
+  // which is the pre-existing state — not a choice made on the owner's behalf.
+  const body = ['User-agent: *', 'Allow: /', '', `Sitemap: ${SITE}/sitemap.xml`, ''].join('\n');
+  fs.writeFileSync(
+    path.join(DIST, 'robots.txt'),
+    body.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
+  );
+  console.log('  ✓ robots -> dist/robots.txt');
 }
 
 // --- homepage SEO -----------------------------------------------------------
@@ -623,11 +784,58 @@ function main() {
     console.log(`  ✓ case-study/${entry.attributes.slug} -> dist/${entry.attributes.slug}/index.html`);
   }
 
+  const publishedServices = [];
+  for (const entry of readMarkdownDir(path.join(CONTENT, 'services'))) {
+    if (entry.attributes.draft) {
+      console.log(`  · skip (draft): services/${entry.file}`);
+      continue;
+    }
+    publishedServices.push(
+      buildStandardPage(entry, {
+        dir: 'services',
+        breadcrumbParent: { name: 'Services', url: `${SITE}/services` },
+        schemaType: 'Service',
+      }),
+    );
+    console.log(`  ✓ service/${entry.attributes.slug} -> dist/services/${entry.attributes.slug}/index.html`);
+  }
+
+  const publishedPages = [];
+  for (const entry of readMarkdownDir(path.join(CONTENT, 'pages'))) {
+    if (entry.attributes.draft) {
+      console.log(`  · skip (draft): pages/${entry.file}`);
+      continue;
+    }
+    publishedPages.push(
+      buildStandardPage(entry, {
+        dir: '',
+        breadcrumbParent: null,
+        schemaType: entry.attributes.slug === 'about' ? 'AboutPage' : 'WebPage',
+      }),
+    );
+    console.log(`  ✓ page/${entry.attributes.slug} -> dist/${entry.attributes.slug}/index.html`);
+  }
+
+  buildServiceIndex(publishedServices);
+  console.log(`  ✓ services listing -> dist/services/index.html (${publishedServices.length} services)`);
+
   buildBlogIndex(publishedPosts);
   console.log(`  ✓ blog listing -> dist/blog/index.html (${publishedPosts.length} posts)`);
-  
+
   buildCaseStudyIndex(publishedCases);
   console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
+
+  writeSitemap([
+    { loc: `${SITE}/`, priority: '1.0' },
+    ...publishedPages.map((p) => ({ loc: p.url, priority: '0.8' })),
+    { loc: `${SITE}/services`, priority: '0.9' },
+    ...publishedServices.map((p) => ({ loc: p.url, priority: '0.9' })),
+    { loc: `${SITE}/casestudies`, priority: '0.7' },
+    ...publishedCases.map((c) => ({ loc: `${SITE}/${c.slug}`, priority: '0.7' })),
+    { loc: `${SITE}/blog`, priority: '0.7' },
+    ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6' })),
+  ]);
+  writeRobots();
 
   // Force hard navigation for all internal links on the homepage to bypass Framer SPA router
   // First, copy the source index.html into dist if it doesn't already exist
