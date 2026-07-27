@@ -1,0 +1,49 @@
+# Vaeral
+
+> Online reputation management agency helping brands build and defend credibility
+> across Reddit, Quora, LinkedIn and AI search. Founded 2022, based in Guwahati,
+> India, working with clients globally.
+
+## What we do
+
+Vaeral is an ORM agency. We work on how a brand appears in community discussions,
+in Google search results, and in AI-generated answers from ChatGPT, Perplexity and
+Google AI Overviews. We work within platform rules: Reddit, Quora and Wikipedia all
+prohibit undisclosed coordinated promotion, and we do not place, buy or incentivise
+reviews.
+
+## Services
+
+- [AI Search Visibility (Answer Engine Optimisation)](https://www.vaeral.com/services/ai-search-visibility)
+- [LinkedIn Personal Branding for Founders](https://www.vaeral.com/services/linkedin-personal-branding)
+- [Quora Marketing and Answer Strategy](https://www.vaeral.com/services/quora-marketing)
+- [Reddit Marketing for Brand Reputation](https://www.vaeral.com/services/reddit-marketing)
+- [Review and Response Management](https://www.vaeral.com/services/review-management)
+- [Wikipedia Page Creation and Maintenance](https://www.vaeral.com/services/wikipedia-page-creation)
+
+## Case studies
+
+Client work is described by sector rather than by name.
+
+- [How We Helped a B2B Fintech Platform Recover From a Public API Outage](https://www.vaeral.com/b2b-fintech-platform)
+- [How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online](https://www.vaeral.com/holiday-membership)
+- [How We Helped a Leading Indian E-Pharmacy Go From "Is This a Scam?" to Trusted Household Name](https://www.vaeral.com/online-pharmacy)
+- [How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash](https://www.vaeral.com/premium-pet-nutrition)
+- [How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?](https://www.vaeral.com/silver-jewellery)
+
+## Company
+
+- Founded: 2022
+- Legal entity: House of Swing
+- Founder: Mayank Sureka
+- Location: Guwahati, Assam, India (serving clients globally)
+- Contact: contact@vaeral.com
+- LinkedIn: https://www.linkedin.com/company/vaeral/
+- Instagram: https://www.instagram.com/vaeral.media_
+- [About Vaeral](https://www.vaeral.com/about)
+
+## Blog
+
+- [Full index](https://www.vaeral.com/blog)
+- [How to use reddit for marketing: A step-by-step guide](https://www.vaeral.com/blog/using-reddit-marketing)
+- [How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide](https://www.vaeral.com/blog/viral-negative)
