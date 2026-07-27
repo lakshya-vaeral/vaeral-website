@@ -362,6 +362,7 @@ function buildBlogPost({ attributes: a, body }) {
   const hero = { src: a.coverImage || '/assets/og-image.png', alt: a.coverAlt || a.title, ...imageSize(a.coverImage) };
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
+    SEO_TITLE: escapeHtml(a.seoTitle || a.title),
     DESCRIPTION: escapeHtml(a.description),
     OG_IMAGE: escapeHtml(absImage(a.coverImage)),
     URL: escapeHtml(url),
@@ -405,6 +406,7 @@ function buildCaseStudy({ attributes: a }) {
   const url = `${SITE}/${a.slug}`;
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
+    SEO_TITLE: escapeHtml(a.seoTitle || a.title),
     DESCRIPTION: escapeHtml(a.description),
     OG_IMAGE: escapeHtml(absImage(a.coverImage)),
     URL: escapeHtml(url),
@@ -445,7 +447,7 @@ function buildCaseStudyIndex(cases) {
     ? ordered.map(caseStudyCard).join('\n')
     : '    <p class="empty">No case studies published yet.</p>';
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
-    TITLE: escapeHtml('Case Studies — Vaeral'),
+    TITLE: escapeHtml('ORM Case Studies: Reddit & Quora Results | Vaeral'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
   });
@@ -471,11 +473,61 @@ function buildBlogIndex(posts) {
     ? ordered.map(blogCard).join('\n')
     : '    <p class="empty">No posts published yet.</p>';
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog-index.html'), 'utf8'), {
-    TITLE: escapeHtml('Blog — Vaeral'),
+    TITLE: escapeHtml('ORM, Reddit & AI Search Insights | Vaeral Blog'),
     URL: escapeHtml(`${SITE}/blog`),
     POSTS: cards,
   });
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
+}
+
+// --- homepage SEO -----------------------------------------------------------
+
+// The homepage is a frozen Framer export, so its <head> can't be edited through the
+// CMS the way template-driven pages can. Patch the SEO-relevant tags here at build
+// time instead of hand-editing index.html, so a fresh Framer re-export doesn't
+// silently revert them.
+const HOME_TITLE = 'Reddit & Quora Marketing Agency | Brand Reputation | Vaeral';
+// Kept under 155 chars so search engines don't truncate it mid-sentence.
+const HOME_DESCRIPTION =
+  'Vaeral rebuilds brand trust online through Reddit marketing, Quora marketing, AI search visibility and review management.';
+
+function patchHomepageSeo(html) {
+  const before = html;
+
+  html = html
+    .replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(HOME_TITLE)}</title>`)
+    .replace(
+      /(<meta property="og:title" content=")[^"]*(")/i,
+      `$1${escapeHtml(HOME_TITLE)}$2`,
+    )
+    .replace(
+      /(<meta name="twitter:title" content=")[^"]*(")/i,
+      `$1${escapeHtml(HOME_TITLE)}$2`,
+    )
+    .replace(
+      /(<meta name="description" content=")[^"]*(")/i,
+      `$1${escapeHtml(HOME_DESCRIPTION)}$2`,
+    )
+    .replace(
+      /(<meta property="og:description" content=")[^"]*(")/i,
+      `$1${escapeHtml(HOME_DESCRIPTION)}$2`,
+    )
+    .replace(
+      /(<meta name="twitter:description" content=")[^"]*(")/i,
+      `$1${escapeHtml(HOME_DESCRIPTION)}$2`,
+    );
+
+  // Open Graph requires absolute URLs — a relative path renders a blank preview card
+  // on LinkedIn/WhatsApp/Slack/X. (SITE is rewritten apex -> www on write.)
+  html = html.replace(
+    /(<meta (?:property|name)="(?:og|twitter):image" content=")(\/[^"]*)(")/gi,
+    (_m, open, relPath, close) => open + SITE + relPath + close,
+  );
+
+  if (html === before) {
+    throw new Error('homepage SEO patch matched nothing — index.html <head> layout changed');
+  }
+  return html;
 }
 
 // --- main ------------------------------------------------------------------
@@ -758,9 +810,10 @@ function main() {
       indexHtml = indexHtml.replace('</head>', preloads + '</head>');
     }
 
+    indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(indexFile, indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
-    console.log(`  ✓ patched dist/index.html to disable SPA routing and preload LCP images`);
+    console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
 
   console.log(`\nBuild complete: ${publishedPosts.length} posts, ${cases.filter((c) => !c.attributes.draft).length} case studies.`);

@@ -1,5 +1,6 @@
 ---
 title: "How We Helped a Leading Indian E-Pharmacy Go From \"Is This a Scam?\" to Trusted Household Name"
+seoTitle: "E-Pharmacy Reputation Turnaround — Case Study | Vaeral"
 slug: "online-pharmacy"
 category: "Online Pharmacy / Health & Wellness"
 tags: ["Reddit Marketing", "Quora Marketing", "Response Management"]
