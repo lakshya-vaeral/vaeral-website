@@ -367,9 +367,34 @@ function renderChips(tags) {
 
 // --- builders --------------------------------------------------------------
 
-function buildBlogPost({ attributes: a, body }) {
+// The "Read More Blogs" card was hardcoded to one post in the Framer export, which
+// caused three bugs: it recommended the post you were already reading, it never
+// varied, and its href was relative — so from /blog/viral-negative/ it resolved to
+// /blog/viral-negative/using-reddit-marketing and returned a 404 in production.
+//
+// Picks the most recent other published post. The module has room for one card, so
+// with two posts published there is exactly one candidate; this generalises as more
+// are added.
+function pickRelatedPost(current, allPosts) {
+  const others = allPosts
+    .filter((p) => p.attributes.slug !== current.slug && !p.attributes.draft)
+    .sort((x, y) => toDate(y.attributes.date) - toDate(x.attributes.date));
+  return others[0] || null;
+}
+
+function buildBlogPost({ attributes: a, body }, allPosts = []) {
   const url = `${SITE}/blog/${a.slug}`;
   const hero = { src: a.coverImage || '/assets/og-image.png', alt: a.coverAlt || a.title, ...imageSize(a.coverImage) };
+  const relatedEntry = pickRelatedPost(a, allPosts);
+  const related = relatedEntry
+    ? {
+        href: `/blog/${relatedEntry.attributes.slug}`,
+        title: relatedEntry.attributes.title,
+        date: fmtDate(relatedEntry.attributes.date),
+        readTime: readTimeLabel(relatedEntry.attributes, relatedEntry.body || ''),
+      }
+    : // Only one post published: send readers to the index rather than to itself.
+      { href: '/blog', title: 'More from the Vaeral blog', date: '', readTime: '' };
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'blog.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
     SEO_TITLE: escapeHtml(a.seoTitle || a.title),
@@ -383,8 +408,15 @@ function buildBlogPost({ attributes: a, body }) {
     HERO_ALT: escapeHtml(hero.alt),
     HERO_W: String(hero.width),
     HERO_H: String(hero.height),
-    BODY: restyle(marked.parse(body), BLOG_PRESETS),
+    RELATED_HREF: escapeHtml(related.href),
+    RELATED_TITLE: escapeHtml(related.title),
+    RELATED_DATE: escapeHtml(related.date),
+    RELATED_READTIME: escapeHtml(related.readTime),
+    // FAQs (optional) render into the body from the same frontmatter that feeds the
+    // schema, so the visible Q&A and the structured data cannot drift apart.
+    BODY: restyle(marked.parse(body), BLOG_PRESETS) + renderFaqs(a.faqs, BLOG_PRESETS),
     JSONLD: schema.renderJsonLd([
+      a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
       schema.blogPosting({
         site: SITE,
         url,
@@ -403,6 +435,20 @@ function buildBlogPost({ attributes: a, body }) {
       ]),
     ]),
   });
+  // Blog posts are articles, not generic pages. The Framer export hardcodes
+  // og:type=website on every page; article + the article:* fields give social
+  // platforms and answer engines the publish/update dates explicitly.
+  html = html.replace(
+    /<meta property="og:type" content="website">/i,
+    [
+      '<meta property="og:type" content="article">',
+      `<meta property="article:published_time" content="${escapeHtml(isoDate(a.date))}">`,
+      `<meta property="article:modified_time" content="${escapeHtml(isoDate(a.date))}">`,
+      // article:author is intentionally omitted until bylines are agreed (P5-T2) —
+      // an org name here would be read as a person.
+    ].join('\n    '),
+  );
+
   // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
   html = patchBlogHandover(html, a, body, hero);
   
@@ -536,7 +582,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
 
 // FAQ answers come from frontmatter so the visible copy and the schema share one
 // source — two sources here would drift and eventually breach the policy above.
-function renderFaqs(faqs) {
+function renderFaqs(faqs, presets = CASE_PRESETS) {
   if (!faqs || !faqs.length) return '';
   const items = faqs
     .map(
@@ -544,7 +590,7 @@ function renderFaqs(faqs) {
         `<h3>${escapeHtml(question)}</h3>\n<p>${escapeHtml(answer)}</p>`,
     )
     .join('\n');
-  return restyle(`<h2>Frequently asked questions</h2>\n${items}`, CASE_PRESETS);
+  return restyle(`<h2>Frequently asked questions</h2>\n${items}`, presets);
 }
 
 function caseStudyCard(p) {
@@ -942,7 +988,7 @@ function main() {
       console.log(`  · skip (draft): blog/${entry.file}`);
       continue;
     }
-    publishedPosts.push(buildBlogPost(entry));
+    publishedPosts.push(buildBlogPost(entry, blog));
     console.log(`  ✓ blog/${entry.attributes.slug} -> dist/blog/${entry.attributes.slug}/index.html`);
   }
 
