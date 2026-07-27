@@ -1,5 +1,6 @@
 ---
 title: "How We Helped a B2B Fintech Platform Recover From a Public API Outage"
+seoTitle: "B2B Fintech Outage Reputation Recovery — Case Study | Vaeral"
 slug: "b2b-fintech-platform"
 category: "B2B Fintech / Payment Infrastructure"
 tags: ["Reddit Marketing", "Quora Marketing", "Response Management"]
