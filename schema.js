@@ -113,10 +113,26 @@ export function renderJsonLd(nodes) {
 
 // Case studies are client work write-ups, so Article is the honest type. They
 // carry no byline for the same reason as blog posts.
-export function caseStudyArticle({ site, url, attrs, image }) {
+// Only ever call this with Q&A pairs that are also rendered visibly on the page.
+// FAQPage schema without matching visible copy breaches Google's structured data
+// policy and risks a manual action, so build.js feeds both from one frontmatter
+// source rather than letting them drift apart.
+export function faqPage(faqs) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: { '@type': 'Answer', text: answer },
+    })),
+  };
+}
+
+export function caseStudyArticle({ site, url, attrs, image, type }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': type || 'Article',
     '@id': `${url}#article`,
     headline: attrs.title,
     description: attrs.description,
