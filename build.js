@@ -144,7 +144,16 @@ function disableSPARouting(html) {
 
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), html.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
+  // Nav anchors are relative in the Framer export and resolve against the current
+  // page, which breaks them everywhere except the homepage. Rewrite to absolute,
+  // and re-assert at runtime since hydration reverts DOM changes.
+  const patched = hasFramerNav(html)
+    ? patchNavHrefs(html).replace('</body>', `${NAV_SCRIPT}</body>`)
+    : html;
+  fs.writeFileSync(
+    path.join(dir, 'index.html'),
+    patched.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
+  );
 }
 
 function copyDir(src, dst) {
@@ -650,6 +659,154 @@ function buildBlogIndex(posts) {
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
 }
 
+// --- navigation ---------------------------------------------------------------
+
+// The nav shipped as homepage anchors (./#about, ./#casestudies), which means the
+// real /about and /services pages get no link equity and the nav is useless from
+// any page other than the homepage. These rewrite the static markup so crawlers
+// see real routes without executing JS; NAV_SCRIPT below re-asserts them for users
+// after React hydration, which would otherwise revert the change.
+//
+// #contact stays an anchor deliberately: the working contact form lives on the
+// homepage and there is no /contact page yet.
+// The relative forms are also a live bug on every non-homepage page: from
+// /services/reddit-marketing/, href="./#about" resolves to
+// /services/reddit-marketing/#about — a section that does not exist there. Case
+// studies and blog posts have shipped with this broken nav. Absolute paths fix
+// navigation sitewide and are what crawlers follow.
+//
+// #contact stays an anchor because the working contact form lives on the homepage
+// and there is no /contact page yet — but it must be absolute (/#contact) off the
+// homepage, or it points at a fragment of whatever page you are on.
+const NAV_ROUTES = [
+  { anchors: ['./#about', '../#about'], to: '/about' },
+  { anchors: ['./#casestudies', '../#casestudies'], to: '/casestudies' },
+  { anchors: ['../#contact'], to: '/#contact' },
+];
+
+// On the homepage './#contact' is a genuine same-page anchor and is left alone;
+// elsewhere it has to become absolute.
+function hasFramerNav(html) {
+  return html.includes('<nav');
+}
+
+function patchNavHrefs(html, { isHomepage = false } = {}) {
+  // The listing pages (services / casestudies / blog index) are plain templates
+  // with no Framer nav, so there is nothing to rewrite and nothing to assert.
+  if (!hasFramerNav(html)) return html;
+
+  let touched = 0;
+  const routes = isHomepage
+    ? NAV_ROUTES
+    : [...NAV_ROUTES, { anchors: ['./#contact'], to: '/#contact' }];
+
+  for (const { anchors, to } of routes) {
+    for (const from of anchors) {
+      const needle = `href="${from}"`;
+      if (!html.includes(needle)) continue;
+      html = html.split(needle).join(`href="${to}"`);
+      touched++;
+    }
+  }
+
+  // A Framer page with a nav but no recognised anchors means the export changed —
+  // fail loudly rather than silently shipping a nav that goes nowhere.
+  if (!touched) {
+    throw new Error('page has a nav but no known anchors to rewrite — export changed');
+  }
+  return html;
+}
+
+// Replaces the previous approach, which cloned the Contact link on a 500ms
+// setInterval that ran forever. This uses a MutationObserver instead, is
+// idempotent, and adds Services alongside Blogs.
+const NAV_SCRIPT = `
+<script>
+(function () {
+  var EXTRA = [
+    { cls: 'vaeral-services-link', label: 'Services', href: '/services' },
+    { cls: 'vaeral-blogs-link', label: 'Blogs', href: '/blog' }
+  ];
+  var ROUTES = { 'About': '/about', 'Case Studies': '/casestudies' };
+
+  function labelOf(node) {
+    return (node.textContent || '').trim();
+  }
+
+  function setLabel(node, text) {
+    var spans = node.querySelectorAll('span');
+    for (var i = 0; i < spans.length; i++) {
+      if (spans[i].childNodes.length === 1 && spans[i].childNodes[0].nodeType === 3) {
+        spans[i].textContent = text;
+        return;
+      }
+    }
+  }
+
+  function syncNav(nav) {
+    var links = nav.querySelectorAll('a');
+    var contactContainer = null;
+    var flexRow = null;
+
+    for (var i = 0; i < links.length; i++) {
+      var text = labelOf(links[i]);
+
+      // Hydration can restore the original anchor hrefs; re-assert real routes.
+      if (ROUTES[text] && links[i].getAttribute('href') !== ROUTES[text]) {
+        links[i].setAttribute('href', ROUTES[text]);
+        links[i].setAttribute('target', '_top');
+      }
+
+      if (text === 'Contact') {
+        var c = links[i].parentElement;
+        if (c && c.className && String(c.className).indexOf('-container') !== -1) {
+          var row = c.parentElement;
+          if (row && row.textContent.indexOf('About') !== -1) {
+            contactContainer = c;
+            flexRow = row;
+          }
+        }
+      }
+    }
+
+    if (!contactContainer || !flexRow) return;
+
+    // Insert in reverse so the rendered order matches EXTRA.
+    for (var j = EXTRA.length - 1; j >= 0; j--) {
+      var spec = EXTRA[j];
+      if (nav.querySelector('.' + spec.cls)) continue;
+
+      var node = contactContainer.cloneNode(true);
+      node.classList.add(spec.cls);
+
+      var anchor = node.tagName === 'A' ? node : node.querySelector('a');
+      if (anchor) {
+        anchor.setAttribute('href', spec.href);
+        anchor.setAttribute('target', '_top');
+      }
+      setLabel(node, spec.label);
+      flexRow.insertBefore(node, contactContainer);
+    }
+  }
+
+  function run() {
+    var navs = document.querySelectorAll('nav');
+    for (var i = 0; i < navs.length; i++) syncNav(navs[i]);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>
+`;
+
 // --- sitemap & robots --------------------------------------------------------
 
 // Neither file existed before this (both returned 404), which meant nothing could
@@ -847,65 +1004,26 @@ function main() {
   if (fs.existsSync(indexFile)) {
     let indexHtml = fs.readFileSync(indexFile, 'utf8');
 
-    // --- Inject Blogs link into nav AFTER React hydration via JS ---
-    // Static HTML changes to Framer components are destroyed by React hydration.
-    // We must inject via JS that runs after hydration, using a MutationObserver
-    // to detect when React has finished mounting.
-    const blogNavScript = `
-<script>
-(function() {
-  setInterval(function() {
-    var navs = document.querySelectorAll('nav');
-    navs.forEach(function(nav) {
-      if (nav.querySelector('.vaeral-blogs-link')) return;
-      
-      var links = nav.querySelectorAll('a');
-      for (var i = 0; i < links.length; i++) {
-        if (links[i].textContent.trim() !== 'Contact') continue;
-        var container = links[i].parentElement;
-        if (!container || !container.className || !container.className.includes('-container')) continue;
-        var flexRow = container.parentElement;
-        if (!flexRow || !flexRow.textContent.includes('About')) continue;
-        
-        var blogNode = container.cloneNode(true);
-        blogNode.classList.add('vaeral-blogs-link');
-        
-        var blogA = blogNode.querySelector('a') || blogNode;
-        if (blogA.tagName === 'A') {
-          blogA.href = '/blog';
-          blogA.target = '_top';
-        }
-        
-        var spans = blogNode.querySelectorAll('span');
-        for (var s = 0; s < spans.length; s++) {
-          if (spans[s].childNodes.length === 1 && spans[s].childNodes[0].nodeType === 3) {
-            spans[s].textContent = 'Blogs';
-            break;
-          }
-        }
-        
-        flexRow.insertBefore(blogNode, container);
-        break;
-      }
-    });
-  }, 500);
-})();
-</script>
-`;
+    // Static HTML changes to Framer components are reverted by React hydration, so
+    // the nav is re-asserted at runtime by NAV_SCRIPT (defined above).
+    const blogNavScript = NAV_SCRIPT;
 
-    // CSS overrides to make the nav flex container fit 4 links
     const styleFix = `
 <style>
   html, body, div, h1, h2, h3, h4, h5, h6, p, span, a, section, article, img { -webkit-user-select: none !important; user-select: none !important; }
   input, textarea, [contenteditable] { -webkit-user-select: auto !important; user-select: auto !important; }
   [contenteditable]:not(input):not(textarea) { -webkit-user-modify: read-only !important; user-modify: read-only !important; caret-color: transparent !important; }
   
-  /* ONLY use overflow: visible without changing the fixed width of the containers.
-     This ensures the flex calculation (justify-content: center) remains identical, 
-     keeping the Logo perfectly aligned, while the 4th link visually spills to the right */
-  .framer-1tnpw2r { gap: 15px !important; overflow: visible !important; width: 187.453px !important; }
-  .framer-8gg6gi-container { overflow: visible !important; width: 187.453px !important; }
-  .framer-1y9d1w4 { overflow: visible !important; width: 374.453px !important; }
+  /* Nav sizing. The previous version pinned these to 187.453px / 374.453px so a
+     4th link could overflow a frozen box without re-running the flex maths. That
+     hardcoding was the reason the nav couldn't take another link — Framer's own
+     CSS is width:min-content / width:auto and sizes itself fine.
+     Restoring that lets the row grow naturally for 5 links; the parent is
+     space-between, so the logo stays put. overflow stays visible because the
+     export sets overflow:hidden on the row, which would otherwise clip. */
+  .framer-1tnpw2r { gap: 15px !important; overflow: visible !important; width: auto !important; }
+  .framer-8gg6gi-container { overflow: visible !important; width: auto !important; }
+  .framer-1y9d1w4 { overflow: visible !important; width: min-content !important; }
 </style>
 `;
 
@@ -1078,6 +1196,7 @@ function main() {
     }
 
     indexHtml = patchHomepageSeo(indexHtml);
+    indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(indexFile, indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
