@@ -896,6 +896,68 @@ function writeIndexNowKey() {
   console.log(`  ✓ indexnow key -> dist/${INDEXNOW_KEY}.txt`);
 }
 
+// llms.txt — a clean markdown summary of the site for LLM crawlers.
+//
+// This exists specifically to sidestep the homepage DOM problem: the Framer export
+// renders each breakpoint variant into the same DOM and repeats the testimonial
+// marquee, so a CSS-blind reader sees the homepage at ~2.7x its unique word count.
+// This file gives those crawlers one unambiguous pass over the same facts.
+//
+// Generated from the content collections rather than hand-written, so it cannot
+// drift out of date as pages are added or renamed.
+function writeLlmsTxt({ services, cases, posts, pages }) {
+  const line = (p, prefix = '') => `- [${p.title}](${SITE}${prefix}/${p.slug})`;
+
+  const body = [
+    '# Vaeral',
+    '',
+    '> Online reputation management agency helping brands build and defend credibility',
+    '> across Reddit, Quora, LinkedIn and AI search. Founded 2022, based in Guwahati,',
+    '> India, working with clients globally.',
+    '',
+    '## What we do',
+    '',
+    'Vaeral is an ORM agency. We work on how a brand appears in community discussions,',
+    'in Google search results, and in AI-generated answers from ChatGPT, Perplexity and',
+    'Google AI Overviews. We work within platform rules: Reddit, Quora and Wikipedia all',
+    'prohibit undisclosed coordinated promotion, and we do not place, buy or incentivise',
+    'reviews.',
+    '',
+    '## Services',
+    '',
+    ...services.map((s) => line(s, '/services')),
+    '',
+    '## Case studies',
+    '',
+    'Client work is described by sector rather than by name.',
+    '',
+    ...cases.map((c) => line(c)),
+    '',
+    '## Company',
+    '',
+    '- Founded: 2022',
+    '- Legal entity: House of Swing',
+    '- Founder: Mayank Sureka',
+    '- Location: Guwahati, Assam, India (serving clients globally)',
+    '- Contact: contact@vaeral.com',
+    '- LinkedIn: https://www.linkedin.com/company/vaeral/',
+    '- Instagram: https://www.instagram.com/vaeral.media_',
+    ...pages.map((p) => `- [${p.title}](${SITE}/${p.slug})`),
+    '',
+    '## Blog',
+    '',
+    `- [Full index](${SITE}/blog)`,
+    ...posts.map((p) => `- [${p.title}](${SITE}/blog/${p.slug})`),
+    '',
+  ].join('\n');
+
+  fs.writeFileSync(
+    path.join(DIST, 'llms.txt'),
+    body.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
+  );
+  console.log('  ✓ llms.txt -> dist/llms.txt');
+}
+
 function writeRobots() {
   // Deliberately does NOT add AI-crawler directives. Allowing or blocking GPTBot,
   // ClaudeBot, PerplexityBot et al is an owner decision (P6-T4) with a real
@@ -1054,6 +1116,12 @@ function main() {
     { loc: `${SITE}/blog`, priority: '0.7' },
     ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6' })),
   ]);
+  writeLlmsTxt({
+    services: publishedServices,
+    cases: publishedCases,
+    posts: publishedPosts,
+    pages: publishedPages,
+  });
   writeRobots();
   writeIndexNowKey();
 
