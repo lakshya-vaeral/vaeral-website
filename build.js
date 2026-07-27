@@ -1018,6 +1018,75 @@ const HOME_TITLE = 'Reddit & Quora Marketing Agency | Brand Reputation | Vaeral'
 const HOME_DESCRIPTION =
   'Vaeral rebuilds brand trust online through Reddit marketing, Quora marketing, AI search visibility and review management.';
 
+// Homepage copy corrections, applied at build time for the same reason as the SEO
+// head tags: index.html is a frozen Framer export, and patching here means a fresh
+// re-export cannot silently reinstate the old wording.
+//
+// Two of these are compliance-driven rather than stylistic. "Proxy-backed clusters"
+// and "we seed authentic reviews" describe practices that breach Reddit, Quora and
+// Wikipedia policy and India's CCPA fake-review guidance (BIS IS 19000:2022) - and
+// since the service pages shipped, they also directly contradict
+// /services/review-management, which states Vaeral does not place or buy reviews.
+// A site that contradicts itself gives answer engines conflicting evidence about
+// the same entity.
+//
+// The statistics are replaced rather than deleted: each says the same thing in a
+// form that does not depend on an unpublished number. Uncited precision is
+// discounted by answer engines, and a 100%-success claim sat badly next to a
+// service page saying nobody can guarantee a Wikipedia page.
+const HOMEPAGE_COPY = [
+  {
+    what: 'proxy-backed clusters',
+    count: 1,
+    from: 'With proxy-backed clusters, original ideas, and tailored blueprints, we turn crises into non‑events stopping trouble before it starts.',
+    to: 'With community strategy, original research and tailored response playbooks, we turn crises into non‑events — stopping trouble before it starts.',
+  },
+  {
+    what: 'seeding reviews',
+    count: 2,
+    from: 'We seed authentic reviews and craft balanced, rapid-fire responses',
+    to: 'We help you earn reviews from real customers and craft balanced, rapid-fire responses',
+  },
+  {
+    what: 'Quora lifespan statistic',
+    count: 3,
+    from: 'Our Quora answers have Google ranking lifespan of 13 months. Most ads last 13 days.',
+    to: 'A well-placed Quora answer keeps earning views years after it is written. A paid ad stops the day you stop paying.',
+  },
+  {
+    what: 'Wikipedia success-rate statistic',
+    count: 3,
+    from: '100% of our Wikipedia pages have passed editorial review on the first attempt.',
+    to: 'We assess notability before we write. If the independent coverage is not there yet, we say so — a declined draft costs months.',
+  },
+  {
+    what: 'AI-answers statistic',
+    count: 3,
+    from: '95% of our clients appear in AI-generated answers on ChatGPT, Google AI Overview, and Perplexity within 60 days.',
+    to: 'We track whether your brand appears in AI answers across ChatGPT, Google AI Overviews and Perplexity — measured on a fixed prompt set, re-run on a schedule, so you can see it change.',
+  },
+  {
+    // Missing space, visible to every reader, repeated once per testimonial copy.
+    what: 'teamgot typo',
+    count: 8,
+    from: 'Mayank &amp; teamgot it done',
+    to: 'Mayank &amp; team got it done',
+  },
+];
+
+function patchHomepageCopy(html) {
+  for (const { what, from, to, count } of HOMEPAGE_COPY) {
+    const found = html.split(from).length - 1;
+    if (found !== count) {
+      // Fail the build rather than ship half-corrected copy: a Framer re-export that
+      // reworded one of these would otherwise reinstate it silently.
+      throw new Error(`homepage copy patch "${what}": expected ${count} occurrence(s), found ${found}`);
+    }
+    html = html.split(from).join(to);
+  }
+  return html;
+}
+
 function patchHomepageSeo(html) {
   const before = html;
 
@@ -1361,6 +1430,7 @@ function main() {
       indexHtml = indexHtml.replace('</head>', preloads + '</head>');
     }
 
+    indexHtml = patchHomepageCopy(indexHtml);
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
