@@ -6,7 +6,7 @@ description: this is the first blog uploaded via the new and proper cms
 coverImage: /assets/og-image.png
 coverAlt: test-blog-cover-img
 readTime: 1
-draft: false
+draft: true
 ---
 hello world
 

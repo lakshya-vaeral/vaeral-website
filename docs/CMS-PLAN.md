@@ -96,11 +96,16 @@ homepage links like `./online-pharmacy`).
 
 ## 4. The 5 case studies (routes linked from homepage)
 
-`online-pharmacy`, `silver-jewellery`, `holiday-memebership` *(sic — typo in the live route,
-keep it so links don't break)*, `premium-pet-nutrition`, `b2b-fintech-platform`.
+`online-pharmacy`, `silver-jewellery`, `holiday-membership`, `premium-pet-nutrition`,
+`b2b-fintech-platform`.
+
+> **Updated 2026-07-27 (SEO Phase 2).** This slug was previously `holiday-memebership` (sic), and
+> this plan said to keep the typo "so links don't break". It has now been corrected to
+> `holiday-membership`; the old path 301-redirects to the new one in `vercel.json`, so nothing
+> breaks. The migration snapshot was renamed to `templates/source/holiday-membership.html` to match.
 
 **Status: DONE (2026-06-28).** All 5 case-study source pages are saved in
-`templates/source/<slug>.html` (`online-pharmacy`, `silver-jewellery`, `holiday-memebership`,
+`templates/source/<slug>.html` (`online-pharmacy`, `silver-jewellery`, `holiday-membership`,
 `premium-pet-nutrition`, `b2b-fintech-platform`). They do NOT exist elsewhere — these files are
 the source of truth for the case-study template + content migration.
 
@@ -328,10 +333,10 @@ across tags):**
 ### Phase 5 — Decap CMS  ☑ (2026-06-29) — DONE, tested end-to-end on the Vercel branch deploy
 - [x] `public/admin/index.html` → Decap loader (`decap-cms@^3`, `noindex`). `public/admin/config.yml`
       with **blog** + **case-studies** collections matching §3 frontmatter exactly (blog:
-      title/slug/date/description/coverImage/coverAlt?/readTime?/draft/body; case study:
-      title/slug/category/tags-list/date/description/coverImage?/draft/problem/whatWeDid/results,
+      title/seoTitle?/slug/date/description/coverImage/coverAlt?/readTime?/draft/body; case study:
+      title/seoTitle?/slug/category/tags-list/date/description/coverImage?/draft/problem/whatWeDid/results,
       no body). `media_folder: public/assets`, `public_folder: /assets`. `slug: "{{fields.slug}}"`
-      keeps filename = frontmatter slug = output folder (holiday-memebership kept as-is). Per-collection
+      keeps filename = frontmatter slug = output folder (holiday-membership). Per-collection
       `editor.preview: false` (Framer design can't render in Decap). `local_backend: true` for
       `npx decap-server`. `backend.branch: feature/proper-cms` (flips to `main` at Phase-6 cutover).
 - [x] **GitHub OAuth proxy** as two Vercel serverless fns: `api/auth.js` (redirect to GitHub authorize,
@@ -423,8 +428,8 @@ actions by a human; the two repo edits are flagged **[repo]** (a dev/AI does the
       and renders at `/assets/...` after rebuild.
 - [ ] Spot-check a blog post and a case study page render correctly (hydration intact —
       see §5/Phase-4 hydration note) on **mobile + desktop**.
-- [ ] All 5 case-study routes + 2 blog routes resolve (incl. the `holiday-memebership`
-      typo'd slug). `/blog` listing renders.
+- [ ] All 5 case-study routes + 2 blog routes resolve (incl. `holiday-membership`, and the
+      old `holiday-memebership` path still 301-ing to it). `/blog` listing renders.
 
 #### 6.3 Cleanup
 - [ ] Delete unused legacy Vercel env vars: `ADMIN_PASSWORD`, `GITHUB_PAT`, `GITHUB_REPO`.
@@ -505,4 +510,4 @@ are secrets/access, not code):**
 `dist/` by the build; Decap needs the absolute `cms-config-url` link or it 404s the
 config at `/admin`; blog pages need the `framer/handover` CMS record patched or
 hydration clobbers injected content (Phase 4); local `blog-*.jpg` covers are actually
-WebP; keep the `holiday-memebership` typo'd slug.
+WebP; the `holiday-memebership` slug was corrected to `holiday-membership` on 2026-07-27 (301 in place).

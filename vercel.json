@@ -453,6 +453,26 @@
       "source": "/boult-audio/",
       "destination": "/silver-jewellery",
       "permanent": true
+    },
+    {
+      "source": "/holiday-memebership",
+      "destination": "/holiday-membership",
+      "permanent": true
+    },
+    {
+      "source": "/holiday-memebership/",
+      "destination": "/holiday-membership",
+      "permanent": true
+    },
+    {
+      "source": "/blog/test-blog-1",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/blog/test-blog-1/",
+      "destination": "/blog",
+      "permanent": true
     }
   ]
 }
