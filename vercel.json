@@ -105,16 +105,6 @@
       "permanent": true
     },
     {
-      "source": "/services",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/services/",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/case-studies",
       "destination": "/",
       "permanent": true
