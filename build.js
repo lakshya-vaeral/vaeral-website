@@ -16,6 +16,7 @@ import path from 'node:path';
 import fm from 'front-matter';
 import { marked } from 'marked';
 import * as cheerio from 'cheerio';
+import * as schema from './schema.js';
 
 const ROOT = process.cwd();
 const SITE = 'https://vaeral.com';
@@ -374,6 +375,24 @@ function buildBlogPost({ attributes: a, body }) {
     HERO_W: String(hero.width),
     HERO_H: String(hero.height),
     BODY: restyle(marked.parse(body), BLOG_PRESETS),
+    JSONLD: schema.renderJsonLd([
+      schema.blogPosting({
+        site: SITE,
+        url,
+        image: absImage(a.coverImage),
+        attrs: {
+          title: a.title,
+          description: a.description,
+          datePublished: isoDate(a.date),
+          dateModified: isoDate(a.date),
+        },
+      }),
+      schema.breadcrumbList([
+        { name: 'Home', url: `${SITE}/` },
+        { name: 'Blog', url: `${SITE}/blog` },
+        { name: a.title, url },
+      ]),
+    ]),
   });
   // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
   html = patchBlogHandover(html, a, body, hero);
@@ -415,6 +434,25 @@ function buildCaseStudy({ attributes: a }) {
     PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS),
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS),
+    JSONLD: schema.renderJsonLd([
+      schema.caseStudyArticle({
+        site: SITE,
+        url,
+        image: absImage(a.coverImage),
+        attrs: {
+          title: a.title,
+          description: a.description,
+          category: a.category,
+          datePublished: isoDate(a.date),
+          dateModified: isoDate(a.date),
+        },
+      }),
+      schema.breadcrumbList([
+        { name: 'Home', url: `${SITE}/` },
+        { name: 'Case Studies', url: `${SITE}/casestudies` },
+        { name: a.title, url },
+      ]),
+    ]),
   });
   html = disableSPARouting(html);
   writePage(path.join(DIST, a.slug), html);
@@ -450,6 +488,12 @@ function buildCaseStudyIndex(cases) {
     TITLE: escapeHtml('ORM Case Studies: Reddit & Quora Results | Vaeral'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
+    JSONLD: schema.renderJsonLd(
+      schema.breadcrumbList([
+        { name: 'Home', url: `${SITE}/` },
+        { name: 'Case Studies', url: `${SITE}/casestudies` },
+      ]),
+    ),
   });
   writePage(path.join(DIST, 'casestudies'), disableSPARouting(html));
 }
@@ -476,6 +520,12 @@ function buildBlogIndex(posts) {
     TITLE: escapeHtml('ORM, Reddit & AI Search Insights | Vaeral Blog'),
     URL: escapeHtml(`${SITE}/blog`),
     POSTS: cards,
+    JSONLD: schema.renderJsonLd(
+      schema.breadcrumbList([
+        { name: 'Home', url: `${SITE}/` },
+        { name: 'Blog', url: `${SITE}/blog` },
+      ]),
+    ),
   });
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
 }
@@ -527,6 +577,15 @@ function patchHomepageSeo(html) {
   if (html === before) {
     throw new Error('homepage SEO patch matched nothing — index.html <head> layout changed');
   }
+
+  // The organisation node is the anchor every other page's schema @id-references,
+  // so it belongs on the homepage specifically.
+  const ld = schema.renderJsonLd(schema.organization(SITE));
+  if (!html.includes('</head>')) {
+    throw new Error('homepage has no </head> — cannot attach structured data');
+  }
+  html = html.replace('</head>', `${ld}\n</head>`);
+
   return html;
 }
 
