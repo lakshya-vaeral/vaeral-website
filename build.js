@@ -142,11 +142,38 @@ function disableSPARouting(html) {
   return html.replace('</body>', script);
 }
 
+const IMAGE_SCRIPT = `
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+  }
+})();
+</script>
+`;
+
 function patchImages(html) {
   const replace1 = `<img decoding="async" width="608" height="698" sizes="(min-width: 1280px) 363px, (max-width: 809.98px) 301px, (min-width: 810px) and (max-width: 1279.98px) 239px" src="/assets/robot_nodes.png" alt style="display:block;width:100%;height:100%;border-radius:inherit;corner-shape:inherit;object-position:center;object-fit:contain">`;
   const replace2 = `<img decoding="async" width="820" height="415" sizes="(min-width: 1280px) 711px, (min-width: 810px) and (max-width: 1279.98px) 711px, (max-width: 809.98px) 637px" src="/assets/negative_post.png" alt style="display:block;width:100%;height:100%;border-radius:inherit;corner-shape:inherit;object-position:center;object-fit:cover">`;
   let out = html.replace(/<img[^>]+width="608"[^>]+height="698"[^>]+src="data:image\/svg[^>]+>/g, replace1);
-  return out.replace(/<img[^>]+width="820"[^>]+height="415"[^>]+src="data:image\/svg[^>]+>/g, replace2);
+  out = out.replace(/<img[^>]+width="820"[^>]+height="415"[^>]+src="data:image\/svg[^>]+>/g, replace2);
+  return out.replace('</body>', `${IMAGE_SCRIPT}</body>`);
 }
 
 function writePage(dir, html) {
