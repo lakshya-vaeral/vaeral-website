@@ -142,6 +142,13 @@ function disableSPARouting(html) {
   return html.replace('</body>', script);
 }
 
+function patchImages(html) {
+  const replace1 = `<img decoding="async" width="608" height="698" sizes="(min-width: 1280px) 363px, (max-width: 809.98px) 301px, (min-width: 810px) and (max-width: 1279.98px) 239px" src="/assets/robot_nodes.png" alt style="display:block;width:100%;height:100%;border-radius:inherit;corner-shape:inherit;object-position:center;object-fit:contain">`;
+  const replace2 = `<img decoding="async" width="820" height="415" sizes="(min-width: 1280px) 711px, (min-width: 810px) and (max-width: 1279.98px) 711px, (max-width: 809.98px) 637px" src="/assets/negative_post.png" alt style="display:block;width:100%;height:100%;border-radius:inherit;corner-shape:inherit;object-position:center;object-fit:cover">`;
+  let out = html.replace(/<img[^>]+width="608"[^>]+height="698"[^>]+src="data:image\/svg[^>]+>/g, replace1);
+  return out.replace(/<img[^>]+width="820"[^>]+height="415"[^>]+src="data:image\/svg[^>]+>/g, replace2);
+}
+
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   // Nav anchors are relative in the Framer export and resolve against the current
@@ -152,7 +159,7 @@ function writePage(dir, html) {
     : html;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    patched.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
+    patchImages(patched.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
   );
 }
 
@@ -1434,7 +1441,7 @@ function main() {
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
-    fs.writeFileSync(indexFile, indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'));
+    fs.writeFileSync(indexFile, patchImages(indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')));
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
 
