@@ -338,6 +338,78 @@ const INTERACTION_STYLES = `
     outline-offset: 3px;
     border-radius: 4px;
   }
+
+  /* --- Responsive header ------------------------------------------------------------------
+     These pages had no responsive nav below 1200px. The cause is not a missing media query:
+     this export only ships breakpoint variants for the FOOTER (three ssr-variant wrappers,
+     Desktop/Phone/Tablet). Its <nav> has exactly one variant, data-framer-name="Web", so
+     there is no phone nav in the DOM to switch to — blog.html by contrast ships nav variants
+     ("Web", "Mobile closed"), which is why blog pages get a hamburger and these do not.
+     The CSS for a mobile nav variant does exist (.framer-v-cusxc3 sets width:390px and a
+     column layout) but nothing can ever apply it, because the markup it belongs to was not
+     exported.
+
+     Transplanting the hamburger from blog.html was considered and rejected: its classes are
+     scoped to that page's component ids so it would arrive unstyled, and opening the menu is
+     runtime-driven — and the runtime is exactly what had to be removed here. A menu that
+     cannot open is worse than a row of links that fits.
+
+     So the desktop row is made to degrade instead. The Menu row is pinned to width:1100px
+     with no responsive override, inside a nav with overflow:hidden, which is why the links
+     were cut off rather than wrapped. Making it fluid and allowing it to wrap keeps every
+     destination reachable at any width. */
+  @media (max-width: 1199.98px) {
+    .framer-Ikdsk.framer-gywbom {
+      width: 100%;
+      padding: 0 24px;
+    }
+    .framer-Ikdsk .framer-1tbjop8 {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+  @media (max-width: 809.98px) {
+    .framer-Ikdsk.framer-gywbom {
+      height: auto;
+      min-height: 0;
+      padding: 12px 16px;
+      overflow: visible;
+    }
+    .framer-Ikdsk .framer-1tbjop8 {
+      flex-wrap: wrap;
+      place-content: center;
+      gap: 10px 16px;
+      overflow: visible;
+    }
+    .framer-Ikdsk .framer-1y9d1w4 {
+      flex-wrap: wrap;
+      justify-content: center;
+      /* width:auto alone is not enough: this row sits in a centred flex parent, so without a
+         max-width it grows past the viewport and overflows on both sides — the logo gets cut off
+         the left while the last link runs off the right. Constraining it makes the wrap happen. */
+      width: auto;
+      max-width: 100%;
+      min-width: 0;
+      gap: 8px 18px;
+      overflow: visible;
+    }
+    /* The link and logo boxes are flex:none, so they also need permission to shrink/wrap. */
+    .framer-Ikdsk .framer-1y9d1w4 > * {
+      max-width: 100%;
+      min-width: 0;
+    }
+    /* The row holding the menu items is itself flex-wrap:nowrap at a computed 458px, which is
+       what actually pushed the last link off a 463px viewport. Measured rather than guessed:
+       walking the nav for elements wider than the viewport reported exactly this element. */
+    .framer-sSvvD.framer-1tnpw2r {
+      flex-wrap: wrap;
+      justify-content: center;
+      width: auto;
+      max-width: 100%;
+      min-width: 0;
+      row-gap: 8px;
+    }
+  }
 </style>
 </head>`;
 
@@ -370,6 +442,32 @@ ${FORM_FOCUS_CSS}
   button.framer-FTivK[type="submit"]:hover .framer-text {
     --framer-text-color: #fff !important;
     color: #fff !important;
+  }
+
+  /* Case-study card titles and descriptions were invisible in the tablet range.
+     Found by adding the homepage to render-check; measured, not guessed:
+
+       viewport   card title          card description
+       1478       rgb(255,255,255)    rgb(155,155,189)
+       1258       rgb(0,0,0)          rgb(0,0,0)          <-- black on near-black
+        878       rgb(0,0,0)          rgb(0,0,0)          <-- black on near-black
+        478       rgb(255,255,255)    rgb(155,155,189)
+
+     So desktop (>=1280) and phone (<=809.98) are both correct and only the tablet
+     breakpoint between them lost its colour: those containers carry no colour custom
+     property at all, and no preset supplies one in that range. Confirmed visually — at
+     1280 the cards showed only their tag chips, with the title and lede invisible.
+
+     This gives the tablet range the exact values the other two breakpoints already use, so
+     nothing is invented. :not([style*=extracted-r6o4lv]) restricts it to the containers with
+     no colour source, leaving the tag chips (which have one) untouched. */
+  @media (min-width: 810px) and (max-width: 1279.98px) {
+    [data-framer-name="cards"] [data-framer-component-type="RichTextContainer"]:not([style*="extracted-r6o4lv"]) h3.framer-text {
+      --framer-text-color: rgb(255, 255, 255);
+    }
+    [data-framer-name="cards"] [data-framer-component-type="RichTextContainer"]:not([style*="extracted-r6o4lv"]) p.framer-text {
+      --framer-text-color: rgb(155, 155, 189);
+    }
   }
 </style>`;
 
