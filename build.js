@@ -177,6 +177,22 @@ function stripFramerPageRuntime(html) {
 // Scoped to RichTextContainer so it can only affect injected content.
 const CONTENT_STYLES = `
 <style>
+  /* The export hard-codes the page root to height:2172px with overflow:clip — a fixed canvas
+     height from Framer, not a response to content — at top level, so it applies at every
+     width above the phone breakpoint (which alone gets height:min-content). Anything below
+     2172px is therefore clipped away AND excluded from the document's scroll height, so it
+     cannot be scrolled to at all.
+     Content shorter than 2172px hid this. The shipped case studies ran ~2386px, so their
+     footers were already being cut ~213px in; the on-demand study runs 3020px and its footer
+     starts at 2359px, entirely below the line, which is why it vanished completely.
+     It also survived every check we had: a tall-window screenshot has a viewport taller than
+     the document, so the clipped region is still painted and looks correct.
+     Restoring content-driven height. Scoped above the phone breakpoint so the existing
+     min-content rule there is left alone; overflow stays clipped, which still contains the
+     decorative glow horizontally. */
+  @media (min-width: 810px) {
+    .framer-y31P2.framer-1gd2lyo { height: auto; }
+  }
   [data-framer-component-type="RichTextContainer"] table {
     width: 100%;
     border-collapse: collapse;
