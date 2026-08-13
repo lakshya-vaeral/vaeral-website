@@ -282,6 +282,30 @@ const CONTENT_STYLES = `
 </style>
 </head>`;
 
+// The export's logo links are href="./", which is only correct at one URL depth. A relative
+// "./" resolves against the current directory, and these pages are served without a trailing
+// slash, so on /services/review-management it resolves to /services/ — the logo took you to the
+// services hub instead of home. On the one-level case-study URLs it happened to be right, which
+// is why it went unnoticed.
+//
+// The "Go back" link had the same defect and is handled separately, via the BACK_HREF marker,
+// because its correct target differs per page type rather than always being home.
+//
+// Patched at build time rather than in the template so a re-export cannot silently reintroduce
+// the relative form; the count is asserted for the same reason.
+const RELATIVE_HOME_LINKS = 4;
+
+function patchRelativeHomeLinks(html) {
+  const found = html.split('href="./"').length - 1;
+  if (found !== RELATIVE_HOME_LINKS) {
+    throw new Error(
+      `relative home links: expected ${RELATIVE_HOME_LINKS} href="./" (the logo and its three ` +
+        `breakpoint variants), found ${found}. Check what changed before adjusting this.`,
+    );
+  }
+  return html.split('href="./"').join('href="/"');
+}
+
 // Homepage: a "View all case studies" link under the case-study cards.
 //
 // The blog section has "View all posts" but the case-studies section had no equivalent, so the
@@ -872,6 +896,8 @@ function buildCaseStudy({ attributes: a }) {
     SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || 'What We Did'),
     SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || 'The Results'),
     ALL_CASE_STUDIES: ALL_CASE_STUDIES_BUTTON,
+    // "Go back" belongs to the listing this page came from, not the homepage.
+    BACK_HREF: '/casestudies',
     PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS, `case-study/${a.slug} "The Problem"`),
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS, `case-study/${a.slug} "What We Did"`),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS, `case-study/${a.slug} "The Results"`),
@@ -895,7 +921,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = injectContentStyles(stripFramerPageRuntime(disableSPARouting(html)));
+  html = injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html))));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -928,6 +954,8 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     // Service pages and /about share this template but are not case studies, so the button is
     // filled with nothing rather than left unfilled — an unfilled marker survives into the HTML.
     ALL_CASE_STUDIES: '',
+    // Service pages go back to /services; /about has no listing above it, so it goes home.
+    BACK_HREF: dir ? `/${dir}` : '/',
     PROBLEM: restyle(marked.parse(a.sectionOne || ''), CASE_PRESETS, `${a.slug} section 1`),
     WHATWEDID: restyle(marked.parse(a.sectionTwo || ''), CASE_PRESETS, `${a.slug} section 2`),
     // The FAQ renders inside the third region so the questions are visible page
@@ -958,7 +986,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ]),
   });
 
-  html = injectContentStyles(stripFramerPageRuntime(disableSPARouting(html)));
+  html = injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   return { slug: a.slug, title: a.title, description: a.description, url };
 }
