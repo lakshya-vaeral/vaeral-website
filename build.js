@@ -170,6 +170,19 @@ function stripFramerPageRuntime(html) {
   return html.replace(re, '<!-- framer page-render runtime removed: it discards injected CMS content -->');
 }
 
+// The export explicitly kills the focus ring on its form fields:
+//
+//   .framer-form-input:focus-visible { outline: none }
+//
+// so the newsletter and contact inputs give a keyboard user no indication of where they are.
+// Restored with the same ring the buttons use. !important because on the homepage Framer's
+// stylesheet can be re-inserted by the runtime after ours, and this must not lose that race.
+const FORM_FOCUS_CSS = `
+  .framer-form-input:focus-visible {
+    outline: 2px solid rgba(197, 185, 246, 0.9) !important;
+    outline-offset: 2px;
+  }`;
+
 // Colour and typography for CMS content come from the Framer presets in CASE_PRESETS, the
 // same route every other injected tag uses. What the export has no rules for at all is
 // table *structure* — it never contained a table — so a bare markdown table renders with
@@ -244,6 +257,7 @@ const CONTENT_STYLES = `
     background: none;
     padding: 0;
   }
+${FORM_FOCUS_CSS}
   /* "All case studies" button. Geometry is lifted verbatim from the footer's primary button
      rule (.framer-cTzwY .framer-1uvdw5m), which could not be reused directly because it is
      scoped to the footer. Colours and typography come from the inline recipe on the element,
@@ -281,6 +295,7 @@ const CONTENT_STYLES = `
   }
 </style>
 </head>`;
+
 
 // Framer drove hover and focus feedback from the page runtime, which had to be removed to stop
 // it replacing injected content. Nothing in the export's CSS replaces it: of the 51 :hover rules
@@ -330,6 +345,33 @@ function injectInteractionStyles(html) {
   if (!html.includes('</head>')) throw new Error('injectInteractionStyles: no </head> found');
   return html.replace('</head>', INTERACTION_STYLES);
 }
+
+
+// Homepage-only: the contact form's submit button (framer-FTivK, which appears on no other page).
+//
+// It inverts on hover — the runtime turns the background dark — but the label's colour is pinned
+// by an inline custom property that the hover variant does not touch, so "Submit" stayed
+// rgb(4,1,40) on a dark background and vanished at the exact moment the user went to click it.
+//
+// Completing the inversion rather than cancelling it, using the button's own two colours: its
+// normal text colour becomes the hover background, and the label goes light. No new values.
+// !important on the background because the runtime sets that property inline.
+const HOMEPAGE_FIX_STYLES = `
+<style>
+${FORM_FOCUS_CSS}
+
+  button.framer-FTivK[type="submit"] {
+    transition: background-color 0.15s ease;
+  }
+  button.framer-FTivK[type="submit"]:hover {
+    background-color: rgb(4, 1, 40) !important;
+  }
+  button.framer-FTivK[type="submit"]:hover p,
+  button.framer-FTivK[type="submit"]:hover .framer-text {
+    --framer-text-color: #fff !important;
+    color: #fff !important;
+  }
+</style>`;
 
 // The export's logo links are href="./", which is only correct at one URL depth. A relative
 // "./" resolves against the current directory, and these pages are served without a trailing
@@ -1891,7 +1933,7 @@ function main() {
 `;
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + CASE_STUDIES_CTA_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
     }
 
     const preloads = `
