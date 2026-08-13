@@ -22,7 +22,7 @@ export function organization(site) {
     logo: `${site}/assets/vaeral-logo.svg`,
     image: `${site}/assets/og-image.png`,
     description:
-      'Vaeral is an online reputation management agency that builds brand credibility through Reddit marketing, Quora marketing, AI search visibility and review management.',
+      'Vaeral is an online reputation management agency that builds brand credibility through Reddit marketing, Quora marketing, AI search visibility, review management, brand search result management and influencer marketing.',
     email: 'contact@vaeral.com',
     telephone: '+91-9104491177',
     foundingDate: '2022',
@@ -42,6 +42,9 @@ export function organization(site) {
       'https://www.linkedin.com/company/vaeral/',
       'https://www.instagram.com/vaeral.media_',
     ],
+    // Appended to, never reordered or rewritten: these arrays are how an answer engine
+    // establishes what Vaeral does, so a service with a live page but no entry here is a
+    // service the model has no evidence for.
     knowsAbout: [
       'Online Reputation Management',
       'Reddit Marketing',
@@ -49,6 +52,10 @@ export function organization(site) {
       'Answer Engine Optimization',
       'Review Management',
       'Wikipedia Page Creation',
+      'Brand Search Result Management',
+      'Comment Management',
+      'App Store Optimization',
+      'Influencer Marketing',
     ],
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
@@ -60,6 +67,10 @@ export function organization(site) {
         'LinkedIn Personal Branding',
         'Review Management',
         'AI Search Visibility',
+        'Brand Search Result and Autocomplete Management',
+        'Comment Management',
+        'App Download and Product Signup Growth',
+        'Influencer Marketing',
       ].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
     },
   };

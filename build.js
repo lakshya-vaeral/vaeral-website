@@ -1246,11 +1246,14 @@ function buildServiceIndex(services) {
         .join('\n')
     : '    <p class="empty">No services published yet.</p>';
 
+  // Deliberately names no services and no count. The previous version enumerated six, which
+  // stopped being true the moment a seventh page shipped; a count would go stale the same way
+  // at eleven. This is the one string here that must survive the service list changing.
   const description =
-    'Reddit, Quora, Wikipedia, LinkedIn, review management and AI search visibility — what each service covers and who it suits.';
+    'Reputation, search visibility and growth services — what each one covers, who it suits, and who it does not.';
 
   const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
-    TITLE: escapeHtml('ORM Services: Reddit, Quora & AI Search | Vaeral'),
+    TITLE: escapeHtml('ORM, Search and Growth Services | Vaeral'),
     // The shared index template hardcoded "Case Studies", so /services carried the wrong
     // visible heading while its title tag was correct. Marker-driven per page now.
     H1: 'Services',
