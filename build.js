@@ -282,6 +282,131 @@ const CONTENT_STYLES = `
 </style>
 </head>`;
 
+// Homepage: a "View all case studies" link under the case-study cards.
+//
+// The blog section has "View all posts" but the case-studies section had no equivalent, so the
+// four cards on the homepage were the only route in — and three of the seven case studies are
+// not among them, because the card set is fixed in the frozen export.
+//
+// The markup is CLONED from the existing "View all posts" element rather than hand-written, so
+// the arrow icon, the classes and the text preset stay identical to it, and keep tracking it if
+// the export is ever refreshed. Its classes are all scoped to .framer-7W2hy, which sits on the
+// anchor itself, so they work wherever the element is placed.
+function patchHomepageCaseStudiesCta(html) {
+  const SOURCE_LABEL = 'View all posts';
+  const NEW_LABEL = 'View all case studies';
+
+  // Test for the element, not the label: the runtime script appended earlier contains both
+  // label strings in its source, so a plain string check reports a false positive.
+  if (html.includes(`class="${CS_CTA_CLASS}"`)) {
+    throw new Error('homepage CTA: already inserted');
+  }
+
+  // Likewise anchored with the surrounding tag characters, so the needle cannot match the
+  // label as it appears quoted inside that script.
+  const at = html.indexOf(`>${SOURCE_LABEL}<`);
+  if (at < 0) throw new Error(`homepage CTA: could not find "${SOURCE_LABEL}" element to clone`);
+  const from = html.lastIndexOf('<a ', at);
+  const to = html.indexOf('</a>', at);
+  if (from < 0 || to < 0) throw new Error('homepage CTA: could not bound the source anchor');
+
+  const cta = html
+    .slice(from, to + 4)
+    .replace(/href="[^"]*"/, 'href="/casestudies"')
+    .split(SOURCE_LABEL)
+    .join(NEW_LABEL);
+
+  // Place it directly after the cards, still inside the section, so it reads as belonging to
+  // them. The container end is found by matching div depth rather than by guessing at a string
+  // in 74KB of minified export markup.
+  const marker = '<div class="framer-fbd1z7" data-framer-name="cards">';
+  const cardsAt = html.indexOf(marker);
+  if (cardsAt < 0) throw new Error('homepage CTA: case-study cards container not found');
+
+  const tag = /<(\/?)div\b[^>]*>/g;
+  tag.lastIndex = cardsAt;
+  let depth = 0;
+  let cardsEnd = null;
+  for (let m = tag.exec(html); m; m = tag.exec(html)) {
+    if (m[1] === '') depth += 1;
+    else if ((depth -= 1) === 0) {
+      cardsEnd = tag.lastIndex;
+      break;
+    }
+  }
+  if (cardsEnd === null) throw new Error('homepage CTA: cards container never closes');
+
+  const wrapped = `<div class="${CS_CTA_CLASS}" style="display:flex;justify-content:center;width:100%;padding:36px 0 0">${cta}</div>`;
+  return html.slice(0, cardsEnd) + wrapped + html.slice(cardsEnd);
+}
+
+const CS_CTA_CLASS = 'vaeral-cs-cta';
+
+// The static insert above is for crawlers, which read the served HTML. It does not survive in a
+// browser: the homepage keeps its Framer runtime, and React's reconciliation drops the element on
+// hydration — measured, the CTA count went to 0. This re-inserts it afterwards and keeps it there
+// through later re-renders, the same approach NAV_SCRIPT uses for the nav hrefs it re-asserts.
+//
+// It clones the live "View all posts" element rather than carrying its own markup, so the arrow,
+// classes and preset always match whatever the export currently ships. Both selectors it relies
+// on are unique on the homepage (verified: one "cards" landmark, one "View all posts").
+const CASE_STUDIES_CTA_SCRIPT = `
+<script>
+(function () {
+  var CLS = '${CS_CTA_CLASS}';
+
+  function labelOf(node) {
+    return (node.textContent || '').trim();
+  }
+
+  function setLabel(node, text) {
+    var els = node.querySelectorAll('p, span');
+    for (var i = 0; i < els.length; i++) {
+      if (els[i].childNodes.length === 1 && els[i].childNodes[0].nodeType === 3) {
+        els[i].textContent = text;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function run() {
+    if (document.querySelector('.' + CLS)) return;          // already there, nothing to do
+
+    var cards = document.querySelector('[data-framer-name="cards"]');
+    if (!cards || !cards.parentNode) return;
+
+    var source = null;
+    var links = document.querySelectorAll('a');
+    for (var i = 0; i < links.length; i++) {
+      if (labelOf(links[i]).indexOf('View all posts') === 0) { source = links[i]; break; }
+    }
+    if (!source) return;
+
+    var clone = source.cloneNode(true);
+    clone.setAttribute('href', '/casestudies');
+    clone.setAttribute('target', '_top');
+    if (!setLabel(clone, 'View all case studies')) return;   // markup changed; do not ship "posts"
+
+    var wrap = document.createElement('div');
+    wrap.className = CLS;
+    wrap.setAttribute('style', 'display:flex;justify-content:center;width:100%;padding:36px 0 0');
+    wrap.appendChild(clone);
+    cards.parentNode.insertBefore(wrap, cards.nextSibling);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>`;
+
 // "All case studies" button, shown under the content box on case-study pages only — the same
 // template also builds the service pages and /about, where it would make no sense.
 //
@@ -1035,7 +1160,16 @@ const NAV_SCRIPT = `
     { cls: 'vaeral-services-link', label: 'Services', href: '/services' },
     { cls: 'vaeral-blogs-link', label: 'Blogs', href: '/blog' }
   ];
-  var ROUTES = { 'About': '/about', 'Case Studies': '/casestudies' };
+  // 'Portfolio' is the label Framer ships for the case-studies link. It was missing from this
+  // map, so the re-assertion never matched it and hydration reverted its href to the original
+  // './#casestudies' — an on-page anchor. Clicking it did not reach /casestudies at all.
+  var ROUTES = { 'About': '/about', 'Case Studies': '/casestudies', 'Portfolio': '/casestudies' };
+
+  // The page it leads to is titled "Case Studies", and every other reference on the site uses
+  // that wording, so the nav should say it too. Relabelling rather than adding a second item:
+  // two nav links to one URL is worse than one that is named accurately. Idempotent — once
+  // relabelled the entry matches ROUTES['Case Studies'] and RELABEL no longer applies.
+  var RELABEL = { 'Portfolio': 'Case Studies' };
 
   function labelOf(node) {
     return (node.textContent || '').trim();
@@ -1064,6 +1198,8 @@ const NAV_SCRIPT = `
         links[i].setAttribute('href', ROUTES[text]);
         links[i].setAttribute('target', '_top');
       }
+
+      if (RELABEL[text]) setLabel(links[i], RELABEL[text]);
 
       if (text === 'Contact') {
         var c = links[i].parentElement;
@@ -1678,7 +1814,7 @@ function main() {
 `;
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + contactFormScript + newsletterFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + blogNavScript + CASE_STUDIES_CTA_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
     }
 
     const preloads = `
@@ -1692,6 +1828,7 @@ function main() {
     }
 
     indexHtml = patchHomepageCopy(indexHtml);
+    indexHtml = patchHomepageCaseStudiesCta(indexHtml);
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
