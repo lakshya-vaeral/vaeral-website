@@ -149,6 +149,7 @@ const PROBE_SCRIPT = `
   function measure(){
     var out={h1:null,title:null,illegible:[],unreachable:[],error:null};
     try {
+      out.__ok = true;
       var h=document.querySelector('h1');
       out.h1=h?h.textContent.replace(/\\s+/g,' ').trim():null;
       out.title=document.title;
@@ -193,10 +194,38 @@ const PROBE_SCRIPT = `
         });
       });
     } catch(e){ out.error=String(e); }
-    document.getElementById('__rc').textContent=JSON.stringify(out);
+    return out;
   }
-  if (document.readyState === 'complete') setTimeout(measure, 2500);
-  else window.addEventListener('load', function(){ setTimeout(measure, 2500); });
+
+  // Two samples, and only findings present in BOTH are reported.
+  //
+  // The homepage still runs the Framer runtime, and mid-hydration it briefly paints card text
+  // unstyled — a single sample at 2.5s reported five case-study titles as black-on-black that are
+  // white once rendering settles. Reporting those would have made this check untrustworthy on the
+  // one page that most needs it. Static pages are unaffected: their two samples are identical.
+  function key(x){ return (x.tag||'') + '|' + (x.text||'') + '|' + (x.bottom||''); }
+
+  function sampleTwice(){
+    var first = measure();
+    setTimeout(function(){
+      var second = measure();
+      if (first.error || second.error) {
+        document.getElementById('__rc').textContent = JSON.stringify(second.error ? second : first);
+        return;
+      }
+      var firstKeys = {};
+      first.illegible.forEach(function(x){ firstKeys[key(x)] = 1; });
+      var firstUnreach = {};
+      first.unreachable.forEach(function(x){ firstUnreach[key(x)] = 1; });
+
+      second.illegible = second.illegible.filter(function(x){ return firstKeys[key(x)]; });
+      second.unreachable = second.unreachable.filter(function(x){ return firstUnreach[key(x)]; });
+      document.getElementById('__rc').textContent = JSON.stringify(second);
+    }, 2500);
+  }
+
+  if (document.readyState === 'complete') setTimeout(sampleTwice, 2500);
+  else window.addEventListener('load', function(){ setTimeout(sampleTwice, 2500); });
 })();
 </script>`;
 
@@ -212,7 +241,7 @@ async function probe(chrome, profile, target) {
   const out = await new Promise((resolve) => {
     const p = spawn(chrome, [
       '--headless', '--disable-gpu', '--no-sandbox', '--hide-scrollbars',
-      `--user-data-dir=${profile}`, '--virtual-time-budget=15000',
+      `--user-data-dir=${profile}`, '--virtual-time-budget=20000',
       '--window-size=1280,1400', '--dump-dom', target,
     ], { stdio: ['ignore', 'pipe', 'ignore'] });
     let buf = '';
@@ -255,6 +284,14 @@ async function discoverRoutes() {
     }
   }
   await walk(DIST, '');
+
+  // The homepage lives at dist/index.html, not in a subdirectory, so the walk above skipped it —
+  // which is exactly why two homepage regressions (a nav link reverting on hydration, and an
+  // injected CTA being dropped by React) had to be found by hand instead of by this check. It is
+  // also the page most exposed to that class of bug, since it is the only one that still runs the
+  // Framer runtime.
+  if (existsSync(path.join(DIST, 'index.html'))) routes.push('');
+
   return routes.sort();
 }
 
