@@ -282,6 +282,55 @@ const CONTENT_STYLES = `
 </style>
 </head>`;
 
+// Framer drove hover and focus feedback from the page runtime, which had to be removed to stop
+// it replacing injected content. Nothing in the export's CSS replaces it: of the 51 :hover rules
+// in that stylesheet, only two ever apply, both to inline links inside rich text. So every button
+// and nav link on these pages became inert to the pointer — no hover, and no focus ring either,
+// which matters more.
+//
+// filter is used rather than a second set of colours: it stays correct whatever the palette is and
+// cannot drift from it, and it works on the purple pills, the dark newsletter button and the
+// social icon buttons alike without special-casing each.
+//
+// Injected ONLY on the pages whose runtime was stripped. Blog posts keep theirs and still have
+// working hover, so they are left alone rather than given two competing mechanisms.
+const INTERACTION_STYLES = `
+<style>
+  a[data-framer-name="Primary"],
+  a[data-framer-name="In-Active"],
+  a.framer-oc284j,
+  button[type="submit"][data-framer-name="Default"] {
+    cursor: pointer;
+    transition: filter 0.15s ease, outline-color 0.15s ease;
+  }
+  /* hover: hover keeps this off touch devices, where a hover state sticks after a tap. */
+  @media (hover: hover) {
+    a[data-framer-name="Primary"]:hover,
+    button[type="submit"][data-framer-name="Default"]:hover {
+      filter: brightness(1.12);
+    }
+    /* Text links start dimmer than the buttons, so they need a larger lift to read as a change. */
+    a[data-framer-name="In-Active"]:hover,
+    a.framer-oc284j:hover {
+      filter: brightness(1.35);
+    }
+  }
+  a[data-framer-name="Primary"]:focus-visible,
+  a[data-framer-name="In-Active"]:focus-visible,
+  a.framer-oc284j:focus-visible,
+  button[type="submit"][data-framer-name="Default"]:focus-visible {
+    outline: 2px solid rgba(197, 185, 246, 0.9);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+</style>
+</head>`;
+
+function injectInteractionStyles(html) {
+  if (!html.includes('</head>')) throw new Error('injectInteractionStyles: no </head> found');
+  return html.replace('</head>', INTERACTION_STYLES);
+}
+
 // The export's logo links are href="./", which is only correct at one URL depth. A relative
 // "./" resolves against the current directory, and these pages are served without a trailing
 // slash, so on /services/review-management it resolves to /services/ — the logo took you to the
@@ -921,7 +970,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html))));
+  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -986,7 +1035,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ]),
   });
 
-  html = injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html))));
+  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   return { slug: a.slug, title: a.title, description: a.description, url };
 }
