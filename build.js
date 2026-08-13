@@ -170,12 +170,12 @@ function stripFramerPageRuntime(html) {
   return html.replace(re, '<!-- framer page-render runtime removed: it discards injected CMS content -->');
 }
 
-// Colour and typography for table cells come from the Framer presets in CASE_PRESETS, the
+// Colour and typography for CMS content come from the Framer presets in CASE_PRESETS, the
 // same route every other injected tag uses. What the export has no rules for at all is
 // table *structure* — it never contained a table — so a bare markdown table renders with
 // collapsed spacing and no separators. This adds only that: geometry and rules, no colour.
 // Scoped to RichTextContainer so it can only affect injected content.
-const TABLE_STYLES = `
+const CONTENT_STYLES = `
 <style>
   [data-framer-component-type="RichTextContainer"] table {
     width: 100%;
@@ -207,12 +207,35 @@ const TABLE_STYLES = `
       overflow-x: auto;
     }
   }
+  /* Code, for the same reason as tables: the export has no rules for it, so a snippet from
+     the CMS would render as unspaced body text. Colour comes from the preset. */
+  [data-framer-component-type="RichTextContainer"] code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  [data-framer-component-type="RichTextContainer"] pre {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  [data-framer-component-type="RichTextContainer"] pre code {
+    background: none;
+    padding: 0;
+  }
 </style>
 </head>`;
 
-function injectTableStyles(html) {
-  if (!html.includes('</head>')) throw new Error('injectTableStyles: no </head> found');
-  return html.replace('</head>', TABLE_STYLES);
+// Named for tables historically; now carries every structural rule the frozen export lacks
+// for CMS-authored content (tables, code blocks). Colour always comes from the presets.
+function injectContentStyles(html) {
+  if (!html.includes('</head>')) throw new Error('injectContentStyles: no </head> found');
+  return html.replace('</head>', CONTENT_STYLES);
 }
 
 const IMAGE_SCRIPT = `
@@ -311,6 +334,9 @@ const BLOG_PRESETS = {
   table: { class: 'framer-text' },
   th: { class: 'framer-text framer-styles-preset-dg89m0' },
   td: { class: 'framer-text framer-styles-preset-dg89m0' },
+  del: { class: 'framer-text framer-styles-preset-dg89m0' },
+  code: { class: 'framer-text framer-styles-preset-dg89m0' },
+  pre: { class: 'framer-text framer-styles-preset-dg89m0' },
 };
 
 const CASE_PRESETS = {
@@ -331,11 +357,50 @@ const CASE_PRESETS = {
   table: { class: 'framer-text', style: CASE_COLOR },
   th: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
   td: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
+  // h5/h6, code, pre and del were missing too. Measured in a real browser, each rendered
+  // rgb(0,0,0) on a near-black background — an editor writing a code snippet or an H5
+  // shipped invisible text, exactly as the table did. Same treatment as the other tags.
+  h5: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR, wrapStrong: true },
+  h6: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR, wrapStrong: true },
+  del: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
+  code: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
+  pre: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
 };
 
-function restyle(html, presets) {
+// Tags that carry no text of their own, so they need no colour preset. Everything else an
+// editor can produce must be in the preset map, or it inherits its colour and renders
+// black-on-black on these dark templates. That is how the results table shipped invisible:
+// nothing was wrong with the markup, it simply had no rule matching it.
+//
+// Failing the build is deliberate. The alternative — styling whatever we happen to think of
+// and discovering the rest in production — is the loop this exists to end. If this throws,
+// add the tag to BLOG_PRESETS and CASE_PRESETS rather than to the exempt list, unless the
+// tag genuinely renders no text.
+const PRESET_EXEMPT = new Set([
+  'thead', 'tbody', 'tfoot', 'tr', 'br', 'hr', 'img', 'picture', 'source', 'span', 'div',
+  'figure', 'figcaption', 'iframe', 'video', 'sup', 'sub',
+]);
+
+function assertPresetCoverage($, presets, label) {
+  const missing = new Set();
+  $('*').each((_, el) => {
+    const tag = (el.tagName || '').toLowerCase();
+    if (!tag || PRESET_EXEMPT.has(tag) || presets[tag]) return;
+    missing.add(tag);
+  });
+  if (missing.size) {
+    throw new Error(
+      `${label}: produced <${[...missing].sort().join('>, <')}> with no preset entry. ` +
+        'Unstyled tags inherit their colour and render invisibly on these templates. Add them to ' +
+        'BLOG_PRESETS/CASE_PRESETS (or to PRESET_EXEMPT if the tag renders no text of its own).',
+    );
+  }
+}
+
+function restyle(html, presets, label = 'CMS content') {
   if (!html || !html.trim()) return '';
   const $ = cheerio.load(html, cheerioOpts, false);
+  assertPresetCoverage($, presets, label);
 
   // Framer wraps each list item's content in a <p>; marked only does so for "loose"
   // lists. Normalise so every <li> has an inner <p> we can style.
@@ -530,7 +595,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
     RELATED_READTIME: escapeHtml(related.readTime),
     // FAQs (optional) render into the body from the same frontmatter that feeds the
     // schema, so the visible Q&A and the structured data cannot drift apart.
-    BODY: restyle(marked.parse(body), BLOG_PRESETS) + renderFaqs(a.faqs, BLOG_PRESETS),
+    BODY: restyle(marked.parse(body), BLOG_PRESETS, `blog/${a.slug} body`) + renderFaqs(a.faqs, BLOG_PRESETS),
     JSONLD: schema.renderJsonLd([
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
       schema.blogPosting({
@@ -584,7 +649,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
   // Table styles only; blog.html keeps its Framer runtime (it hydrates in place). No post
   // uses a table today — this is here so the first one that does renders, rather than
   // reproducing the invisible-table bug the case studies just hit.
-  html = injectTableStyles(disableSPARouting(html));
+  html = injectContentStyles(disableSPARouting(html));
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
@@ -612,9 +677,9 @@ function buildCaseStudy({ attributes: a }) {
     SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || 'The Problem'),
     SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || 'What We Did'),
     SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || 'The Results'),
-    PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS),
-    WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS),
-    RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS),
+    PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS, `case-study/${a.slug} "The Problem"`),
+    WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS, `case-study/${a.slug} "What We Did"`),
+    RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS, `case-study/${a.slug} "The Results"`),
     JSONLD: schema.renderJsonLd([
       schema.caseStudyArticle({
         site: SITE,
@@ -635,7 +700,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = injectTableStyles(stripFramerPageRuntime(disableSPARouting(html)));
+  html = injectContentStyles(stripFramerPageRuntime(disableSPARouting(html)));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -665,11 +730,11 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || ''),
     SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || ''),
     SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || ''),
-    PROBLEM: restyle(marked.parse(a.sectionOne || ''), CASE_PRESETS),
-    WHATWEDID: restyle(marked.parse(a.sectionTwo || ''), CASE_PRESETS),
+    PROBLEM: restyle(marked.parse(a.sectionOne || ''), CASE_PRESETS, `${a.slug} section 1`),
+    WHATWEDID: restyle(marked.parse(a.sectionTwo || ''), CASE_PRESETS, `${a.slug} section 2`),
     // The FAQ renders inside the third region so the questions are visible page
     // copy — FAQPage schema without visible Q&A breaches Google's policy.
-    RESULTS: restyle(marked.parse(a.sectionThree || ''), CASE_PRESETS) + faqHtml,
+    RESULTS: restyle(marked.parse(a.sectionThree || ''), CASE_PRESETS, `${a.slug} section 3`) + faqHtml,
     JSONLD: schema.renderJsonLd([
       schema.caseStudyArticle({
         site: SITE,
@@ -695,7 +760,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ]),
   });
 
-  html = injectTableStyles(stripFramerPageRuntime(disableSPARouting(html)));
+  html = injectContentStyles(stripFramerPageRuntime(disableSPARouting(html)));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   return { slug: a.slug, title: a.title, description: a.description, url };
 }
@@ -710,7 +775,7 @@ function renderFaqs(faqs, presets = CASE_PRESETS) {
         `<h3>${escapeHtml(question)}</h3>\n<p>${escapeHtml(answer)}</p>`,
     )
     .join('\n');
-  return restyle(`<h2>Frequently asked questions</h2>\n${items}`, presets);
+  return restyle(`<h2>Frequently asked questions</h2>\n${items}`, presets, 'FAQ answers');
 }
 
 function caseStudyCard(p) {

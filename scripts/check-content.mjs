@@ -14,10 +14,35 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// Case studies and blog posts were originally outside this checker, which is how a case
+// study reached main with no policy pass at all. They are included now, but not every rule
+// applies to every kind:
+//
+//   - The policy rules (inauthentic promotion, outcome guarantees) apply everywhere. They
+//     are the compliance-critical ones and the reason this script exists.
+//   - The uncited-statistic rule does NOT apply to case studies. A case study's numbers are
+//     its own reported client outcomes; demanding a citation for each would either fail every
+//     study or, worse, invite invented sources. Their numbers still deserve a human read —
+//     this script does not pretend otherwise.
+//   - Section headings and FAQ counts are structural expectations of the service/page
+//     template only. Case studies and blog posts use different fields.
 const TARGETS = [
   { dir: 'content/services', kind: 'service' },
   { dir: 'content/pages', kind: 'page' },
+  { dir: 'content/case-studies', kind: 'case-study' },
+  { dir: 'content/blog', kind: 'blog' },
 ];
+
+// Which frontmatter fields each kind must carry for its template to render fully.
+const REQUIRED_FIELDS = {
+  service: ['sectionOneHeading', 'sectionTwoHeading', 'sectionThreeHeading'],
+  page: ['sectionOneHeading', 'sectionTwoHeading', 'sectionThreeHeading'],
+  'case-study': ['problem', 'whatWeDid', 'results'],
+  blog: [],
+};
+
+// Kinds whose numbers are first-party reported outcomes rather than marketing claims.
+const STATS_EXEMPT = new Set(['case-study']);
 
 // Practices that breach platform policy (Reddit/Quora/Wikipedia terms, India's
 // CCPA fake-review guidance, BIS IS 19000:2022) plus outcome guarantees nobody
@@ -46,6 +71,8 @@ const NEGATION = /\b(no|not|never|nobody|no one|cannot|can't|don't|do not|withou
 
 const STAT = /\b\d{1,3}(?:\.\d+)?%|\b\d+(?:\.\d+)?×|\b\d{3,}\+/g;
 const CITED = /\[[^\]]*\]\([^)]+\)|https?:\/\//;
+// "the 90/10 rule", "an 80/20 split" — named conventions, not measured claims.
+const NAMED_RATIO = /\b\d{1,3}\s*\/\s*\d{1,3}\s+(rule|split|principle|ratio)\b/i;
 
 // FAQ questions are prompts, not assertions — "Can you guarantee X?" is answered
 // below it. Only prose and answers are claims.
@@ -86,16 +113,40 @@ for (const { dir, kind } of TARGETS) {
     }
 
     // A statistic is acceptable only on a line that also carries a source link.
-    for (const line of text.split(/\r?\n/)) {
-      const stats = line.match(STAT);
-      if (stats && !CITED.test(line)) {
-        problems.push(`uncited statistic ${stats.join(', ')}`);
+    //
+    // Two exceptions, both because the rule as stated is impossible rather than strict:
+    //
+    //  - A meta description cannot contain a hyperlink. If the same figure is cited in the
+    //    body, the claim IS sourced — where a source can actually live. Requiring one in
+    //    frontmatter would only push authors to drop the figure from their search snippet.
+    //  - Named ratios ("the 90/10 rule") are conventions whose numbers are their name, not
+    //    measured outcomes. Nothing to cite.
+    //
+    // The rule itself is unchanged for body prose, which is where unsourced claims do harm.
+    if (!STATS_EXEMPT.has(kind)) {
+      const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---/, '');
+      const citedInBody = new Set(
+        body
+          .split(/\r?\n/)
+          .filter((l) => CITED.test(l))
+          .flatMap((l) => l.match(STAT) || []),
+      );
+      const fmLines = new Set(fmBlock.split(/\r?\n/));
+
+      for (const line of text.split(/\r?\n/)) {
+        if (NAMED_RATIO.test(line)) continue;
+        const stats = (line.match(STAT) || []).filter((s) => {
+          if (fmLines.has(line) && citedInBody.has(s)) return false;
+          return true;
+        });
+        if (stats.length && !CITED.test(line)) {
+          problems.push(`uncited statistic ${stats.join(', ')}`);
+        }
       }
     }
 
-    const headings = ['sectionOneHeading', 'sectionTwoHeading', 'sectionThreeHeading']
-      .filter((k) => !fmBlock.includes(k));
-    if (headings.length) problems.push(`missing ${headings.join(', ')}`);
+    const missing = (REQUIRED_FIELDS[kind] || []).filter((k) => !fmBlock.includes(k));
+    if (missing.length) problems.push(`missing ${missing.join(', ')}`);
 
     const faqCount = (text.match(/^ {2}- question:/gm) || []).length;
     if (kind === 'service' && (faqCount < 5 || faqCount > 8)) {
