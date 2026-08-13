@@ -244,8 +244,61 @@ const CONTENT_STYLES = `
     background: none;
     padding: 0;
   }
+  /* "All case studies" button. Geometry is lifted verbatim from the footer's primary button
+     rule (.framer-cTzwY .framer-1uvdw5m), which could not be reused directly because it is
+     scoped to the footer. Colours and typography come from the inline recipe on the element,
+     the same one the existing buttons use. */
+  .vaeral-all-cs {
+    display: flex;
+    justify-content: center;
+    /* Explicit full width: the parent is a flex container, so without this the wrapper shrinks
+       to the button and there is nothing to centre within. */
+    width: 100%;
+    padding: 8px 24px 56px;
+    box-sizing: border-box;
+  }
+  .vaeral-all-cs-btn {
+    flex-flow: row;
+    flex: none;
+    place-content: center;
+    align-items: center;
+    gap: 10px;
+    /* The footer rule uses width:min-content, which works there because Framer's own container
+       constrains the button. Standing alone it collapses to the widest single word and the label
+       spills outside the pill. max-content sizes to the full one-line label instead. */
+    width: max-content;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 12px 24px;
+    text-decoration: none;
+    display: flex;
+    position: relative;
+    overflow: visible;
+    white-space: nowrap;
+  }
+  .vaeral-all-cs-btn p {
+    margin: 0;
+  }
 </style>
 </head>`;
+
+// "All case studies" button, shown under the content box on case-study pages only — the same
+// template also builds the service pages and /about, where it would make no sense.
+//
+// The visual recipe is copied verbatim from the existing "Book a Free Audit" / "Get Started"
+// primary buttons: same purple, radius, border, inset glow and text preset. Nothing new is
+// designed here. Their layout class (.framer-1uvdw5m) could not be reused because it is scoped
+// to .framer-cTzwY, the footer, so its exact declarations are reproduced in ALL_CASE_STUDIES_CSS
+// instead of guessing at a size.
+//
+// No hover state, deliberately: the export has no CSS hover for these buttons — Framer drove it
+// from the runtime that had to be removed in the hydration fix — so adding one here would make
+// this the only button on the page that reacts.
+// The label sits directly inside the <a>. The footer button wraps its label in a
+// RichTextContainer, but that carries position:absolute, so the label contributes no width and
+// the pill collapses to its padding (measured: 48px box, 119px of text spilling out). The <p>
+// keeps the preset class and the colour token, so typography is identical without the wrapper.
+const ALL_CASE_STUDIES_BUTTON = `<div class="vaeral-all-cs"><a class="vaeral-all-cs-btn" data-border="true" data-framer-name="Primary" href="/casestudies" style="--border-bottom-width:1px;--border-color:rgba(255, 255, 255, 0.15);--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;background-color:rgb(81, 55, 250);border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:12px;border-top-right-radius:12px;box-shadow:inset 0px 0px 20px 0px rgba(255, 255, 255, 0.2)"><p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">All case studies</p></a></div>`;
 
 // Named for tables historically; now carries every structural rule the frozen export lacks
 // for CMS-authored content (tables, code blocks). Colour always comes from the presets.
@@ -693,6 +746,7 @@ function buildCaseStudy({ attributes: a }) {
     SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || 'The Problem'),
     SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || 'What We Did'),
     SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || 'The Results'),
+    ALL_CASE_STUDIES: ALL_CASE_STUDIES_BUTTON,
     PROBLEM: restyle(marked.parse(a.problem || ''), CASE_PRESETS, `case-study/${a.slug} "The Problem"`),
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS, `case-study/${a.slug} "What We Did"`),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS, `case-study/${a.slug} "The Results"`),
@@ -746,6 +800,9 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     SECTION_1_HEADING: escapeHtml(a.sectionOneHeading || ''),
     SECTION_2_HEADING: escapeHtml(a.sectionTwoHeading || ''),
     SECTION_3_HEADING: escapeHtml(a.sectionThreeHeading || ''),
+    // Service pages and /about share this template but are not case studies, so the button is
+    // filled with nothing rather than left unfilled — an unfilled marker survives into the HTML.
+    ALL_CASE_STUDIES: '',
     PROBLEM: restyle(marked.parse(a.sectionOne || ''), CASE_PRESETS, `${a.slug} section 1`),
     WHATWEDID: restyle(marked.parse(a.sectionTwo || ''), CASE_PRESETS, `${a.slug} section 2`),
     // The FAQ renders inside the third region so the questions are visible page
