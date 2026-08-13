@@ -142,6 +142,79 @@ function disableSPARouting(html) {
   return html.replace('</body>', script);
 }
 
+// Framer's page-render runtime discards everything we inject into case-study.html.
+//
+// That export shipped without its CMS payload: its __framer__handoverData is a 188-byte
+// stub (a collection query with an empty `select` and no records) and its
+// data-framer-hydrate-v2 carries no pathVariables, so the runtime has no way to know
+// which CMS item the page represents. It resolves the collection itself and renders the
+// first item — the e-pharmacy case study — over the top of our content. Every page built
+// from this template served the wrong case study to any JS-executing client, Googlebot
+// included, while curl saw the correct HTML. That asymmetry is why it went unnoticed:
+// the schema validator and health check both fetch raw HTML and both passed.
+//
+// blog.html ships a full 13.9KB payload with pathVariables and hydrates in place, so it
+// keeps its runtime. Do NOT call this for blog pages.
+//
+// Removing the module script costs the custom cursor and Framer's analytics ping on these
+// pages. Layout and typography are CSS, so they are unaffected — verified by screenshot.
+function stripFramerPageRuntime(html) {
+  const re = /<script type="module"[^>]*src="[^"]*script_main[^"]*"[^>]*><\/script>/g;
+  const found = html.match(re) || [];
+  if (found.length !== 1) {
+    throw new Error(
+      `framer runtime strip: expected exactly 1 page-render module script, found ${found.length}. ` +
+        'If the export changed, re-check which script re-renders the page before adjusting this.',
+    );
+  }
+  return html.replace(re, '<!-- framer page-render runtime removed: it discards injected CMS content -->');
+}
+
+// Colour and typography for table cells come from the Framer presets in CASE_PRESETS, the
+// same route every other injected tag uses. What the export has no rules for at all is
+// table *structure* — it never contained a table — so a bare markdown table renders with
+// collapsed spacing and no separators. This adds only that: geometry and rules, no colour.
+// Scoped to RichTextContainer so it can only affect injected content.
+const TABLE_STYLES = `
+<style>
+  [data-framer-component-type="RichTextContainer"] table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px;
+  }
+  [data-framer-component-type="RichTextContainer"] th,
+  [data-framer-component-type="RichTextContainer"] td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    /* The export has no colour rule matching th/td — paragraphs get theirs from a
+       p-qualified rule — so the cells inherited black on a near-black background. The
+       preset does set --framer-text-color on them correctly (verified: #deddff), it just
+       had no consumer. Consume the design's own variable rather than pick a colour. */
+    color: var(--framer-text-color, #deddff);
+  }
+  [data-framer-component-type="RichTextContainer"] th {
+    font-weight: 600;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.3);
+  }
+  [data-framer-component-type="RichTextContainer"] tbody tr:last-child td {
+    border-bottom: none;
+  }
+  /* Narrow screens: scroll the table rather than forcing the page to scroll sideways. */
+  @media (max-width: 809.98px) {
+    [data-framer-component-type="RichTextContainer"] table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+</style>
+</head>`;
+
+function injectTableStyles(html) {
+  if (!html.includes('</head>')) throw new Error('injectTableStyles: no </head> found');
+  return html.replace('</head>', TABLE_STYLES);
+}
+
 const IMAGE_SCRIPT = `
 <script>
 (function(){
@@ -235,6 +308,9 @@ const BLOG_PRESETS = {
   ol: { class: 'framer-text' },
   li: { class: 'framer-text framer-styles-preset-dg89m0', attrs: { 'data-preset-tag': 'p' }, innerPClass: 'framer-text framer-styles-preset-dg89m0' },
   blockquote: { class: 'framer-text framer-styles-preset-dg89m0' },
+  table: { class: 'framer-text' },
+  th: { class: 'framer-text framer-styles-preset-dg89m0' },
+  td: { class: 'framer-text framer-styles-preset-dg89m0' },
 };
 
 const CASE_PRESETS = {
@@ -249,6 +325,12 @@ const CASE_PRESETS = {
   ol: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
   li: { class: 'framer-text', attrs: { 'data-preset-tag': 'p' }, innerPClass: null, innerPStyle: CASE_COLOR },
   blockquote: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
+  // Tables were never in this map because no case study used one until the on-demand
+  // services study. Without the preset class the cells miss --framer-text-color and
+  // render near-black on the dark section background: in the DOM, invisible on screen.
+  table: { class: 'framer-text', style: CASE_COLOR },
+  th: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
+  td: { class: 'framer-text framer-styles-preset-hj0x3x', attrs: { 'data-styles-preset': 'G4spYZp3J', dir: 'auto' }, style: CASE_COLOR },
 };
 
 function restyle(html, presets) {
@@ -264,7 +346,7 @@ function restyle(html, presets) {
     });
   }
 
-  const order = ['p', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'strong', 'em'];
+  const order = ['p', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'table', 'th', 'td', 'a', 'strong', 'em'];
   for (const tag of order) {
     const cfg = presets[tag];
     if (!cfg) continue;
@@ -499,7 +581,10 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
 </style>
 </head>`);
 
-  html = disableSPARouting(html);
+  // Table styles only; blog.html keeps its Framer runtime (it hydrates in place). No post
+  // uses a table today — this is here so the first one that does renders, rather than
+  // reproducing the invisible-table bug the case studies just hit.
+  html = injectTableStyles(disableSPARouting(html));
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
@@ -550,7 +635,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = disableSPARouting(html);
+  html = injectTableStyles(stripFramerPageRuntime(disableSPARouting(html)));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -610,7 +695,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ]),
   });
 
-  html = disableSPARouting(html);
+  html = injectTableStyles(stripFramerPageRuntime(disableSPARouting(html)));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   return { slug: a.slug, title: a.title, description: a.description, url };
 }
@@ -648,6 +733,7 @@ function buildCaseStudyIndex(cases) {
     : '    <p class="empty">No case studies published yet.</p>';
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
     TITLE: escapeHtml('ORM Case Studies: Reddit & Quora Results | Vaeral'),
+    H1: 'Case Studies',
     DESCRIPTION: escapeHtml('Explore our portfolio of successful projects and case studies.'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
@@ -685,6 +771,9 @@ function buildServiceIndex(services) {
 
   const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
     TITLE: escapeHtml('ORM Services: Reddit, Quora & AI Search | Vaeral'),
+    // The shared index template hardcoded "Case Studies", so /services carried the wrong
+    // visible heading while its title tag was correct. Marker-driven per page now.
+    H1: 'Services',
     DESCRIPTION: escapeHtml(description),
     URL: escapeHtml(`${SITE}/services`),
     CASES: cards,
