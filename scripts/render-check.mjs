@@ -147,11 +147,33 @@ const PROBE_SCRIPT = `
   function chan(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
   function rel(c){ return 0.2126*chan(c[0])+0.7152*chan(c[1])+0.0722*chan(c[2]); }
   function measure(){
-    var out={h1:null,title:null,illegible:[],error:null};
+    var out={h1:null,title:null,illegible:[],unreachable:[],error:null};
     try {
       var h=document.querySelector('h1');
       out.h1=h?h.textContent.replace(/\\s+/g,' ').trim():null;
       out.title=document.title;
+
+      // Content below the document's scroll height cannot be scrolled to — it is painted but
+      // unreachable. This is how the footer disappeared: the export hard-coded the page root
+      // to a fixed canvas height with overflow:clip, so any page whose content exceeded it had
+      // the overflow both clipped and excluded from scrollHeight. Screenshots missed it because
+      // a tall window gives a viewport taller than the document, so the clipped part still
+      // paints. Only comparing element bottoms against scrollHeight catches it.
+      var docH=document.documentElement.scrollHeight;
+      var scrollTop=document.scrollingElement?document.scrollingElement.scrollTop:0;
+      var seen={};
+      document.querySelectorAll('footer, main, section, h1, h2, h3, p, table').forEach(function(el){
+        var r=el.getBoundingClientRect();
+        if(r.width===0||r.height===0) return;
+        if(!(el.textContent||'').trim()) return;
+        var bottom=Math.round(r.bottom+scrollTop);
+        if(bottom>docH+2){
+          var tag=el.tagName.toLowerCase();
+          if(seen[tag]) return;                       // one report per tag is enough to fail
+          seen[tag]=1;
+          out.unreachable.push({tag:tag,bottom:bottom,docHeight:docH,cut:bottom-docH});
+        }
+      });
       document.querySelectorAll('[data-framer-component-type="RichTextContainer"] *').forEach(function(el){
         var txt=ownText(el);
         if(!txt) return;
@@ -280,6 +302,14 @@ async function main() {
         problems.push(`<${bad.tag}> contrast ${bad.ratio}:1 (${bad.color} on ${bad.bg}) — "${bad.text}"`);
       }
 
+      // 3. Reachability: nothing may sit below the document's scroll height.
+      for (const cut of result.unreachable || []) {
+        problems.push(
+          `<${cut.tag}> ends at ${cut.bottom}px but the document only scrolls to ${cut.docHeight}px ` +
+            `— ${cut.cut}px is unreachable`,
+        );
+      }
+
       if (problems.length) {
         failures.push(`${route}: ${problems.join('; ')}`);
         console.log(`  FAIL ${route}`);
@@ -300,10 +330,11 @@ async function main() {
     console.log('');
     console.log('A hydration mismatch means a client-side runtime is replacing injected content.');
     console.log('A contrast failure means content is in the DOM but unreadable on screen.');
-    console.log('Both are invisible to curl-based checks — that is the point of this script.');
+    console.log('An unreachable failure means content exists but cannot be scrolled to.');
+    console.log('None of these are visible to curl-based checks — that is the point of this script.');
     process.exit(1);
   }
-  console.log(`All ${routes.length} pages render what they serve, and all CMS content is legible.`);
+  console.log(`All ${routes.length} pages render what they serve; content is legible and reachable.`);
 }
 
 main().catch((e) => {
