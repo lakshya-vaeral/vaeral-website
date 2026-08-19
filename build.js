@@ -536,6 +536,12 @@ ${FORM_FOCUS_CSS}
   .vaeral-services-card {
     display: flex;
     flex-flow: column;
+    /* position:relative is load-bearing. Framer draws the card edge with an absolutely
+       positioned ::after fed by the --border-* properties, so without a positioned card the
+       pseudo-element insets to the nearest positioned ancestor — the section — and paints ONE
+       border around the whole grid instead of ten card borders. The pill and the case-study
+       card both carry position:relative on themselves for this reason. */
+    position: relative;
     gap: 6px;
     /* padding borrowed from the case-study card; the pill's 8px/12px is pill-scale. */
     padding: 20px;
@@ -599,12 +605,21 @@ const SERVICES_LABEL_OVERRIDES = {
 const SERVICE_LABEL_COLOUR = '--framer-text-color:var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255))';
 const SERVICE_MUTED_COLOUR = '--framer-text-color:var(--token-d072d1f5-ef86-4b7c-bae1-6c9f6238e10b, rgba(255, 255, 255, 0.75))';
 
-// The Service pill's recipe, verbatim.
+// The case-study cards' box, matched to their measured computed values rather than the Service
+// pill's. The pill's dark rgb(13,13,13) fill reads muddy at card scale; the case-study cards are
+// the site's card language and are transparent with a light border:
+//
+//   case-study card   background rgba(0,0,0,0)   radius 23px   ::after border 1px rgb(197,184,255)
+//   Service pill      background rgb(13,13,13)   radius  6px   ::after border 1px rgb(34,34,34)
+//
+// Framer draws the edge from an ::after pseudo-element fed by these --border-* custom properties,
+// which is why the border is invisible to `border-width` and has to be set this way. The colour is
+// the export's own token; declaring it inline is how the export's own elements do it.
 const SERVICE_CARD_BOX =
-  '--border-bottom-width:1px;--border-color:var(--token-313dd4d6-9859-4bdd-889b-954a849d13e3, rgb(34, 34, 34));' +
+  '--border-bottom-width:1px;--border-color:var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, rgb(197, 184, 255));' +
   '--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;' +
-  'background-color:rgb(13, 13, 13);border-bottom-left-radius:6px;border-bottom-right-radius:6px;' +
-  'border-top-left-radius:6px;border-top-right-radius:6px';
+  'background-color:rgba(0, 0, 0, 0);border-bottom-left-radius:23px;border-bottom-right-radius:23px;' +
+  'border-top-left-radius:23px;border-top-right-radius:23px';
 
 function orderedServices(services) {
   const bySlug = new Map(services.map((s) => [s.slug, s]));
