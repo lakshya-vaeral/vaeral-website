@@ -576,6 +576,12 @@ ${FORM_FOCUS_CSS}
   }
   .vaeral-services-card h3,
   .vaeral-services-card p { margin: 0; }
+  /* Label centred. The h3 stretches to the card width by default, so text-align does the
+     centring; --framer-text-alignment on the element is the export's own mechanism for it and is
+     set alongside, the same way the section headings do it. Size steps down the site's own scale
+     from preset-1tx2fj3 (30px h3) to preset-1t2dmrb (24px h4) - same family and weight, one rung
+     lighter - rather than inventing a font-size. */
+  .vaeral-services-card { text-align: center; }
   @media (hover: hover) {
     .vaeral-services-card:hover { filter: brightness(1.35); }
   }
@@ -667,7 +673,7 @@ function servicesSectionHtml(services) {
     .map(
       (s) =>
         `<a class="${SERVICES_SECTION_CLASS}-card" data-border="true" href="/services/${s.slug}" style="${SERVICE_CARD_BOX}">` +
-        `<h3 class="framer-text framer-styles-preset-1tx2fj3" data-styles-preset="m_8kePxv3" dir="auto" style="${SERVICE_LABEL_COLOUR}">${escapeHtml(serviceLabel(s))}</h3>` +
+        `<h3 class="framer-text framer-styles-preset-1t2dmrb" data-styles-preset="FINgGXoDs" dir="auto" style="--framer-text-alignment:center;${SERVICE_LABEL_COLOUR}">${escapeHtml(serviceLabel(s))}</h3>` +
         `</a>`,
     )
     .join('');
