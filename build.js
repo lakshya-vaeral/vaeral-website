@@ -540,15 +540,13 @@ ${FORM_FOCUS_CSS}
      plain position: relative here lost the specificity fight. The text presets live on the
      h2/p themselves, so the attribute buys nothing. Same family of trap as the cloned button
      whose absolutely-positioned label contributed no width. */
-  .vaeral-services-h2,
-  .vaeral-services-lede {
+  .vaeral-services-h2 {
     flex: none;
     width: 100%;
+    max-width: 700px;
     height: auto;
     position: relative;
   }
-  .vaeral-services-h2 { max-width: 700px; }
-  .vaeral-services-lede { max-width: 600px; }
   .vaeral-services-grid {
     display: grid;
     /* Two columns, not three: ten items divide evenly into five rows with no orphan, and each
@@ -634,7 +632,6 @@ const SERVICES_LABEL_OVERRIDES = {
 };
 
 const SERVICE_LABEL_COLOUR = '--framer-text-color:var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255))';
-const SERVICE_MUTED_COLOUR = '--framer-text-color:var(--token-d072d1f5-ef86-4b7c-bae1-6c9f6238e10b, rgba(255, 255, 255, 0.75))';
 
 // The case-study cards' box, matched to their measured computed values rather than the Service
 // pill's. The pill's dark rgb(13,13,13) fill reads muddy at card scale; the case-study cards are
@@ -684,9 +681,6 @@ function servicesSectionHtml(services) {
     `<div class="${SERVICES_SECTION_CLASS}-text">` +
     `<div class="${SERVICES_SECTION_CLASS}-h2">` +
     `<h2 class="framer-text framer-styles-preset-398jw4" data-styles-preset="QnZFqE78z" dir="auto" style="--framer-text-alignment:center">Our Services</h2>` +
-    `</div>` +
-    `<div class="${SERVICES_SECTION_CLASS}-lede">` +
-    `<p class="framer-text" dir="auto" style="--font-selector:R0Y7RmlndHJlZS01MDA=;--framer-font-family:&quot;Figtree&quot;, &quot;Figtree Placeholder&quot;, sans-serif;--framer-font-size:18px;--framer-font-weight:500;--framer-letter-spacing:-0.02em;--framer-line-height:1.5em;--framer-text-alignment:center;${SERVICE_MUTED_COLOUR}">Reputation, search visibility and growth — what each service covers, who it suits, and who it does not.</p>` +
     `</div></div>` +
     `<div class="${SERVICES_SECTION_CLASS}-grid">${cards}</div>` +
     `</div></section>`
