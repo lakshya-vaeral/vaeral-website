@@ -643,7 +643,6 @@ function servicesSectionHtml(services) {
       (s) =>
         `<a class="${SERVICES_SECTION_CLASS}-card" data-border="true" href="/services/${s.slug}" style="${SERVICE_CARD_BOX}">` +
         `<h3 class="framer-text framer-styles-preset-1tx2fj3" data-styles-preset="m_8kePxv3" dir="auto" style="${SERVICE_LABEL_COLOUR}">${escapeHtml(serviceLabel(s))}</h3>` +
-        `<p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="${SERVICE_MUTED_COLOUR}">${escapeHtml(s.description)}</p>` +
         `</a>`,
     )
     .join('');
