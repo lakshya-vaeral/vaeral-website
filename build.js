@@ -469,7 +469,251 @@ ${FORM_FOCUS_CSS}
       --framer-text-color: rgb(155, 155, 189);
     }
   }
+
+  /* --- Services section layout ------------------------------------------------------------
+     Every value here is measured off the #casestudies section chain so the new section shares
+     its rhythm exactly, rather than approximating it:
+       .framer-1a0ymfr  section wrapper  gap 100px, max-width 1440px, padding 100px 0 0
+       .framer-12qck6g  header block     gap 25px
+       .framer-2p1oou   text block       gap 15px
+       .framer-eci4z2   h2 container     max-width 700px
+       .framer-sk03rn   lede container   max-width 600px
+       .framer-fbd1z7   content          max-width 1000px (unset below 810px)
+     Colours and type come from the presets and tokens on the elements themselves, not from
+     here — this block is layout only. */
+  .vaeral-services {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 100px 0 0;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .vaeral-services-header {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    gap: 25px;
+    width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+  .vaeral-services-text {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+  }
+  /* These wrappers deliberately do NOT carry data-framer-component-type="RichTextContainer".
+     Mimicking the real markup that way pulled in a higher-specificity rule that sets
+     position:absolute on those containers — measured: both the heading and the lede computed
+     position: absolute, took each other out of flow and painted on top of one another, and a
+     plain position: relative here lost the specificity fight. The text presets live on the
+     h2/p themselves, so the attribute buys nothing. Same family of trap as the cloned button
+     whose absolutely-positioned label contributed no width. */
+  .vaeral-services-h2,
+  .vaeral-services-lede {
+    flex: none;
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .vaeral-services-h2 { max-width: 700px; }
+  .vaeral-services-lede { max-width: 600px; }
+  .vaeral-services-grid {
+    display: grid;
+    /* Two columns, not three: ten items divide evenly into five rows with no orphan, and each
+       card still gets ~490px at the 1000px content width — ample for a label and one line. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 1000px;
+  }
+  .vaeral-services-card {
+    display: flex;
+    flex-flow: column;
+    gap: 6px;
+    /* padding borrowed from the case-study card; the pill's 8px/12px is pill-scale. */
+    padding: 20px;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: filter 0.15s ease;
+  }
+  .vaeral-services-card h3,
+  .vaeral-services-card p { margin: 0; }
+  @media (hover: hover) {
+    .vaeral-services-card:hover { filter: brightness(1.35); }
+  }
+  .vaeral-services-card:focus-visible {
+    outline: 2px solid rgba(197, 185, 246, 0.9);
+    outline-offset: 3px;
+  }
+  /* The export's own phone breakpoint, so this collapses exactly where every other section does. */
+  @media (max-width: 809.98px) {
+    .vaeral-services { padding-top: 60px; }
+    .vaeral-services-grid { grid-template-columns: 1fr; max-width: unset; }
+  }
 </style>`;
+
+// --- Homepage services section ------------------------------------------------------------
+//
+// The homepage had no link to any service page at all — the only /services string in the built
+// page was inside the nav script, pointing at the hub. Its one services area (#features) covers
+// five of the ten services and none of them is a link.
+//
+// Everything visual here is lifted from elements already on the page, measured rather than
+// invented: the section rhythm from the #casestudies chain, the heading and body presets from
+// the existing headings, and the card's border/fill/radius from the Service pill — which is one
+// of only two components on this page whose CSS is compound-scoped on the element itself AND
+// whose whole appearance is inline, so it survives being moved. The case-study cards were
+// rejected: ~9KB each with an animated marquee, and every card class carries a hard-coded
+// `order:` inside the mobile media query, so a clone jumps position on phones.
+const SERVICES_SECTION_CLASS = 'vaeral-services';
+
+// Display order: reputation, then search, then growth. readdirSync order would open the grid
+// with "AI Search Visibility, Download and Signup Growth, Search Result Management".
+const SERVICES_DISPLAY_ORDER = [
+  'review-management',
+  'brand-search-results',
+  'comment-management',
+  'reddit-marketing',
+  'quora-marketing',
+  'ai-search-visibility',
+  'wikipedia-page-creation',
+  'linkedin-personal-branding',
+  'influencer-marketing',
+  'app-store-growth',
+];
+
+// Two categories read awkwardly as a grid label. Overridden here rather than by editing the
+// service files, which are the owner's copy.
+const SERVICES_LABEL_OVERRIDES = {
+  'wikipedia-page-creation': 'Wikipedia Pages',
+  'app-store-growth': 'Downloads and Signups',
+};
+
+const SERVICE_LABEL_COLOUR = '--framer-text-color:var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255))';
+const SERVICE_MUTED_COLOUR = '--framer-text-color:var(--token-d072d1f5-ef86-4b7c-bae1-6c9f6238e10b, rgba(255, 255, 255, 0.75))';
+
+// The Service pill's recipe, verbatim.
+const SERVICE_CARD_BOX =
+  '--border-bottom-width:1px;--border-color:var(--token-313dd4d6-9859-4bdd-889b-954a849d13e3, rgb(34, 34, 34));' +
+  '--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;' +
+  'background-color:rgb(13, 13, 13);border-bottom-left-radius:6px;border-bottom-right-radius:6px;' +
+  'border-top-left-radius:6px;border-top-right-radius:6px';
+
+function orderedServices(services) {
+  const bySlug = new Map(services.map((s) => [s.slug, s]));
+  const ordered = SERVICES_DISPLAY_ORDER.map((slug) => bySlug.get(slug)).filter(Boolean);
+  // Anything new that is not in the order list still ships, appended, rather than silently
+  // vanishing from the homepage because someone forgot to add it here.
+  for (const s of services) if (!SERVICES_DISPLAY_ORDER.includes(s.slug)) ordered.push(s);
+  return ordered;
+}
+
+function serviceLabel(s) {
+  return SERVICES_LABEL_OVERRIDES[s.slug] || s.category || s.title;
+}
+
+// No <h1> anywhere in here: render-check compares the first hydrated <h1> against the first
+// served one, so an <h1> inserted above the hero's would fail that check even with hydration
+// working correctly.
+function servicesSectionHtml(services) {
+  const cards = orderedServices(services)
+    .map(
+      (s) =>
+        `<a class="${SERVICES_SECTION_CLASS}-card" data-border="true" href="/services/${s.slug}" style="${SERVICE_CARD_BOX}">` +
+        `<h3 class="framer-text framer-styles-preset-1tx2fj3" data-styles-preset="m_8kePxv3" dir="auto" style="${SERVICE_LABEL_COLOUR}">${escapeHtml(serviceLabel(s))}</h3>` +
+        `<p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="${SERVICE_MUTED_COLOUR}">${escapeHtml(s.description)}</p>` +
+        `</a>`,
+    )
+    .join('');
+
+  return (
+    `<section class="${SERVICES_SECTION_CLASS}">` +
+    `<div class="${SERVICES_SECTION_CLASS}-header">` +
+    `<div class="${SERVICES_SECTION_CLASS}-text">` +
+    `<div class="${SERVICES_SECTION_CLASS}-h2">` +
+    `<h2 class="framer-text framer-styles-preset-398jw4" data-styles-preset="QnZFqE78z" dir="auto" style="--framer-text-alignment:center">Services</h2>` +
+    `</div>` +
+    `<div class="${SERVICES_SECTION_CLASS}-lede">` +
+    `<p class="framer-text" dir="auto" style="--font-selector:R0Y7RmlndHJlZS01MDA=;--framer-font-family:&quot;Figtree&quot;, &quot;Figtree Placeholder&quot;, sans-serif;--framer-font-size:18px;--framer-font-weight:500;--framer-letter-spacing:-0.02em;--framer-line-height:1.5em;--framer-text-alignment:center;${SERVICE_MUTED_COLOUR}">Reputation, search visibility and growth — what each service covers, who it suits, and who it does not.</p>` +
+    `</div></div>` +
+    `<div class="${SERVICES_SECTION_CLASS}-grid">${cards}</div>` +
+    `</div></section>`
+  );
+}
+
+// Static insert, for crawlers. Placed as the previous sibling of the Case Studies section, which
+// is the owner's chosen position. The anchor is the `<section id="casestudies"` opening tag; it is
+// unique, so no depth walk is needed here — unlike the CTA, which had to find a container's close.
+function patchHomepageServices(html, services) {
+  // Structural guard, not textual: the </body> script injection runs BEFORE this patch, so the
+  // runtime script's own source (which contains the class name as a string) is already present.
+  // Testing for the rendered attribute is the only check that cannot false-positive on it.
+  if (html.includes(`class="${SERVICES_SECTION_CLASS}"`)) {
+    throw new Error('homepage services: already inserted');
+  }
+  if (services.length !== SERVICES_DISPLAY_ORDER.length) {
+    throw new Error(
+      `homepage services: expected ${SERVICES_DISPLAY_ORDER.length} services, found ${services.length}. ` +
+        'Add the new slug to SERVICES_DISPLAY_ORDER so its position is deliberate.',
+    );
+  }
+
+  // Anchor on the id and walk back to the enclosing <section, rather than matching a tag with an
+  // assumed attribute order — the export writes `<section class=… data-framer-name=… id=…>`, so
+  // anchoring on '<section id="casestudies"' silently matches nothing.
+  const idAt = html.indexOf('id="casestudies"');
+  if (idAt < 0) throw new Error('homepage services: id="casestudies" not found');
+  if (html.indexOf('id="casestudies"', idAt + 1) !== -1) {
+    throw new Error('homepage services: id="casestudies" is not unique — insertion point ambiguous');
+  }
+  const at = html.lastIndexOf('<section', idAt);
+  if (at < 0) throw new Error('homepage services: no <section> encloses id="casestudies"');
+
+  return html.slice(0, at) + servicesSectionHtml(services) + html.slice(at);
+}
+
+// Runtime re-insert, for users. The static insert above does not survive: the homepage keeps its
+// Framer runtime and React reconciliation drops injected elements on hydration — measured on the
+// case-studies CTA, whose count went to 0. Same shape as CASE_STUDIES_CTA_SCRIPT: guard on the
+// class so it cooperates with the static insert, anchor on a stable landmark, hold it with a
+// MutationObserver.
+function servicesSectionScript(services) {
+  return `
+<script>
+(function () {
+  var CLS = '${SERVICES_SECTION_CLASS}';
+  var HTML = ${JSON.stringify(servicesSectionHtml(services))};
+
+  function run() {
+    if (document.querySelector('.' + CLS)) return;           // already there, nothing to do
+    var target = document.getElementById('casestudies');
+    if (!target || !target.parentNode) return;
+    var holder = document.createElement('div');
+    holder.innerHTML = HTML;
+    var section = holder.firstChild;
+    if (!section) return;
+    target.parentNode.insertBefore(section, target);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>`;
+}
 
 // The export's logo links are href="./", which is only correct at one URL depth. A relative
 // "./" resolves against the current directory, and these pages are served without a trailing
@@ -1177,7 +1421,10 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
 
   html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
-  return { slug: a.slug, title: a.title, description: a.description, url };
+  // `category` is the short label ("Comment Management") as opposed to the full page title
+  // ("Comment Management for Social and Community Platforms"). The homepage services grid needs
+  // the short form; nothing else reads this field, so adding it cannot change existing output.
+  return { slug: a.slug, title: a.title, description: a.description, category: a.category, url };
 }
 
 // FAQ answers come from frontmatter so the visible copy and the schema share one
@@ -2034,7 +2281,7 @@ function main() {
 `;
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + contactFormScript + newsletterFormScript + '</body>');
     }
 
     const preloads = `
@@ -2049,6 +2296,7 @@ function main() {
 
     indexHtml = patchHomepageCopy(indexHtml);
     indexHtml = patchHomepageCaseStudiesCta(indexHtml);
+    indexHtml = patchHomepageServices(indexHtml, publishedServices);
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
