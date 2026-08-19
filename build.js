@@ -470,6 +470,31 @@ ${FORM_FOCUS_CSS}
     }
   }
 
+  /* --- Clipped heading descenders ---------------------------------------------------------
+     The 'y' in "when they do." and the 'g' in "Blogs" were sliced off flat.
+
+     Cause: the ink is taller than the line box it sits in. Plus Jakarta Sans Bold has an
+     unusually tall content area - measured, at 52px the inline box is 87px (about 1.67em) -
+     while the heading line-height is 1.2em, i.e. 62.4px. So roughly 12px of ink hangs below
+     the box. The hero is worse: the h1 is 57px/68.4px but the spans inside it are 68px/81.6px,
+     a larger font in a smaller line box, overflowing about 15px.
+
+     Every heading on this preset overflows that way. It only becomes VISIBLE where the nearest
+     overflow:hidden ancestor ends exactly at the text's bottom edge - measured as three places:
+     the hero h1, "Blogs", and "Still not convinced" (that third one was not reported but is
+     clipped identically). "Case Studies" and "Services" overflow too but have hundreds of px
+     of slack inside their wrappers, so nothing is cut.
+
+     Fix is bottom padding on those three headings rather than overflow:visible on the wrappers.
+     The wrappers are content-sized, so padding grows them and the ink lands inside; removing
+     their overflow:hidden would instead risk exposing whatever those masks were drawn to hide,
+     and Framer commonly clips these for slide-in reveals. Padding also leaves multi-line
+     spacing alone, which a line-height change would loosen. Cost is that these three headings
+     sit about 14px lower than before. */
+  .framer-13h3br h1 { padding-bottom: 16px; }
+  .framer-hz970f h2,
+  .framer-1guo6mc h2 { padding-bottom: 14px; }
+
   /* --- Services section layout ------------------------------------------------------------
      Every value here is measured off the #casestudies section chain so the new section shares
      its rhythm exactly, rather than approximating it:
