@@ -189,6 +189,7 @@ export function renderJsonLd(nodes) {
   return '<script type="application/ld+json">\n' + json + '\n</script>';
 }
 
+
 // Case studies are client work write-ups, so Article is the honest type. They
 // carry no byline for the same reason as blog posts.
 // Only ever call this with Q&A pairs that are also rendered visibly on the page.
@@ -207,6 +208,42 @@ export function faqPage(faqs) {
   };
 }
 
+export function person(site) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${site}/about#founder`,
+    name: 'Mayank Sureka',
+    jobTitle: 'Founder',
+    worksFor: { '@id': orgId(site) },
+    url: `${site}/about`,
+    sameAs: [
+      'https://www.linkedin.com/company/vaeral/',
+    ],
+    knowsAbout: [
+      'Online Reputation Management',
+      'Reddit Marketing',
+      'Quora Marketing',
+      'Answer Engine Optimization',
+      'Brand Search Result Management',
+      'AI Search Visibility',
+    ],
+  };
+}
+
+export function aboutPage({ site, url, attrs }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    '@id': `${url}#about`,
+    url,
+    name: attrs.title || 'About Vaeral',
+    description: attrs.description,
+    mainEntity: { '@id': orgId(site) },
+    inLanguage: 'en',
+  };
+}
+
 export function caseStudyArticle({ site, url, attrs, image, type }) {
   return {
     '@context': 'https://schema.org',
@@ -221,7 +258,7 @@ export function caseStudyArticle({ site, url, attrs, image, type }) {
     publisher: { '@id': orgId(site) },
     mainEntityOfPage: url,
     inLanguage: 'en',
-    about: attrs.category || undefined,
+    about: attrs.category ? { '@type': 'Thing', name: attrs.category } : undefined,
     articleSection: 'Case Study',
     keywords: attrs.category || undefined,
     mentions: { '@id': orgId(site) },

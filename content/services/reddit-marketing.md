@@ -46,9 +46,9 @@ sectionThree: |
 
   It is also a poor fit if you need results this month. Community credibility accrues over quarters.
 
-  ### Related work
+  ### Related work & guides
 
-  See how a [premium pet nutrition brand recovered from a Reddit backlash](/premium-pet-nutrition), or read our guides on [using Reddit for marketing](/blog/using-reddit-marketing) and [handling a viral negative post](/blog/viral-negative).
+  See how a [premium pet nutrition brand recovered from a Reddit backlash](/premium-pet-nutrition), or read our guides on [how to remove a negative Reddit post from Google](/blog/remove-reddit-post-google), [using Reddit for marketing](/blog/using-reddit-marketing), and [handling a viral negative post](/blog/viral-negative). Explore all client stories in our [Case Studies directory](/casestudies).
 
 faqs:
   - question: "Can you get a negative Reddit post removed?"

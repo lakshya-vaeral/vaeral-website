@@ -50,9 +50,9 @@ sectionThree: |
 
   Answer engines are non-deterministic — the same prompt can return different answers on different days. We report mention rates across repeated runs and multiple models rather than single-run screenshots, because a screenshot proves nothing. We use this method on our own visibility too.
 
-  ### Related work
+  ### Related work & insights
 
-  Read [about how we work](/about), or see [Reddit marketing](/services/reddit-marketing), which is often the fastest lever on AI answers for consumer categories.
+  Read our in-depth guide on [What is Answer Engine Optimisation (AEO)?](/blog/what-is-aeo), learn [about how we work](/about), explore [Reddit marketing](/services/reddit-marketing), or review our verified client results across all [ORM Case Studies](/casestudies).
 
 faqs:
   - question: "Why does ChatGPT recommend some brands and not others?"

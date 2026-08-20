@@ -1471,6 +1471,12 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
               keywords: Array.isArray(a.tags) ? a.tags : [],
             },
           })
+        : schemaType === 'AboutPage'
+        ? schema.aboutPage({
+            site: SITE,
+            url,
+            attrs: a,
+          })
         : schema.caseStudyArticle({
             site: SITE,
             url,
@@ -1484,6 +1490,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
             },
             type: schemaType,
           }),
+      schemaType === 'AboutPage' ? schema.person(SITE) : null,
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
       schemaType === 'Service'
         ? schema.howTo({
@@ -1500,14 +1507,13 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
         ].filter(Boolean),
       ),
       schemaType === 'Service' ? schema.speakablePage({ url }) : null,
-    ]),
+    ].filter(Boolean)),
   });
 
   html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   // `category` is the short label ("Comment Management") as opposed to the full page title
   // ("Comment Management for Social and Community Platforms"). The homepage services grid needs
-  // the short form; nothing else reads this field, so adding it cannot change existing output.
   return { slug: a.slug, title: a.title, description: a.description, category: a.category, date: a.date, url };
 }
 
