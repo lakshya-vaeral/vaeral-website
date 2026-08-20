@@ -1,23 +1,42 @@
 ---
-title: "What is Answer Engine Optimisation (AEO) and how is it different from SEO?"
-seoTitle: "What is Answer Engine Optimisation (AEO)? | Vaeral"
-slug: "what-is-aeo"
+title: What is Answer Engine Optimisation (AEO) and how is it different from SEO?
+seoTitle: What is Answer Engine Optimisation (AEO)? | Vaeral
+slug: what-is-aeo
 date: 2026-08-21
-description: "AEO is the practice of structuring content so AI engines like ChatGPT, Perplexity and Google AI Overviews extract and cite it. Here is how it differs from traditional SEO."
-coverImage: "/assets/og-image.png"
-tags: ["AEO", "Answer Engine Optimization", "SEO", "AI Search"]
+description: AEO is the practice of structuring content so AI engines like
+  ChatGPT, Perplexity and Google AI Overviews extract and cite it. Here is how
+  it differs from traditional SEO.
+coverImage: /assets/blog-reddit-marketing.jpg
 draft: false
+tags:
+  - AEO
+  - Answer Engine Optimization
+  - SEO
+  - AI Search
 faqs:
-  - question: "What is Answer Engine Optimisation?"
-    answer: "Answer Engine Optimisation (AEO) is the practice of structuring content, schema and entity data so that AI-powered search engines like ChatGPT, Perplexity, Google AI Overviews and Gemini can extract, cite and recommend your content in response to user questions."
-  - question: "How is AEO different from SEO?"
-    answer: "Traditional SEO targets the ten blue links on a search results page. AEO targets the AI-generated answer that now appears above those links. AEO weights schema markup, direct-answer paragraph structure, entity corroboration and third-party citations, while SEO weights backlinks, domain authority and keyword placement."
-  - question: "Does AEO replace SEO?"
-    answer: "No. AEO and SEO work in parallel. A page needs to rank in traditional search before most AI engines will retrieve it. AEO adds a second layer that determines whether the page gets cited in the AI answer."
-  - question: "What types of content perform best in AI answers?"
-    answer: "Content with a clear, direct answer in the first paragraph performs best. Question-formatted headings, numbered steps, definition blocks and FAQ sections are easy for answer engines to extract."
-  - question: "How long does it take for AEO changes to show results?"
-    answer: "Structured data and on-page changes are indexed within days to weeks. Appearing in AI answers from external queries typically takes a few months because AI engines require corroboration from multiple sources."
+  - question: What is Answer Engine Optimisation?
+    answer: Answer Engine Optimisation (AEO) is the practice of structuring content,
+      schema and entity data so that AI-powered search engines like ChatGPT,
+      Perplexity, Google AI Overviews and Gemini can extract, cite and recommend
+      your content in response to user questions.
+  - question: How is AEO different from SEO?
+    answer: Traditional SEO targets the ten blue links on a search results page. AEO
+      targets the AI-generated answer that now appears above those links. AEO
+      weights schema markup, direct-answer paragraph structure, entity
+      corroboration and third-party citations, while SEO weights backlinks,
+      domain authority and keyword placement.
+  - question: Does AEO replace SEO?
+    answer: No. AEO and SEO work in parallel. A page needs to rank in traditional
+      search before most AI engines will retrieve it. AEO adds a second layer
+      that determines whether the page gets cited in the AI answer.
+  - question: What types of content perform best in AI answers?
+    answer: Content with a clear, direct answer in the first paragraph performs
+      best. Question-formatted headings, numbered steps, definition blocks and
+      FAQ sections are easy for answer engines to extract.
+  - question: How long does it take for AEO changes to show results?
+    answer: Structured data and on-page changes are indexed within days to weeks.
+      Appearing in AI answers from external queries typically takes a few months
+      because AI engines require corroboration from multiple sources.
 ---
 
 **Answer Engine Optimisation (AEO)** is the practice of structuring content, schema markup and online entity data so AI-powered search engines such as ChatGPT, Perplexity, Google AI Overviews and Gemini can extract your content and cite it as a source in their answers.
