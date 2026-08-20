@@ -41,6 +41,11 @@ export function organization(site) {
     sameAs: [
       'https://www.linkedin.com/company/vaeral/',
       'https://www.instagram.com/vaeral.media_',
+      // Add these once the profiles are live:
+      // 'https://www.crunchbase.com/organization/vaeral',
+      // 'https://clutch.co/profile/vaeral',
+      // 'https://www.g2.com/sellers/vaeral',
+      // 'https://www.goodfirms.co/company/vaeral',
     ],
     // Appended to, never reordered or rewritten: these arrays are how an answer engine
     // establishes what Vaeral does, so a service with a live page but no entry here is a
@@ -107,6 +112,51 @@ export function blogPosting({ site, url, attrs, image }) {
     publisher: { '@id': orgId(site) },
     mainEntityOfPage: url,
     inLanguage: 'en',
+    ...(attrs.keywords && attrs.keywords.length ? { keywords: attrs.keywords.join(', ') } : {}),
+    about: { '@type': 'Thing', name: 'Online Reputation Management' },
+    mentions: { '@id': orgId(site) },
+  };
+}
+
+export function speakablePage({ url, cssSelector }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${url}#webpage`,
+    url,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: cssSelector || ['h1.framer-text', 'h2.framer-text', '.framer-text p'],
+    },
+  };
+}
+
+export function webSite(site) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${site}/#website`,
+    url: `${site}/`,
+    name: 'Vaeral',
+    description: 'Online reputation management agency for Reddit, Quora, AI search and review management.',
+    publisher: { '@id': orgId(site) },
+    inLanguage: 'en',
+  };
+}
+
+export function howTo({ name, description, steps }) {
+  if (!steps || !steps.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name,
+    description,
+    step: steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+    })),
   };
 }
 
@@ -155,5 +205,8 @@ export function caseStudyArticle({ site, url, attrs, image, type }) {
     mainEntityOfPage: url,
     inLanguage: 'en',
     about: attrs.category || undefined,
+    articleSection: 'Case Study',
+    keywords: attrs.category || undefined,
+    mentions: { '@id': orgId(site) },
   };
 }

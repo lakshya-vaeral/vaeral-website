@@ -1006,6 +1006,7 @@ function readMarkdownDir(dir) {
 // preset classes/styles captured from the live export so injected body markup matches.
 
 const CASE_COLOR = '--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))';
+const BLOG_COLOR = 'color:rgb(222, 221, 255) !important;--framer-text-color:rgb(222, 221, 255)';
 
 const BLOG_PRESETS = {
   p: { class: 'framer-text framer-styles-preset-dg89m0' },
@@ -1015,11 +1016,11 @@ const BLOG_PRESETS = {
   h5: { class: 'framer-text framer-styles-preset-1t2dmrb', wrapStrong: true },
   h6: { class: 'framer-text framer-styles-preset-1t2dmrb', wrapStrong: true },
   a: { class: 'framer-text framer-styles-preset-s7x4xb', attrs: { target: '_blank', rel: 'noopener' } },
-  strong: { class: 'framer-text' },
-  em: { class: 'framer-text' },
-  ul: { class: 'framer-text' },
-  ol: { class: 'framer-text' },
-  li: { class: 'framer-text framer-styles-preset-dg89m0', attrs: { 'data-preset-tag': 'p' }, innerPClass: 'framer-text framer-styles-preset-dg89m0' },
+  strong: { class: 'framer-text', style: BLOG_COLOR },
+  em: { class: 'framer-text', style: BLOG_COLOR },
+  ul: { class: 'framer-text', style: BLOG_COLOR },
+  ol: { class: 'framer-text', style: BLOG_COLOR },
+  li: { class: 'framer-text framer-styles-preset-dg89m0', attrs: { 'data-preset-tag': 'p' }, style: BLOG_COLOR, innerPClass: 'framer-text framer-styles-preset-dg89m0', innerPStyle: BLOG_COLOR },
   blockquote: { class: 'framer-text framer-styles-preset-dg89m0' },
   table: { class: 'framer-text' },
   th: { class: 'framer-text framer-styles-preset-dg89m0' },
@@ -1297,6 +1298,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
           description: a.description,
           datePublished: isoDate(a.date),
           dateModified: isoDate(a.date),
+          keywords: Array.isArray(a.tags) ? a.tags : [],
         },
       }),
       schema.breadcrumbList([
@@ -1304,6 +1306,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
         { name: 'Blog', url: `${SITE}/blog` },
         { name: a.title, url },
       ]),
+      schema.speakablePage({ url }),
     ]),
   });
   // Blog posts are articles, not generic pages. The Framer export hardcodes
@@ -1315,9 +1318,6 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
       '<meta property="og:type" content="article">',
       `<meta property="article:published_time" content="${escapeHtml(isoDate(a.date))}">`,
       `<meta property="article:modified_time" content="${escapeHtml(isoDate(a.date))}">`,
-      // article:author is intentionally absent: owner declined personal bylines
-      // (2026-07-27). Putting the organisation name in this field would be read
-      // as a person, so it is omitted rather than filled with the wrong entity.
     ].join('\n    '),
   );
 
@@ -1327,6 +1327,11 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
   // Inject CSS to disable the sticky scroll effect on the Newsletter box
   html = html.replace('</head>', `
 <style>
+  .framer-text li,
+  .framer-text li strong,
+  .framer-text strong {
+    color: rgb(222, 221, 255) !important;
+  }
   @media (min-width: 1280px) {
     .framer-1q32mfl {
       position: relative !important;
@@ -1405,12 +1410,32 @@ function buildCaseStudy({ attributes: a }) {
   };
 }
 
+// Service content already stores its workflow as Markdown headings. Reuse those
+// visible steps for HowTo instead of maintaining a second copy in frontmatter.
+function deriveHowToSteps(markdown) {
+  if (!markdown) return [];
+  const steps = [];
+  const headingPattern = /^###\s+(.+?)\s*$([\s\S]*?)(?=^###\s+|(?![\s\S]))/gim;
+  for (const match of markdown.matchAll(headingPattern)) {
+    const text = match[2]
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/\*\*|__|`/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    if (text) steps.push({ name: match[1].trim(), text });
+  }
+  return steps;
+}
+
 // Service pages and /about reuse the case-study shell rather than introducing new
 // UI. Same three rich-text regions, with the section headings supplied by
 // frontmatter instead of defaulting to the case-study wording.
 function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaType }) {
   const url = `${SITE}/${dir ? `${dir}/` : ''}${a.slug}`;
   const faqHtml = renderFaqs(a.faqs);
+  const howToSteps = Array.isArray(a.howToSteps) && a.howToSteps.length
+    ? a.howToSteps
+    : deriveHowToSteps(a.sectionTwo);
 
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
@@ -1448,6 +1473,13 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
         type: schemaType,
       }),
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
+      schemaType === 'Service'
+        ? schema.howTo({
+            name: `How ${a.title} Works`,
+            description: a.description,
+            steps: howToSteps,
+          })
+        : null,
       schema.breadcrumbList(
         [
           { name: 'Home', url: `${SITE}/` },
@@ -1455,6 +1487,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
           { name: a.title, url },
         ].filter(Boolean),
       ),
+      schemaType === 'Service' ? schema.speakablePage({ url }) : null,
     ]),
   });
 
@@ -1463,7 +1496,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
   // `category` is the short label ("Comment Management") as opposed to the full page title
   // ("Comment Management for Social and Community Platforms"). The homepage services grid needs
   // the short form; nothing else reads this field, so adding it cannot change existing output.
-  return { slug: a.slug, title: a.title, description: a.description, category: a.category, url };
+  return { slug: a.slug, title: a.title, description: a.description, category: a.category, date: a.date, url };
 }
 
 // FAQ answers come from frontmatter so the visible copy and the schema share one
@@ -1765,8 +1798,8 @@ const NAV_SCRIPT = `
 function writeSitemap(entries) {
   const urls = entries
     .map(
-      ({ loc, priority }) =>
-        `  <url>\n    <loc>${loc}</loc>\n    <priority>${priority}</priority>\n  </url>`,
+      ({ loc, priority, lastmod }) =>
+        `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod || new Date().toISOString().slice(0, 10)}</lastmod>\n    <priority>${priority}</priority>\n  </url>`,
     )
     .join('\n');
   const xml =
@@ -1774,9 +1807,6 @@ function writeSitemap(entries) {
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     `${urls}\n` +
     '</urlset>\n';
-  // No <lastmod>: the only date available is the content's frontmatter date, which
-  // is a publish date rather than a modification date. A wrong lastmod is worse
-  // than none, since crawlers use it to decide what to re-fetch.
   fs.writeFileSync(
     path.join(DIST, 'sitemap.xml'),
     xml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'),
@@ -1809,7 +1839,14 @@ function writeIndexNowKey() {
 // Generated from the content collections rather than hand-written, so it cannot
 // drift out of date as pages are added or renamed.
 function writeLlmsTxt({ services, cases, posts, pages }) {
-  const line = (p, prefix = '') => `- [${p.title}](${SITE}${prefix}/${p.slug})`;
+  const line = (p, prefix = '') => {
+    const desc = p.description ? ` — ${p.description.split('.')[0]}.` : '';
+    return `- [${p.title}](${SITE}${prefix}/${p.slug})${desc}`;
+  };
+  const caseLine = (c) => {
+    const desc = c.description ? ` — ${c.description.split('.')[0]}.` : '';
+    return `- [${c.title}](${SITE}/${c.slug})${desc}`;
+  };
 
   const body = [
     '# Vaeral',
@@ -1826,6 +1863,14 @@ function writeLlmsTxt({ services, cases, posts, pages }) {
     'prohibit undisclosed coordinated promotion, and we do not place, buy or incentivise',
     'reviews.',
     '',
+    "## What we don't do",
+    '',
+    '- We do not create fake accounts or astroturf discussions',
+    '- We do not buy or place reviews on behalf of clients',
+    '- We do not offer guaranteed removal of third-party content',
+    '- We do not run campaigns that violate Reddit, Quora or Wikipedia platform rules',
+    '- We do not work on black-hat SEO or link schemes',
+    '',
     '## Services',
     '',
     ...services.map((s) => line(s, '/services')),
@@ -1834,7 +1879,24 @@ function writeLlmsTxt({ services, cases, posts, pages }) {
     '',
     'Client work is described by sector rather than by name.',
     '',
-    ...cases.map((c) => line(c)),
+    ...cases.map(caseLine),
+    '',
+    '## Frequently asked questions',
+    '',
+    '**What is online reputation management?**',
+    'ORM is the practice of monitoring, influencing and improving how a brand appears in online conversations, search results and AI-generated answers. It includes community management, content strategy, review management and structured visibility work across platforms like Reddit, Quora and Google.',
+    '',
+    '**How long does reputation recovery take?**',
+    'Most brands see measurable sentiment improvement within 60–90 days. Sustainable changes to Google search results typically take 3–6 months. AI answer citations follow once sufficient third-party corroboration exists, usually 4–8 months from campaign start.',
+    '',
+    '**Does Vaeral work within platform rules?**',
+    'Yes. All community work is disclosed where required by platform policy. We do not place, buy or incentivise reviews, and we do not operate fake accounts.',
+    '',
+    '**What is Answer Engine Optimization (AEO)?**',
+    'AEO is the practice of structuring content so that AI engines such as ChatGPT, Perplexity and Google AI Overviews extract and cite it in response to user questions. It involves structured data, direct-answer formatting, entity building and third-party corroboration.',
+    '',
+    '**Who does Vaeral work with?**',
+    'Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce businesses and individual founders. Most clients are Indian businesses, though we serve clients globally.',
     '',
     '## Company',
     '',
@@ -2029,7 +2091,11 @@ function patchHomepageSeo(html) {
 
   // The organisation node is the anchor every other page's schema @id-references,
   // so it belongs on the homepage specifically.
-  const ld = schema.renderJsonLd(schema.organization(SITE));
+  const ld = schema.renderJsonLd([
+    schema.organization(SITE),
+    schema.webSite(SITE),
+    schema.speakablePage({ url: `${SITE}/` }),
+  ]);
   if (!html.includes('</head>')) {
     throw new Error('homepage has no </head> — cannot attach structured data');
   }
@@ -2042,6 +2108,7 @@ function patchHomepageSeo(html) {
 
 function main() {
   fs.mkdirSync(DIST, { recursive: true });
+  const today = new Date().toISOString().slice(0, 10);
 
   // Ship CMS-uploaded / localized images into the deploy root.
   copyDir(PUBLIC_ASSETS, DIST_ASSETS);
@@ -2114,14 +2181,14 @@ function main() {
   console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
 
   writeSitemap([
-    { loc: `${SITE}/`, priority: '1.0' },
-    ...publishedPages.map((p) => ({ loc: p.url, priority: '0.8' })),
-    { loc: `${SITE}/services`, priority: '0.9' },
-    ...publishedServices.map((p) => ({ loc: p.url, priority: '0.9' })),
-    { loc: `${SITE}/casestudies`, priority: '0.7' },
-    ...publishedCases.map((c) => ({ loc: `${SITE}/${c.slug}`, priority: '0.7' })),
-    { loc: `${SITE}/blog`, priority: '0.7' },
-    ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6' })),
+    { loc: `${SITE}/`, priority: '1.0', lastmod: today },
+    ...publishedPages.map((p) => ({ loc: p.url, priority: '0.8', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
+    { loc: `${SITE}/services`, priority: '0.9', lastmod: today },
+    ...publishedServices.map((p) => ({ loc: p.url, priority: '0.9', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
+    { loc: `${SITE}/casestudies`, priority: '0.7', lastmod: today },
+    ...publishedCases.map((c) => ({ loc: `${SITE}/${c.slug}`, priority: '0.7', lastmod: c.date ? isoDate(c.date).slice(0, 10) : today })),
+    { loc: `${SITE}/blog`, priority: '0.7', lastmod: today },
+    ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
   ]);
   writeLlmsTxt({
     services: publishedServices,
