@@ -1459,19 +1459,31 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     // copy — FAQPage schema without visible Q&A breaches Google's policy.
     RESULTS: restyle(marked.parse(a.sectionThree || ''), CASE_PRESETS, `${a.slug} section 3`) + faqHtml,
     JSONLD: schema.renderJsonLd([
-      schema.caseStudyArticle({
-        site: SITE,
-        url,
-        image: absImage(a.coverImage),
-        attrs: {
-          title: a.title,
-          description: a.description,
-          category: a.category,
-          datePublished: isoDate(a.date),
-          dateModified: isoDate(a.date),
-        },
-        type: schemaType,
-      }),
+      schemaType === 'Service'
+        ? schema.service({
+            site: SITE,
+            url,
+            image: absImage(a.coverImage),
+            attrs: {
+              title: a.title,
+              description: a.description,
+              serviceType: a.category || a.title,
+              keywords: Array.isArray(a.tags) ? a.tags : [],
+            },
+          })
+        : schema.caseStudyArticle({
+            site: SITE,
+            url,
+            image: absImage(a.coverImage),
+            attrs: {
+              title: a.title,
+              description: a.description,
+              category: a.category,
+              datePublished: isoDate(a.date),
+              dateModified: isoDate(a.date),
+            },
+            type: schemaType,
+          }),
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
       schemaType === 'Service'
         ? schema.howTo({

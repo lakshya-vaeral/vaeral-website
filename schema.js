@@ -160,6 +160,23 @@ export function howTo({ name, description, steps }) {
   };
 }
 
+export function service({ site, url, attrs, image }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${url}#service`,
+    name: attrs.title,
+    description: attrs.description,
+    image,
+    url,
+    serviceType: attrs.serviceType || attrs.title,
+    provider: { '@id': orgId(site) },
+    areaServed: 'Worldwide',
+    inLanguage: 'en',
+    ...(attrs.keywords && attrs.keywords.length ? { keywords: attrs.keywords.join(', ') } : {}),
+  };
+}
+
 // Serialises one or more nodes into a single ld+json block for the page head.
 // The JSON is NOT HTML-escaped — escaping & to &amp; would corrupt it — so the
 // only transform is on '<', which keeps the JSON valid while ensuring the

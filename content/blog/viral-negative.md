@@ -7,7 +7,19 @@ description: "A viral negative Reddit thread can blindside a brand overnight. A 
 coverImage: "/assets/blog-viral-negative.jpg"
 coverAlt: "Smartphone showing social media app icons"
 readTime: 8
+tags: ["Reddit", "ORM", "Crisis Response", "Reputation Management"]
 draft: false
+faqs:
+  - question: "What should a brand do when a Reddit post goes viral?"
+    answer: "Verify the claim, understand the wider conversation, decide whether a public response helps, and fix the underlying issue before managing the search aftermath."
+  - question: "Should a brand respond publicly to a negative Reddit post?"
+    answer: "Respond publicly when the complaint is genuine, the brand can address it and silence would create more doubt. Respond privately when the issue is personal or can be resolved directly, and do not engage with obvious bait."
+  - question: "Can a negative Reddit post be removed?"
+    answer: "Only Reddit moderators or administrators can remove a post, normally when it violates platform or subreddit rules. Honest criticism cannot be removed simply because it is negative."
+  - question: "How can a brand recover its search results after a Reddit backlash?"
+    answer: "Publish useful, authoritative content, earn genuine third-party coverage and build a transparent presence on relevant platforms. Over time, stronger results can displace the thread for important queries."
+  - question: "What should a brand never do during a Reddit crisis?"
+    answer: "Do not mass downvote, use fake accounts, buy reviews, impersonate customers or pressure moderators to remove accurate criticism. Those actions create additional and often more durable reputation damage."
 ---
 
 **When a negative Reddit thread goes viral, move fast but do not panic.** Verify the claim before responding, decide whether a public reply will help or inflame, engage the wider community rather than only the original poster, fix the underlying issue, and then manage the search fallout — a viral thread often outranks your own site for months. Each step is covered in order below.
