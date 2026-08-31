@@ -12,30 +12,55 @@ Google AI Overviews. We work within platform rules: Reddit, Quora and Wikipedia 
 prohibit undisclosed coordinated promotion, and we do not place, buy or incentivise
 reviews.
 
+## What we don't do
+
+- We do not create fake accounts or astroturf discussions
+- We do not buy or place reviews on behalf of clients
+- We do not offer guaranteed removal of third-party content
+- We do not run campaigns that violate Reddit, Quora or Wikipedia platform rules
+- We do not work on black-hat SEO or link schemes
+
 ## Services
 
-- [AI Search Visibility (Answer Engine Optimisation)](https://www.vaeral.com/services/ai-search-visibility)
-- [App Download and Product Signup Growth](https://www.vaeral.com/services/app-store-growth)
-- [Brand Search Result and Autocomplete Management](https://www.vaeral.com/services/brand-search-results)
-- [Comment Management for Social and Community Platforms](https://www.vaeral.com/services/comment-management)
-- [Influencer Marketing for Brand Credibility](https://www.vaeral.com/services/influencer-marketing)
-- [LinkedIn Personal Branding for Founders](https://www.vaeral.com/services/linkedin-personal-branding)
-- [Quora Marketing and Answer Strategy](https://www.vaeral.com/services/quora-marketing)
-- [Reddit Marketing for Brand Reputation](https://www.vaeral.com/services/reddit-marketing)
-- [Review and Response Management](https://www.vaeral.com/services/review-management)
-- [Wikipedia Page Creation and Maintenance](https://www.vaeral.com/services/wikipedia-page-creation)
+- [AI Search Visibility (Answer Engine Optimisation)](https://www.vaeral.com/services/ai-search-visibility) — ChatGPT, Perplexity and AI Overviews recommend brands they can resolve and cite.
+- [App Download and Product Signup Growth](https://www.vaeral.com/services/app-store-growth) — People decide whether to install before they reach your store page.
+- [Brand Search Result and Autocomplete Management](https://www.vaeral.com/services/brand-search-results) — What Google shows for your brand name is editable, not fixed.
+- [Comment Management for Social and Community Platforms](https://www.vaeral.com/services/comment-management) — The comment section under your posts, and under other people's, is read as evidence.
+- [Influencer Marketing for Brand Credibility](https://www.vaeral.com/services/influencer-marketing) — An influencer partnership borrows someone else's credibility.
+- [LinkedIn Personal Branding for Founders](https://www.vaeral.com/services/linkedin-personal-branding) — Founder credibility compounds.
+- [Quora Marketing and Answer Strategy](https://www.vaeral.com/services/quora-marketing) — Quora answers rank on Google for years.
+- [Reddit Marketing for Brand Reputation](https://www.vaeral.com/services/reddit-marketing) — Reddit shapes what buyers and AI answer engines believe about your brand.
+- [Review and Response Management](https://www.vaeral.com/services/review-management) — Reviews decide purchases before a buyer ever reaches your site.
+- [Wikipedia Page Creation and Maintenance](https://www.vaeral.com/services/wikipedia-page-creation) — A Wikipedia presence is a strong legitimacy signal, and the hardest to earn.
 
 ## Case studies
 
 Client work is described by sector rather than by name.
 
-- [How We Helped a B2B Fintech Platform Recover From a Public API Outage](https://www.vaeral.com/b2b-fintech-platform)
-- [How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online](https://www.vaeral.com/holiday-membership)
-- [From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack](https://www.vaeral.com/on-demand-services-app)
-- [How We Helped a Leading Indian E-Pharmacy Go From "Is This a Scam?" to Trusted Household Name](https://www.vaeral.com/online-pharmacy)
-- [From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable](https://www.vaeral.com/ott-streaming-app)
-- [How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash](https://www.vaeral.com/premium-pet-nutrition)
-- [How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?](https://www.vaeral.com/silver-jewellery)
+- [How We Helped a B2B Fintech Platform Recover From a Public API Outage](https://www.vaeral.com/b2b-fintech-platform) — This B2B fintech platform offered embedded lending and payment infrastructure to mid-size Indian businesses.
+- [How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online](https://www.vaeral.com/holiday-membership) — This brand carried decades of family-vacation recall and a vast resort network.
+- [From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack](https://www.vaeral.com/on-demand-services-app) — The app was performing well operationally, but its Play Store reputation was under pressure.
+- [How We Helped a Leading Indian E-Pharmacy Go From "Is This a Scam?" to Trusted Household Name](https://www.vaeral.com/online-pharmacy) — When health-conscious Indian consumers searched for this e-pharmacy online, what they found wasn't reassuring.
+- [From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable](https://www.vaeral.com/ott-streaming-app) — In a category dominated by Netflix, Prime and Disney+, the app had decent fundamentals but no visibility.
+- [How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash](https://www.vaeral.com/premium-pet-nutrition) — This brand had strong vet-led positioning and a loyal customer base.
+- [How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?](https://www.vaeral.com/silver-jewellery) — This D2C silver jewellery brand had real demand and strong designs, but Reddit threads questioned tarnishing and durability.
+
+## Frequently asked questions
+
+**What is online reputation management?**
+ORM is the practice of monitoring, influencing and improving how a brand appears in online conversations, search results and AI-generated answers. It includes community management, content strategy, review management and structured visibility work across platforms like Reddit, Quora and Google.
+
+**How long does reputation recovery take?**
+Most brands see measurable sentiment improvement within 60–90 days. Sustainable changes to Google search results typically take 3–6 months. AI answer citations follow once sufficient third-party corroboration exists, usually 4–8 months from campaign start.
+
+**Does Vaeral work within platform rules?**
+Yes. All community work is disclosed where required by platform policy. We do not place, buy or incentivise reviews, and we do not operate fake accounts.
+
+**What is Answer Engine Optimization (AEO)?**
+AEO is the practice of structuring content so that AI engines such as ChatGPT, Perplexity and Google AI Overviews extract and cite it in response to user questions. It involves structured data, direct-answer formatting, entity building and third-party corroboration.
+
+**Who does Vaeral work with?**
+Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce businesses and individual founders. Most clients are Indian businesses, though we serve clients globally.
 
 ## Company
 
@@ -51,5 +76,7 @@ Client work is described by sector rather than by name.
 ## Blog
 
 - [Full index](https://www.vaeral.com/blog)
+- [How to get a negative Reddit post removed from Google search results](https://www.vaeral.com/blog/remove-reddit-post-google)
 - [How to use reddit for marketing: A step-by-step guide](https://www.vaeral.com/blog/using-reddit-marketing)
 - [How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide](https://www.vaeral.com/blog/viral-negative)
+- [What is Answer Engine Optimisation (AEO) and how is it different from SEO?](https://www.vaeral.com/blog/what-is-aeo)

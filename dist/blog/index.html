@@ -71,6 +71,8 @@
   .prefsrc .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
   /* keep Google's transparent iframe transparent under :root{color-scheme:dark} */
   .prefsrc [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  /* trim Google's 60px mount to its ~46px pill so align-items:center lines it up */
+  .prefsrc [google-add-preferred-source-btn] { min-height: 0 !important; height: 48px; }
   @media (max-width: 560px) { .prefsrc { padding: 18px; margin-bottom: 36px; } }
 </style>
 <script type="application/ld+json">
@@ -110,6 +112,24 @@
     <div class="btnwrap"><div google-add-preferred-source-btn data-theme="dark"></div></div>
   </div>
   <div class="grid">
+    <a class="card" href="/blog/remove-reddit-post-google">
+      <img class="cover" src="/assets/blog-reddit-marketing.jpg" alt="How to get a negative Reddit post removed from Google search results" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>Aug 21, 2026</span><span class="dot"></span><span>2 min read</span></div>
+        <h2>How to get a negative Reddit post removed from Google search results</h2>
+        <p class="excerpt">You cannot delete someone else&#39;s Reddit post. But you can push it off page one. Here is a practical guide to what actually works.</p>
+        <span class="more">Read article &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/blog/what-is-aeo">
+      <img class="cover" src="/assets/blog-reddit-marketing.jpg" alt="What is Answer Engine Optimisation (AEO) and how is it different from SEO?" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>Aug 21, 2026</span><span class="dot"></span><span>3 min read</span></div>
+        <h2>What is Answer Engine Optimisation (AEO) and how is it different from SEO?</h2>
+        <p class="excerpt">AEO is the practice of structuring content so AI engines like ChatGPT, Perplexity and Google AI Overviews extract and cite it. Here is how it differs from traditional SEO.</p>
+        <span class="more">Read article &rarr;</span>
+      </div>
+    </a>
     <a class="card" href="/blog/using-reddit-marketing">
       <img class="cover" src="/assets/blog-reddit-marketing.jpg" alt="How to use reddit for marketing: A step-by-step guide" loading="lazy">
       <div class="body">

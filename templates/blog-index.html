@@ -71,6 +71,8 @@
   .prefsrc .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
   /* keep Google's transparent iframe transparent under :root{color-scheme:dark} */
   .prefsrc [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  /* trim Google's 60px mount to its ~46px pill so align-items:center lines it up */
+  .prefsrc [google-add-preferred-source-btn] { min-height: 0 !important; height: 48px; }
   @media (max-width: 560px) { .prefsrc { padding: 18px; margin-bottom: 36px; } }
 </style>
 <!--CMS:JSONLD-->

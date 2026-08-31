@@ -829,6 +829,9 @@ const PREFERRED_SOURCE_STYLES = `
   /* Chrome paints an opaque backdrop behind an iframe when the embedder declares
      color-scheme: dark and the framed document does not. */
   .${PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  .${PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] {
+    min-height: 0 !important; height: 48px;
+  }
   @media (max-width: 560px) {
     .${PREFERRED_SOURCE_CLASS} { width: calc(100% - 32px); padding: 18px; }
   }
@@ -903,6 +906,13 @@ const NAV_PREFERRED_SOURCE_STYLES = `
     flex: 0 0 auto; width: 280px; margin-left: 18px; line-height: 0;
   }
   .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  /* Google sets min-height:60px inline on its mount but renders its ~46px pill at
+     the TOP of that box, so the dead space below pushed the button above the row's
+     centreline. Trimming the box to the pill's height lets align-items:center do
+     its job. */
+  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] {
+    min-height: 0 !important; height: 48px;
+  }
   @media (max-width: 1199px) {
     .${NAV_PREFERRED_SOURCE_CLASS} { display: none !important; }
   }
