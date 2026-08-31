@@ -900,67 +900,128 @@ const PREFERRED_SOURCE_SCRIPT = `
 // either overflow the row or crowd the burger.
 const NAV_PREFERRED_SOURCE_CLASS = 'vaeral-nav-prefsrc';
 
+const FOOT_PREFERRED_SOURCE_CLASS = 'vaeral-foot-prefsrc';
+
 const NAV_PREFERRED_SOURCE_STYLES = `
 <style>
+  /* nav copy: pinned to the right edge and pulled a little past the row's
+     gutter so it reads as the far-right control rather than a third item. */
   .${NAV_PREFERRED_SOURCE_CLASS} {
-    flex: 0 0 auto; width: 280px; margin-left: auto; line-height: 0;
+    flex: 0 0 auto; width: 280px; margin-left: auto; margin-right: -56px; line-height: 0;
   }
-  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  @media (max-width: 1439px) {
+    .${NAV_PREFERRED_SOURCE_CLASS} { margin-right: -24px; }
+  }
+  /* Measured: the desktop nav row (links + Get Started) only activates at 1280px.
+     From 1279px down the export switches to a logo-only burger nav and hides Get
+     Started, so the button has no row to sit in and must hide with it. */
+  @media (max-width: 1279px) {
+    .${NAV_PREFERRED_SOURCE_CLASS} { display: none !important; }
+  }
+
+  /* footer copy: centred on the page, directly above "Join newsletter" */
+  .${FOOT_PREFERRED_SOURCE_CLASS} {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 0 24px 44px;
+  }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .btnwrap { width: 280px; max-width: 100%; }
+
   /* Google sets min-height:60px inline on its mount but renders its ~46px pill at
      the TOP of that box, so the dead space below pushed the button above the row's
      centreline. Trimming the box to the pill's height lets align-items:center do
-     its job. */
-  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] {
+     its job. color-scheme keeps Chrome from painting an opaque backdrop behind
+     the transparent iframe on this dark page. */
+  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn],
+  .${FOOT_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] {
     min-height: 0 !important; height: 48px;
   }
-  @media (max-width: 1199px) {
-    .${NAV_PREFERRED_SOURCE_CLASS} { display: none !important; }
+  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe,
+  .${FOOT_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe {
+    color-scheme: normal;
   }
 </style>`;
 
 const NAV_PREFERRED_SOURCE_SCRIPT = `
 <script>
 (function () {
-  var CLS = '${NAV_PREFERRED_SOURCE_CLASS}';
-  var node = null;
+  var NAV_CLS = '${NAV_PREFERRED_SOURCE_CLASS}';
+  var FOOT_CLS = '${FOOT_PREFERRED_SOURCE_CLASS}';
+  var navNode = null;
+  var footNode = null;
   var loaded = false;
 
-  // The nav row is [logo + links][Get Started], laid out space-between. The
-  // button becomes a third child at the end, and the row is packed left so
-  // "Get Started" sits beside the links while margin-left:auto carries the
-  // button to the right edge — i.e. the two swap places. The row style is set
-  // inline rather than by class, because the export's class names are hashed
-  // and would not survive a re-export; the observer re-applies it after any
-  // re-render, and it is reverted below 1200px where the button is hidden.
-  var mq = window.matchMedia('(min-width: 1200px)');
+  // Both mounts live inside the Framer React root, so they are added after
+  // hydration and held by the observer. publisher.js scans for the attribute
+  // once on load and does not re-scan, so it is loaded only after BOTH mounts
+  // exist — otherwise the later one would never render.
+  var mq = window.matchMedia('(min-width: 1280px)');
 
+  function mount(cls, inner) {
+    var d = document.createElement('div');
+    d.className = cls;
+    d.innerHTML = inner;
+    return d;
+  }
+
+  var BTN = '<div google-add-preferred-source-btn data-theme="dark"></div>';
+
+  // The nav row is [logo + links][Get Started], laid out space-between. The
+  // button becomes a third child at the end and the row is packed left, so
+  // "Get Started" sits beside the links while margin-left:auto carries the
+  // button to the right edge. The gap gives Contact and Get Started room to
+  // breathe. Set inline rather than by class: the export's class names are
+  // hashed and would not survive a re-export. Reverted below 1200px, where the
+  // button is hidden.
   function layoutRow(row) {
     if (mq.matches) {
       row.style.justifyContent = 'flex-start';
-      row.style.gap = '28px';
+      row.style.gap = '64px';
     } else {
       row.style.justifyContent = '';
       row.style.gap = '';
     }
   }
 
-  function place() {
+  function placeNav() {
     var grp = document.querySelector('[data-framer-name="Logo/Menu Items"]');
     var row = grp && grp.parentElement;
     if (!row) return false;
     layoutRow(row);
-    if (node && node.parentNode === row && node === row.lastElementChild) return true;
-    if (!node) {
-      node = document.createElement('div');
-      node.className = CLS;
-      node.innerHTML = '<div google-add-preferred-source-btn data-theme="dark"></div>';
-    }
-    row.appendChild(node);
+    if (navNode && navNode.parentNode === row && navNode === row.lastElementChild) return true;
+    if (!navNode) navNode = mount(NAV_CLS, BTN);
+    row.appendChild(navNode);
     return true;
   }
 
-  function run() {
-    if (!place() || loaded) return;
+  // Directly above the newsletter block that closes the page. Matched on its own
+  // copy rather than a hashed class, so a re-export cannot silently move it — and
+  // NOT on the variant name: the footer ships as Desktop/Tablet/Phone variants and
+  // keying on "Desktop" dropped the button entirely below 1200px. The section is
+  // the visible element that carries the copy and whose parent is an unnamed
+  // wrapper; its inner Container/Newsletter boxes are skipped by that test.
+  function newsletterBlock() {
+    var els = document.querySelectorAll('[data-framer-name]');
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i];
+      if (!/join newsletter/i.test(e.textContent || '')) continue;
+      if (!e.getClientRects().length) continue;
+      if (e.parentElement && e.parentElement.hasAttribute('data-framer-name')) continue;
+      return e.parentNode && e.parentNode.parentNode ? e.parentNode : e;
+    }
+    return null;
+  }
+
+  function placeFoot() {
+    var block = newsletterBlock();
+    if (!block || !block.parentNode) return false;
+    if (footNode && footNode.parentNode === block.parentNode && footNode.nextSibling === block) return true;
+    if (!footNode) footNode = mount(FOOT_CLS, '<div class="btnwrap">' + BTN + '</div>');
+    block.parentNode.insertBefore(footNode, block);
+    return true;
+  }
+
+  function loadLib() {
+    if (loaded) return;
     loaded = true;
     if (document.querySelector('script[src*="news.google.com/swg"]')) return;
     var s = document.createElement('script');
@@ -969,7 +1030,15 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
     document.head.appendChild(s);
   }
 
+  function run() {
+    var okNav = placeNav();
+    var okFoot = placeFoot();
+    if (okNav && okFoot) loadLib();
+  }
+
   run();
+  // If one anchor never turns up, still render the other rather than nothing.
+  setTimeout(function () { if (navNode || footNode) loadLib(); }, 4000);
   if (mq.addEventListener) mq.addEventListener('change', run);
   if (document.body) {
     new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
