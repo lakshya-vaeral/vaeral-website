@@ -778,6 +778,178 @@ function patchRelativeHomeLinks(html) {
   return html.split('href="./"').join('href="/"');
 }
 
+// --- Google "Add as a preferred source" ---------------------------------------
+//
+// https://developers.google.com/search/docs/appearance/preferred-sources
+// vaeral.com is a domain-level publication, which is what the feature requires —
+// subdirectory publications (example.com/blog) are not eligible.
+//
+// It ships on the blog only. That is the publication surface the feature exists
+// for; the homepage, services and case-study pages are the agency funnel and a
+// follow-us control there would be noise.
+//
+// The blog INDEX carries the button as plain markup (templates/blog-index.html):
+// that template is ours and runs no Framer runtime, so the standard integration
+// works as documented — the library scans for the attribute and renders.
+//
+// POST pages need the script below instead. Measured on dist/blog/viral-negative:
+// a probe div placed inside the Framer React root (#main) was already gone when
+// the page settled, while an identical sibling outside it survived — React owns
+// that subtree and drops anything the export did not put there. So the mount
+// point is inserted after hydration, and publisher.js is loaded only once it is
+// in place, because the library scans for the attribute immediately on load and
+// does not re-scan. Re-renders re-attach the SAME node, which keeps the button
+// Google rendered inside it rather than leaving an empty div behind.
+const PREFERRED_SOURCE_CLASS = 'vaeral-prefsrc';
+
+const PREFERRED_SOURCE_STYLES = `
+<style>
+  .${PREFERRED_SOURCE_CLASS} {
+    box-sizing: border-box;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    width: calc(100% - 48px); max-width: 820px; margin: 0 auto 8px;
+    padding: 20px 22px;
+    background: rgba(119, 117, 153, 0.08);
+    border: 1px solid rgba(119, 117, 153, 0.28);
+    border-radius: 14px;
+  }
+  .${PREFERRED_SOURCE_CLASS} .txt { flex: 1 1 260px; min-width: 0; }
+  .${PREFERRED_SOURCE_CLASS} .t {
+    font-size: 16px; font-weight: 600; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+  .${PREFERRED_SOURCE_CLASS} .s {
+    font-size: 14px; line-height: 1.5; color: #9b9bbd; margin: 0; max-width: 62ch;
+  }
+  /* Google sets width:100% inline on its own mount and fills it with an absolutely
+     positioned iframe, so the mount is sized by whatever box we hand it. Left to
+     stretch, the iframe's canvas shows beside the button on this dark page. */
+  .${PREFERRED_SOURCE_CLASS} .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
+  /* Chrome paints an opaque backdrop behind an iframe when the embedder declares
+     color-scheme: dark and the framed document does not. */
+  .${PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  @media (max-width: 560px) {
+    .${PREFERRED_SOURCE_CLASS} { width: calc(100% - 32px); padding: 18px; }
+  }
+</style>`;
+
+const PREFERRED_SOURCE_HTML =
+  '<div class="txt">' +
+  '<p class="t">Follow Vaeral on Google</p>' +
+  '<p class="s">Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p>' +
+  '</div>' +
+  '<div class="btnwrap"><div google-add-preferred-source-btn data-theme="dark"></div></div>';
+
+const PREFERRED_SOURCE_SCRIPT = `
+<script>
+(function () {
+  var CLS = '${PREFERRED_SOURCE_CLASS}';
+  var HTML = ${JSON.stringify(PREFERRED_SOURCE_HTML)};
+  var node = null;
+  var loaded = false;
+
+  // Sits directly above the "Read More" section, i.e. at the end of the article.
+  // data-framer-name is the export's own landmark, the same kind of hook the
+  // case-studies CTA and the services section anchor to.
+  function place() {
+    var anchor = document.querySelector('[data-framer-name="Read More"]');
+    if (!anchor || !anchor.parentNode) return false;
+    // Already where it belongs: touch nothing, or the observer below re-triggers
+    // on our own write and loops.
+    if (node && node.parentNode === anchor.parentNode && node.nextSibling === anchor) return true;
+    if (!node) {
+      node = document.createElement('div');
+      node.className = CLS;
+      node.innerHTML = HTML;
+    }
+    anchor.parentNode.insertBefore(node, anchor);
+    return true;
+  }
+
+  function run() {
+    if (!place() || loaded) return;
+    loaded = true;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://news.google.com/swg/js/v1/publisher.js';
+    document.head.appendChild(s);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>`;
+
+
+// The homepage carries the button too, in the nav's left group so it is visible on
+// load without scrolling. Same constraint as the blog posts and then some: the nav
+// lives inside the Framer React root, so it is appended after hydration and held
+// there by the observer. It is hidden below 1200px — the button is a fixed-width
+// control and the nav collapses to a menu on smaller screens, where it would
+// either overflow the row or crowd the burger.
+const NAV_PREFERRED_SOURCE_CLASS = 'vaeral-nav-prefsrc';
+
+const NAV_PREFERRED_SOURCE_STYLES = `
+<style>
+  .${NAV_PREFERRED_SOURCE_CLASS} {
+    flex: 0 0 auto; width: 280px; margin-left: 18px; line-height: 0;
+  }
+  .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  @media (max-width: 1199px) {
+    .${NAV_PREFERRED_SOURCE_CLASS} { display: none !important; }
+  }
+</style>`;
+
+const NAV_PREFERRED_SOURCE_SCRIPT = `
+<script>
+(function () {
+  var CLS = '${NAV_PREFERRED_SOURCE_CLASS}';
+  var node = null;
+  var loaded = false;
+
+  function place() {
+    var nav = document.querySelector('[data-framer-name="Logo/Menu Items"]');
+    if (!nav) return false;
+    if (node && node.parentNode === nav && node === nav.lastElementChild) return true;
+    if (!node) {
+      node = document.createElement('div');
+      node.className = CLS;
+      node.innerHTML = '<div google-add-preferred-source-btn data-theme="dark"></div>';
+    }
+    nav.appendChild(node);
+    return true;
+  }
+
+  function run() {
+    if (!place() || loaded) return;
+    loaded = true;
+    if (document.querySelector('script[src*="news.google.com/swg"]')) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://news.google.com/swg/js/v1/publisher.js';
+    document.head.appendChild(s);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>`;
+
 // Homepage: a "View all case studies" link under the case-study cards.
 //
 // The blog section has "View all posts" but the case-studies section had no equivalent, so the
@@ -1340,6 +1512,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
   // uses a table today — this is here so the first one that does renders, rather than
   // reproducing the invisible-table bug the case studies just hit.
   html = injectContentStyles(disableSPARouting(html));
+  html = html.replace('</body>', () => PREFERRED_SOURCE_STYLES + PREFERRED_SOURCE_SCRIPT + '</body>');
   writePage(path.join(DIST, 'blog', a.slug), html);
   return {
     slug: a.slug,
@@ -2320,7 +2493,7 @@ function main() {
 `;
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + contactFormScript + newsletterFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
     }
 
     const preloads = `

@@ -87,6 +87,24 @@
   <h1 class="title">Case Studies</h1>
   <p class="lede">Explore our portfolio of successful projects and case studies.</p>
   <div class="grid">
+    <a class="card" href="/on-demand-services-app">
+      <img class="cover" src="/assets/case-study-hero.jpg" alt="From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>On-Demand Home Services</span></div>
+        <h2>From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack</h2>
+        <p class="excerpt">The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.</p>
+        <span class="more">Read case study &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/ott-streaming-app">
+      <img class="cover" src="/assets/case-study-hero.jpg" alt="From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable" loading="lazy">
+      <div class="body">
+        <div class="meta"><span>OTT Streaming / Entertainment</span></div>
+        <h2>From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable</h2>
+        <p class="excerpt">In a category dominated by Netflix, Prime and Disney+, the app had decent fundamentals but no visibility. Over 11 months it went from invisible to a fixture in the comparison conversations users were already having.</p>
+        <span class="more">Read case study &rarr;</span>
+      </div>
+    </a>
     <a class="card" href="/b2b-fintech-platform">
       <img class="cover" src="/assets/case-study-hero.jpg" alt="How We Helped a B2B Fintech Platform Recover From a Public API Outage" loading="lazy">
       <div class="body">
@@ -151,6 +169,30 @@
       }
     } catch (err) {}
   }, { capture: true });
+</script>
+
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+  }
+})();
 </script>
 </body>
 </html>
