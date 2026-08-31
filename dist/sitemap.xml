@@ -17,6 +17,22 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.vaeral.com/services/app-store-growth</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.vaeral.com/services/brand-search-results</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.vaeral.com/services/comment-management</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.vaeral.com/services/influencer-marketing</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.vaeral.com/services/linkedin-personal-branding</loc>
     <priority>0.9</priority>
   </url>
@@ -49,7 +65,15 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.vaeral.com/on-demand-services-app</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.vaeral.com/online-pharmacy</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.vaeral.com/ott-streaming-app</loc>
     <priority>0.7</priority>
   </url>
   <url>

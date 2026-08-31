@@ -15,6 +15,10 @@ reviews.
 ## Services
 
 - [AI Search Visibility (Answer Engine Optimisation)](https://www.vaeral.com/services/ai-search-visibility)
+- [App Download and Product Signup Growth](https://www.vaeral.com/services/app-store-growth)
+- [Brand Search Result and Autocomplete Management](https://www.vaeral.com/services/brand-search-results)
+- [Comment Management for Social and Community Platforms](https://www.vaeral.com/services/comment-management)
+- [Influencer Marketing for Brand Credibility](https://www.vaeral.com/services/influencer-marketing)
 - [LinkedIn Personal Branding for Founders](https://www.vaeral.com/services/linkedin-personal-branding)
 - [Quora Marketing and Answer Strategy](https://www.vaeral.com/services/quora-marketing)
 - [Reddit Marketing for Brand Reputation](https://www.vaeral.com/services/reddit-marketing)
@@ -27,7 +31,9 @@ Client work is described by sector rather than by name.
 
 - [How We Helped a B2B Fintech Platform Recover From a Public API Outage](https://www.vaeral.com/b2b-fintech-platform)
 - [How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online](https://www.vaeral.com/holiday-membership)
+- [From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack](https://www.vaeral.com/on-demand-services-app)
 - [How We Helped a Leading Indian E-Pharmacy Go From "Is This a Scam?" to Trusted Household Name](https://www.vaeral.com/online-pharmacy)
+- [From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable](https://www.vaeral.com/ott-streaming-app)
 - [How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash](https://www.vaeral.com/premium-pet-nutrition)
 - [How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?](https://www.vaeral.com/silver-jewellery)
 

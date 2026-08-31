@@ -57,6 +57,21 @@
   .card p.excerpt { font-size: 15px; line-height: 1.55; color: #b9b7d4; margin: 0; }
   .card .more { margin-top: auto; padding-top: 6px; font-weight: 600; font-size: 14px; color: #fff; }
   .empty { color: #9b9bbd; font-size: 17px; }
+  /* Google "Add as a preferred source" — https://developers.google.com/search/docs/appearance/preferred-sources */
+  .prefsrc {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    background: rgba(119, 117, 153, 0.08);
+    border: 1px solid rgba(119, 117, 153, 0.28);
+    border-radius: 14px; padding: 20px 22px; margin: 0 0 48px;
+  }
+  .prefsrc .txt { flex: 1 1 260px; min-width: 0; }
+  .prefsrc h2 { font-size: 16px; font-weight: 600; color: #fff; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .prefsrc p { font-size: 14px; line-height: 1.5; color: #9b9bbd; margin: 0; max-width: 62ch; }
+  .prefsrc .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
+  /* keep Google's transparent iframe transparent under :root{color-scheme:dark} */
+  .prefsrc [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  @media (max-width: 560px) { .prefsrc { padding: 18px; margin-bottom: 36px; } }
 </style>
 <!--CMS:JSONLD-->
 </head>
@@ -68,9 +83,17 @@
   </div>
   <h1 class="title">Blog</h1>
   <p class="lede">Field notes on Reddit, Quora and community-led marketing &mdash; how brands earn trust where buyers actually decide.</p>
+  <div class="prefsrc">
+    <div class="txt">
+      <h2>Follow Vaeral on Google</h2>
+      <p>Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p>
+    </div>
+    <div class="btnwrap"><div google-add-preferred-source-btn data-theme="dark"></div></div>
+  </div>
   <div class="grid">
 <!--CMS:POSTS-->
   </div>
 </div>
+<script async src="https://news.google.com/swg/js/v1/publisher.js"></script>
 </body>
 </html>

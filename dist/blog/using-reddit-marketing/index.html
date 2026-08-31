@@ -372,6 +372,116 @@
     }
   }
 </style>
+
+<style>
+  /* The export hard-codes the page root to height:2172px with overflow:clip — a fixed canvas
+     height from Framer, not a response to content — at top level, so it applies at every
+     width above the phone breakpoint (which alone gets height:min-content). Anything below
+     2172px is therefore clipped away AND excluded from the document's scroll height, so it
+     cannot be scrolled to at all.
+     Content shorter than 2172px hid this. The shipped case studies ran ~2386px, so their
+     footers were already being cut ~213px in; the on-demand study runs 3020px and its footer
+     starts at 2359px, entirely below the line, which is why it vanished completely.
+     It also survived every check we had: a tall-window screenshot has a viewport taller than
+     the document, so the clipped region is still painted and looks correct.
+     Restoring content-driven height. Scoped above the phone breakpoint so the existing
+     min-content rule there is left alone; overflow stays clipped, which still contains the
+     decorative glow horizontally. */
+  @media (min-width: 810px) {
+    .framer-y31P2.framer-1gd2lyo { height: auto; }
+  }
+  [data-framer-component-type="RichTextContainer"] table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 20px;
+  }
+  [data-framer-component-type="RichTextContainer"] th,
+  [data-framer-component-type="RichTextContainer"] td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    /* The export has no colour rule matching th/td — paragraphs get theirs from a
+       p-qualified rule — so the cells inherited black on a near-black background. The
+       preset does set --framer-text-color on them correctly (verified: #deddff), it just
+       had no consumer. Consume the design's own variable rather than pick a colour. */
+    color: var(--framer-text-color, #deddff);
+  }
+  [data-framer-component-type="RichTextContainer"] th {
+    font-weight: 600;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.3);
+  }
+  [data-framer-component-type="RichTextContainer"] tbody tr:last-child td {
+    border-bottom: none;
+  }
+  /* Narrow screens: scroll the table rather than forcing the page to scroll sideways. */
+  @media (max-width: 809.98px) {
+    [data-framer-component-type="RichTextContainer"] table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+  /* Code, for the same reason as tables: the export has no rules for it, so a snippet from
+     the CMS would render as unspaced body text. Colour comes from the preset. */
+  [data-framer-component-type="RichTextContainer"] code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  [data-framer-component-type="RichTextContainer"] pre {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  [data-framer-component-type="RichTextContainer"] pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .framer-form-input:focus-visible {
+    outline: 2px solid rgba(197, 185, 246, 0.9) !important;
+    outline-offset: 2px;
+  }
+  /* "All case studies" button. Geometry is lifted verbatim from the footer's primary button
+     rule (.framer-cTzwY .framer-1uvdw5m), which could not be reused directly because it is
+     scoped to the footer. Colours and typography come from the inline recipe on the element,
+     the same one the existing buttons use. */
+  .vaeral-all-cs {
+    display: flex;
+    justify-content: center;
+    /* Explicit full width: the parent is a flex container, so without this the wrapper shrinks
+       to the button and there is nothing to centre within. */
+    width: 100%;
+    padding: 8px 24px 56px;
+    box-sizing: border-box;
+  }
+  .vaeral-all-cs-btn {
+    flex-flow: row;
+    flex: none;
+    place-content: center;
+    align-items: center;
+    gap: 10px;
+    /* The footer rule uses width:min-content, which works there because Framer's own container
+       constrains the button. Standing alone it collapses to the widest single word and the label
+       spills outside the pill. max-content sizes to the full one-line label instead. */
+    width: max-content;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 12px 24px;
+    text-decoration: none;
+    display: flex;
+    position: relative;
+    overflow: visible;
+    white-space: nowrap;
+  }
+  .vaeral-all-cs-btn p {
+    margin: 0;
+  }
+</style>
 </head>
 <body>
 	<script async="" src="https://events.framer.com/script?v=2" data-fid="728bc54b9ec9aaad9a9222a5fbe91ebf3b3c1d19b0ccf66149b6817e029e7989" data-no-nt=""></script>
@@ -477,13 +587,97 @@
   }, { capture: true });
 </script>
 
+<style>
+  .vaeral-prefsrc {
+    box-sizing: border-box;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; flex-wrap: wrap;
+    width: calc(100% - 48px); max-width: 820px; margin: 0 auto 8px;
+    padding: 20px 22px;
+    background: rgba(119, 117, 153, 0.08);
+    border: 1px solid rgba(119, 117, 153, 0.28);
+    border-radius: 14px;
+  }
+  .vaeral-prefsrc .txt { flex: 1 1 260px; min-width: 0; }
+  .vaeral-prefsrc .t {
+    font-size: 16px; font-weight: 600; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+  .vaeral-prefsrc .s {
+    font-size: 14px; line-height: 1.5; color: #9b9bbd; margin: 0; max-width: 62ch;
+  }
+  /* Google sets width:100% inline on its own mount and fills it with an absolutely
+     positioned iframe, so the mount is sized by whatever box we hand it. Left to
+     stretch, the iframe's canvas shows beside the button on this dark page. */
+  .vaeral-prefsrc .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
+  /* Chrome paints an opaque backdrop behind an iframe when the embedder declares
+     color-scheme: dark and the framed document does not. */
+  .vaeral-prefsrc [google-add-preferred-source-btn] iframe { color-scheme: normal; }
+  @media (max-width: 560px) {
+    .vaeral-prefsrc { width: calc(100% - 32px); padding: 18px; }
+  }
+</style>
+<script>
+(function () {
+  var CLS = 'vaeral-prefsrc';
+  var HTML = "<div class=\"txt\"><p class=\"t\">Follow Vaeral on Google</p><p class=\"s\">Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p></div><div class=\"btnwrap\"><div google-add-preferred-source-btn data-theme=\"dark\"></div></div>";
+  var node = null;
+  var loaded = false;
+
+  // Sits directly above the "Read More" section, i.e. at the end of the article.
+  // data-framer-name is the export's own landmark, the same kind of hook the
+  // case-studies CTA and the services section anchor to.
+  function place() {
+    var anchor = document.querySelector('[data-framer-name="Read More"]');
+    if (!anchor || !anchor.parentNode) return false;
+    // Already where it belongs: touch nothing, or the observer below re-triggers
+    // on our own write and loops.
+    if (node && node.parentNode === anchor.parentNode && node.nextSibling === anchor) return true;
+    if (!node) {
+      node = document.createElement('div');
+      node.className = CLS;
+      node.innerHTML = HTML;
+    }
+    anchor.parentNode.insertBefore(node, anchor);
+    return true;
+  }
+
+  function run() {
+    if (!place() || loaded) return;
+    loaded = true;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://news.google.com/swg/js/v1/publisher.js';
+    document.head.appendChild(s);
+  }
+
+  run();
+  if (document.body) {
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      run();
+      new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>
 <script>
 (function () {
   var EXTRA = [
     { cls: 'vaeral-services-link', label: 'Services', href: '/services' },
     { cls: 'vaeral-blogs-link', label: 'Blogs', href: '/blog' }
   ];
-  var ROUTES = { 'About': '/about', 'Case Studies': '/casestudies' };
+  // 'Portfolio' is the label Framer ships for the case-studies link. It was missing from this
+  // map, so the re-assertion never matched it and hydration reverted its href to the original
+  // './#casestudies' — an on-page anchor. Clicking it did not reach /casestudies at all.
+  var ROUTES = { 'About': '/about', 'Case Studies': '/casestudies', 'Portfolio': '/casestudies' };
+
+  // The page it leads to is titled "Case Studies", and every other reference on the site uses
+  // that wording, so the nav should say it too. Relabelling rather than adding a second item:
+  // two nav links to one URL is worse than one that is named accurately. Idempotent — once
+  // relabelled the entry matches ROUTES['Case Studies'] and RELABEL no longer applies.
+  var RELABEL = { 'Portfolio': 'Case Studies' };
 
   function labelOf(node) {
     return (node.textContent || '').trim();
@@ -512,6 +706,8 @@
         links[i].setAttribute('href', ROUTES[text]);
         links[i].setAttribute('target', '_top');
       }
+
+      if (RELABEL[text]) setLabel(links[i], RELABEL[text]);
 
       if (text === 'Contact') {
         var c = links[i].parentElement;
@@ -558,6 +754,30 @@
       run();
       new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
     });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
   }
 })();
 </script>
