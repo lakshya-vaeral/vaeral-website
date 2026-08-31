@@ -903,7 +903,7 @@ const NAV_PREFERRED_SOURCE_CLASS = 'vaeral-nav-prefsrc';
 const NAV_PREFERRED_SOURCE_STYLES = `
 <style>
   .${NAV_PREFERRED_SOURCE_CLASS} {
-    flex: 0 0 auto; width: 280px; margin-left: 18px; line-height: 0;
+    flex: 0 0 auto; width: 280px; margin-left: auto; line-height: 0;
   }
   .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
   /* Google sets min-height:60px inline on its mount but renders its ~46px pill at
@@ -925,16 +925,37 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
   var node = null;
   var loaded = false;
 
+  // The nav row is [logo + links][Get Started], laid out space-between. The
+  // button becomes a third child at the end, and the row is packed left so
+  // "Get Started" sits beside the links while margin-left:auto carries the
+  // button to the right edge — i.e. the two swap places. The row style is set
+  // inline rather than by class, because the export's class names are hashed
+  // and would not survive a re-export; the observer re-applies it after any
+  // re-render, and it is reverted below 1200px where the button is hidden.
+  var mq = window.matchMedia('(min-width: 1200px)');
+
+  function layoutRow(row) {
+    if (mq.matches) {
+      row.style.justifyContent = 'flex-start';
+      row.style.gap = '28px';
+    } else {
+      row.style.justifyContent = '';
+      row.style.gap = '';
+    }
+  }
+
   function place() {
-    var nav = document.querySelector('[data-framer-name="Logo/Menu Items"]');
-    if (!nav) return false;
-    if (node && node.parentNode === nav && node === nav.lastElementChild) return true;
+    var grp = document.querySelector('[data-framer-name="Logo/Menu Items"]');
+    var row = grp && grp.parentElement;
+    if (!row) return false;
+    layoutRow(row);
+    if (node && node.parentNode === row && node === row.lastElementChild) return true;
     if (!node) {
       node = document.createElement('div');
       node.className = CLS;
       node.innerHTML = '<div google-add-preferred-source-btn data-theme="dark"></div>';
     }
-    nav.appendChild(node);
+    row.appendChild(node);
     return true;
   }
 
@@ -949,6 +970,7 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
   }
 
   run();
+  if (mq.addEventListener) mq.addEventListener('change', run);
   if (document.body) {
     new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
   } else {
