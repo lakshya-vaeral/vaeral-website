@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ORM Services: Reddit, Quora &amp; AI Search | Vaeral</title>
-<meta name="description" content="Reddit, Quora, Wikipedia, LinkedIn, review management and AI search visibility — what each service covers and who it suits.">
+<title>ORM, Search and Growth Services | Vaeral</title>
+<meta name="description" content="Reputation, search visibility and growth services — what each one covers, who it suits, and who it does not.">
 <link rel="canonical" href="https://www.vaeral.com/services">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ORM Services: Reddit, Quora &amp; AI Search | Vaeral">
-<meta property="og:description" content="Reddit, Quora, Wikipedia, LinkedIn, review management and AI search visibility — what each service covers and who it suits.">
+<meta property="og:title" content="ORM, Search and Growth Services | Vaeral">
+<meta property="og:description" content="Reputation, search visibility and growth services — what each one covers, who it suits, and who it does not.">
 <meta property="og:url" content="https://www.vaeral.com/services">
 <meta property="og:image" content="https://www.vaeral.com/assets/og-image.png">
 <link rel="icon" href="/assets/favicon.png">
@@ -90,30 +90,54 @@
       {
         "@type": "ListItem",
         "position": 2,
+        "name": "App Download and Product Signup Growth",
+        "url": "https://www.vaeral.com/services/app-store-growth"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Brand Search Result and Autocomplete Management",
+        "url": "https://www.vaeral.com/services/brand-search-results"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Comment Management for Social and Community Platforms",
+        "url": "https://www.vaeral.com/services/comment-management"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "Influencer Marketing for Brand Credibility",
+        "url": "https://www.vaeral.com/services/influencer-marketing"
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
         "name": "LinkedIn Personal Branding for Founders",
         "url": "https://www.vaeral.com/services/linkedin-personal-branding"
       },
       {
         "@type": "ListItem",
-        "position": 3,
+        "position": 7,
         "name": "Quora Marketing and Answer Strategy",
         "url": "https://www.vaeral.com/services/quora-marketing"
       },
       {
         "@type": "ListItem",
-        "position": 4,
+        "position": 8,
         "name": "Reddit Marketing for Brand Reputation",
         "url": "https://www.vaeral.com/services/reddit-marketing"
       },
       {
         "@type": "ListItem",
-        "position": 5,
+        "position": 9,
         "name": "Review and Response Management",
         "url": "https://www.vaeral.com/services/review-management"
       },
       {
         "@type": "ListItem",
-        "position": 6,
+        "position": 10,
         "name": "Wikipedia Page Creation and Maintenance",
         "url": "https://www.vaeral.com/services/wikipedia-page-creation"
       }
@@ -128,14 +152,46 @@
     <a class="brand" href="/"><img src="/assets/vaeral-logo.svg" alt="Vaeral" onerror="this.style.display='none'"></a>
     <a class="home" href="/">&larr; Back to home</a>
   </div>
-  <h1 class="title">Case Studies</h1>
-  <p class="lede">Reddit, Quora, Wikipedia, LinkedIn, review management and AI search visibility — what each service covers and who it suits.</p>
+  <h1 class="title">Services</h1>
+  <p class="lede">Reputation, search visibility and growth services — what each one covers, who it suits, and who it does not.</p>
   <div class="grid">
     <a class="card" href="/services/ai-search-visibility">
       <div class="body">
         <div class="meta"><span>Service</span></div>
         <h2>AI Search Visibility (Answer Engine Optimisation)</h2>
         <p class="excerpt">ChatGPT, Perplexity and AI Overviews recommend brands they can resolve and cite. How Vaeral makes yours legible to answer engines, and measures it.</p>
+        <span class="more">Read more &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/services/app-store-growth">
+      <div class="body">
+        <div class="meta"><span>Service</span></div>
+        <h2>App Download and Product Signup Growth</h2>
+        <p class="excerpt">People decide whether to install before they reach your store page. How Vaeral works on the ratings, listing and search signals that gate that decision.</p>
+        <span class="more">Read more &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/services/brand-search-results">
+      <div class="body">
+        <div class="meta"><span>Service</span></div>
+        <h2>Brand Search Result and Autocomplete Management</h2>
+        <p class="excerpt">What Google shows for your brand name is editable, not fixed. How Vaeral displaces unwanted results and shapes the suggestions that appear around your name.</p>
+        <span class="more">Read more &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/services/comment-management">
+      <div class="body">
+        <div class="meta"><span>Service</span></div>
+        <h2>Comment Management for Social and Community Platforms</h2>
+        <p class="excerpt">The comment section under your posts, and under other people&#39;s, is read as evidence. How Vaeral manages moderation, replies and escalation across platforms.</p>
+        <span class="more">Read more &rarr;</span>
+      </div>
+    </a>
+    <a class="card" href="/services/influencer-marketing">
+      <div class="body">
+        <div class="meta"><span>Service</span></div>
+        <h2>Influencer Marketing for Brand Credibility</h2>
+        <p class="excerpt">An influencer partnership borrows someone else&#39;s credibility. How Vaeral selects creators, briefs them honestly and keeps disclosure within ASCI&#39;s rules.</p>
         <span class="more">Read more &rarr;</span>
       </div>
     </a>
@@ -198,6 +254,30 @@
       }
     } catch (err) {}
   }, { capture: true });
+</script>
+
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+  }
+})();
 </script>
 </body>
 </html>
