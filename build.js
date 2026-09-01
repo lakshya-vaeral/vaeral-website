@@ -939,12 +939,29 @@ const NAV_PREFERRED_SOURCE_STYLES = `
      which centres the button in the band instead of jamming it to the top. */
   .${FOOT_PREFERRED_SOURCE_CLASS} {
     display: flex; justify-content: center; align-items: center;
-    width: 100%; padding: 100px 24px 0;
+    gap: 22px; width: 100%; padding: 100px 24px 0;
   }
-  @media (max-width: 809px) {
-    .${FOOT_PREFERRED_SOURCE_CLASS} { padding: 56px 20px 8px; }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .copy { text-align: right; }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .cta {
+    margin: 0; font-size: 15px; line-height: 1.45; color: #9b9bbd; max-width: 34ch;
   }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .nudge {
+    margin: 5px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.01em;
+    color: rgb(197, 184, 255);
+    display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+  }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .arw { font-size: 15px; line-height: 1; }
   .${FOOT_PREFERRED_SOURCE_CLASS} .btnwrap { width: 238px; max-width: 100%; }
+  /* stacked on small screens: copy above the button, arrow turned to point at it */
+  @media (max-width: 809px) {
+    .${FOOT_PREFERRED_SOURCE_CLASS} {
+      flex-direction: column; gap: 14px; padding: 56px 20px 8px;
+    }
+    .${FOOT_PREFERRED_SOURCE_CLASS} .copy { text-align: center; }
+    .${FOOT_PREFERRED_SOURCE_CLASS} .cta { font-size: 14px; }
+    .${FOOT_PREFERRED_SOURCE_CLASS} .nudge { justify-content: center; }
+    .${FOOT_PREFERRED_SOURCE_CLASS} .arw { transform: rotate(90deg); }
+  }
 
   /* Google sets min-height:60px inline on its mount but renders its ~46px pill at
      the TOP of that box, so the dead space below pushed the button above the row's
@@ -1050,10 +1067,17 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
     return null;
   }
 
+  var FOOT_INNER =
+    '<div class="copy">' +
+    '<p class="cta">Choose your sources before Google chooses for you.</p>' +
+    '<p class="nudge">click me <span class="arw" aria-hidden="true">&#8594;</span></p>' +
+    '</div>' +
+    '<div class="btnwrap">' + BTN + '</div>';
+
   function placeFoot() {
     var block = newsletterBlock();
     if (!block || !block.parentNode) return false;
-    if (!footNode) footNode = mount(FOOT_CLS, '<div class="btnwrap">' + BTN + '</div>');
+    if (!footNode) footNode = mount(FOOT_CLS, FOOT_INNER);
     // The page root is a flex column whose sections are REORDERED with CSS order
     // at narrow widths — measured on mobile: Top renders at 11948 while sitting
     // 5th in the DOM. A child with no order defaults to 0 and floats to the top
