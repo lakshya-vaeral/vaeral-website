@@ -697,10 +697,18 @@
     .vaeral-nav-prefsrc { display: none !important; }
   }
 
-  /* footer copy: centred on the page, directly above "Join newsletter" */
+  /* footer copy: centred on the page, in the band between the blog cards and the
+     newsletter block. Measured: the Blog section has no bottom padding, so with
+     no padding of its own the button collided with the cards while ~150px sat
+     empty below it. The newsletter section contributes ~102px of its own top
+     padding, so the space above is matched to that and the bottom left at 0 —
+     which centres the button in the band instead of jamming it to the top. */
   .vaeral-foot-prefsrc {
     display: flex; justify-content: center; align-items: center;
-    width: 100%; padding: 0 24px 44px;
+    width: 100%; padding: 100px 24px 0;
+  }
+  @media (max-width: 809px) {
+    .vaeral-foot-prefsrc { padding: 56px 20px 8px; }
   }
   .vaeral-foot-prefsrc .btnwrap { width: 280px; max-width: 100%; }
 
@@ -968,8 +976,16 @@
   function placeFoot() {
     var block = newsletterBlock();
     if (!block || !block.parentNode) return false;
-    if (footNode && footNode.parentNode === block.parentNode && footNode.nextSibling === block) return true;
     if (!footNode) footNode = mount(FOOT_CLS, '<div class="btnwrap">' + BTN + '</div>');
+    // The page root is a flex column whose sections are REORDERED with CSS order
+    // at narrow widths — measured on mobile: Top renders at 11948 while sitting
+    // 5th in the DOM. A child with no order defaults to 0 and floats to the top
+    // of the stack, which is why this button landed mid-page at 390px. Matching
+    // the newsletter's order keeps it adjacent to it, and DOM order breaks the
+    // tie so it stays ABOVE it.
+    var ord = getComputedStyle(block).order;
+    if (ord && footNode.style.order !== ord) footNode.style.order = ord;
+    if (footNode.parentNode === block.parentNode && footNode.nextSibling === block) return true;
     block.parentNode.insertBefore(footNode, block);
     return true;
   }
