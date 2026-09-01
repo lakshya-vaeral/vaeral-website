@@ -825,7 +825,7 @@ const PREFERRED_SOURCE_STYLES = `
   /* Google sets width:100% inline on its own mount and fills it with an absolutely
      positioned iframe, so the mount is sized by whatever box we hand it. Left to
      stretch, the iframe's canvas shows beside the button on this dark page. */
-  .${PREFERRED_SOURCE_CLASS} .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
+  .${PREFERRED_SOURCE_CLASS} .btnwrap { flex: 0 0 auto; width: 238px; max-width: 100%; }
   /* Chrome paints an opaque backdrop behind an iframe when the embedder declares
      color-scheme: dark and the framed document does not. */
   .${PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe { color-scheme: normal; }
@@ -842,7 +842,7 @@ const PREFERRED_SOURCE_HTML =
   '<p class="t">Follow Vaeral on Google</p>' +
   '<p class="s">Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p>' +
   '</div>' +
-  '<div class="btnwrap"><div google-add-preferred-source-btn data-theme="dark"></div></div>';
+  '<div class="btnwrap"><div google-add-preferred-source-btn data-theme="dark" data-lang="en"></div></div>';
 
 const PREFERRED_SOURCE_SCRIPT = `
 <script>
@@ -901,16 +901,14 @@ const PREFERRED_SOURCE_SCRIPT = `
 const NAV_PREFERRED_SOURCE_CLASS = 'vaeral-nav-prefsrc';
 
 const FOOT_PREFERRED_SOURCE_CLASS = 'vaeral-foot-prefsrc';
+const MOB_PREFERRED_SOURCE_CLASS = 'vaeral-mob-prefsrc';
 
 const NAV_PREFERRED_SOURCE_STYLES = `
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
      gutter so it reads as the far-right control rather than a third item. */
   .${NAV_PREFERRED_SOURCE_CLASS} {
-    flex: 0 0 auto; width: 280px; margin-left: auto; margin-right: -56px; line-height: 0;
-  }
-  @media (max-width: 1439px) {
-    .${NAV_PREFERRED_SOURCE_CLASS} { margin-right: -24px; }
+    flex: 0 0 auto; width: 238px; margin-left: auto; margin-right: -12px; line-height: 0;
   }
   /* Measured: the desktop nav row (links + Get Started) only activates at 1280px.
      From 1279px down the export switches to a logo-only burger nav and hides Get
@@ -918,6 +916,20 @@ const NAV_PREFERRED_SOURCE_STYLES = `
   @media (max-width: 1279px) {
     .${NAV_PREFERRED_SOURCE_CLASS} { display: none !important; }
   }
+
+  /* mobile/tablet copy: the desktop nav button needs the desktop nav row, which
+     the export drops below 1280px in favour of a collapsible menu. Rather than
+     reach inside that menu, this sits just BELOW the nav bar and above the hero
+     copy — visible on load without opening anything. Mirror image of the nav
+     button's media query, so exactly one of the two ever shows. */
+  .${MOB_PREFERRED_SOURCE_CLASS} {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 2px 20px 14px;
+  }
+  @media (min-width: 1280px) {
+    .${MOB_PREFERRED_SOURCE_CLASS} { display: none !important; }
+  }
+  .${MOB_PREFERRED_SOURCE_CLASS} .btnwrap { width: 238px; max-width: 100%; }
 
   /* footer copy: centred on the page, in the band between the blog cards and the
      newsletter block. Measured: the Blog section has no bottom padding, so with
@@ -932,7 +944,7 @@ const NAV_PREFERRED_SOURCE_STYLES = `
   @media (max-width: 809px) {
     .${FOOT_PREFERRED_SOURCE_CLASS} { padding: 56px 20px 8px; }
   }
-  .${FOOT_PREFERRED_SOURCE_CLASS} .btnwrap { width: 280px; max-width: 100%; }
+  .${FOOT_PREFERRED_SOURCE_CLASS} .btnwrap { width: 238px; max-width: 100%; }
 
   /* Google sets min-height:60px inline on its mount but renders its ~46px pill at
      the TOP of that box, so the dead space below pushed the button above the row's
@@ -940,10 +952,12 @@ const NAV_PREFERRED_SOURCE_STYLES = `
      its job. color-scheme keeps Chrome from painting an opaque backdrop behind
      the transparent iframe on this dark page. */
   .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn],
+  .${MOB_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn],
   .${FOOT_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] {
     min-height: 0 !important; height: 48px;
   }
   .${NAV_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe,
+  .${MOB_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe,
   .${FOOT_PREFERRED_SOURCE_CLASS} [google-add-preferred-source-btn] iframe {
     color-scheme: normal;
   }
@@ -953,8 +967,10 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
 <script>
 (function () {
   var NAV_CLS = '${NAV_PREFERRED_SOURCE_CLASS}';
+  var MOB_CLS = '${MOB_PREFERRED_SOURCE_CLASS}';
   var FOOT_CLS = '${FOOT_PREFERRED_SOURCE_CLASS}';
   var navNode = null;
+  var mobNode = null;
   var footNode = null;
   var loaded = false;
 
@@ -971,7 +987,7 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
     return d;
   }
 
-  var BTN = '<div google-add-preferred-source-btn data-theme="dark"></div>';
+  var BTN = '<div google-add-preferred-source-btn data-theme="dark" data-lang="en"></div>';
 
   // The nav row is [logo + links][Get Started], laid out space-between. The
   // button becomes a third child at the end and the row is packed left, so
@@ -998,6 +1014,21 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
     if (navNode && navNode.parentNode === row && navNode === row.lastElementChild) return true;
     if (!navNode) navNode = mount(NAV_CLS, BTN);
     row.appendChild(navNode);
+    return true;
+  }
+
+  // Below the nav bar, above the hero copy: the mobile/tablet stand-in for the
+  // nav button. Both mounts are always created and CSS decides which is visible,
+  // because publisher.js scans once on load — mounting on a breakpoint change
+  // would leave a button that never renders.
+  function placeMob() {
+    var header = document.querySelector('[data-framer-name="Header web"]');
+    if (!header || !header.parentNode) return false;
+    if (!mobNode) mobNode = mount(MOB_CLS, '<div class="btnwrap">' + BTN + '</div>');
+    var ord = getComputedStyle(header).order;
+    if (ord && mobNode.style.order !== ord) mobNode.style.order = ord;
+    if (mobNode.parentNode === header.parentNode && mobNode.previousSibling === header) return true;
+    header.parentNode.insertBefore(mobNode, header.nextSibling);
     return true;
   }
 
@@ -1048,13 +1079,14 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
 
   function run() {
     var okNav = placeNav();
+    var okMob = placeMob();
     var okFoot = placeFoot();
-    if (okNav && okFoot) loadLib();
+    if (okNav && okMob && okFoot) loadLib();
   }
 
   run();
   // If one anchor never turns up, still render the other rather than nothing.
-  setTimeout(function () { if (navNode || footNode) loadLib(); }, 4000);
+  setTimeout(function () { if (navNode || mobNode || footNode) loadLib(); }, 4000);
   if (mq.addEventListener) mq.addEventListener('change', run);
   if (document.body) {
     new MutationObserver(run).observe(document.body, { childList: true, subtree: true });

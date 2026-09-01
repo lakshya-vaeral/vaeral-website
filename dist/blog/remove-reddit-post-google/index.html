@@ -643,7 +643,7 @@
   /* Google sets width:100% inline on its own mount and fills it with an absolutely
      positioned iframe, so the mount is sized by whatever box we hand it. Left to
      stretch, the iframe's canvas shows beside the button on this dark page. */
-  .vaeral-prefsrc .btnwrap { flex: 0 0 auto; width: 280px; max-width: 100%; }
+  .vaeral-prefsrc .btnwrap { flex: 0 0 auto; width: 238px; max-width: 100%; }
   /* Chrome paints an opaque backdrop behind an iframe when the embedder declares
      color-scheme: dark and the framed document does not. */
   .vaeral-prefsrc [google-add-preferred-source-btn] iframe { color-scheme: normal; }
@@ -657,7 +657,7 @@
 <script>
 (function () {
   var CLS = 'vaeral-prefsrc';
-  var HTML = "<div class=\"txt\"><p class=\"t\">Follow Vaeral on Google</p><p class=\"s\">Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p></div><div class=\"btnwrap\"><div google-add-preferred-source-btn data-theme=\"dark\"></div></div>";
+  var HTML = "<div class=\"txt\"><p class=\"t\">Follow Vaeral on Google</p><p class=\"s\">Add us as a preferred source to see our Reddit, Quora and reputation research higher in Google Top Stories.</p></div><div class=\"btnwrap\"><div google-add-preferred-source-btn data-theme=\"dark\" data-lang=\"en\"></div></div>";
   var node = null;
   var loaded = false;
 
