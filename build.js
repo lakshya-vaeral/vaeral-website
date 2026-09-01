@@ -1070,7 +1070,7 @@ const NAV_PREFERRED_SOURCE_SCRIPT = `
   var FOOT_INNER =
     '<div class="copy">' +
     '<p class="cta">Choose your sources before Google chooses for you.</p>' +
-    '<p class="nudge">click me <span class="arw" aria-hidden="true">&#8594;</span></p>' +
+    '<p class="nudge">Click Me <span class="arw" aria-hidden="true">&#8594;</span></p>' +
     '</div>' +
     '<div class="btnwrap">' + BTN + '</div>';
 
