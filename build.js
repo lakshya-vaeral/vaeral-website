@@ -1654,6 +1654,29 @@ function pickRelatedPost(current, allPosts) {
   return others[0] || null;
 }
 
+// The blog post export predates the site's darker page background: it paints the page from the
+// navy surface token (#040128) while every newer export — case studies, services, about, and the
+// homepage itself — uses a literal rgb(2,1,10). That left /blog/* visibly lighter than the rest of
+// the site. Repoint just the two page-background declarations; the token stays as it is because
+// the navy is still the right colour for the things that actually use it (buttons, the nav card).
+function matchPageBackground(html, label) {
+  const swaps = [
+    ['body { background: var(%TOKEN%, rgb(4, 1, 40)); }', 'body { background: rgb(2, 1, 10); }'],
+    ['background-color:var(%TOKEN%,#040128)', 'background-color:#02010a'],
+  ];
+  for (const [from, to] of swaps) {
+    const needle = from.replace('%TOKEN%', '--token-fc3c6bee-17cf-410b-a413-566e16934a0b');
+    const n = html.split(needle).length - 1;
+    if (n !== 1) throw new Error(`${label}: expected the page background "${needle}" once, found ${n} — re-check the export`);
+    html = html.replace(needle, to);
+  }
+  // Those two fix what the browser paints before the page hydrates. Framer's runtime then
+  // re-applies its own body rule from the CDN modules and the navy comes back — the root div
+  // still covers the page so it only shows as a navy edge on overscroll, but pin it anyway.
+  // !important beats the runtime's plain declaration whichever order the two land in.
+  return html.replace('</body>', '<style>body{background:#02010a!important}</style></body>');
+}
+
 function buildBlogPost({ attributes: a, body }, allPosts = []) {
   const url = `${SITE}/blog/${a.slug}`;
   const hero = { src: a.coverImage || '/assets/og-image.png', alt: a.coverAlt || a.title, ...imageSize(a.coverImage) };
@@ -1723,6 +1746,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
 
   // Also rewrite the Framer CMS record so client hydration renders this post, not the template's.
   html = patchBlogHandover(html, a, body, hero);
+  html = matchPageBackground(html, `blog/${a.slug}`);
   
   // Inject CSS to disable the sticky scroll effect on the Newsletter box
   html = html.replace('</head>', `
