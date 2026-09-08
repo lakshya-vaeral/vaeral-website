@@ -114,6 +114,7 @@ function enlargeOrbit(src) {
   if (factor < 0 || start < 0 || end < 0) throw new Error('team wheel: orbit instance not found — chunk changed');
   let props = src.slice(start, end);
   props = swap(props, 'profileSizeFactor:.085', 'profileSizeFactor:.095', 1, 'avatar factor');
+  props = swap(props, 'cardWidthFactor:.55', 'cardWidthFactor:.5', 1, 'card width factor');
   props = swap(props, 'fontSize:`12px`', 'fontSize:`clamp(13px, 0.95vw, 16px)`', 2, 'body/bio font size');
   props = swap(props, 'fontSize:`16px`', 'fontSize:`clamp(17px, 1.2vw, 20px)`', 1, 'title font size');
   return src.slice(0, start) + props + src.slice(end);
