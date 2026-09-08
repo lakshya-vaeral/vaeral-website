@@ -586,13 +586,19 @@
      600px — the 1280 layout, where it already meets the heading, and the smallest wheel whose
      card still clears the diagonal avatars (the card cannot shrink with it: its text has a floor).
      The section follows the wheel's height instead of holding the
-     export's fixed 789px, and past 1604px the spare room splits evenly around the wheel rather
+     export's fixed 789px. Its 20/120 vertical padding was breathing room around a 520px wheel;
+     at these sizes it just left the group sitting 50px above the section's middle, crowding the
+     divider above and stranding a band of empty space below, so the padding is evened out to
+     70/70 — which lands on the same section height at every width. Past 1604px the spare room
+     splits evenly around the wheel rather
      than piling up on its left. The wheel's flex item is the min-content wrapper around the
      container (it also carries the export's 30px bottom padding), so the margins go on that. */
   @media (min-width: 1280px) {
     .framer-ofgoy .framer-hceif5 {
       height: auto;
       min-height: 789px;
+      padding-top: 70px;
+      padding-bottom: 70px;
       padding-right: 110px;
     }
     .framer-ofgoy .framer-353soo {
