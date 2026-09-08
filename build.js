@@ -863,7 +863,10 @@ const PREFERRED_SOURCE_STYLES = `
     box-sizing: border-box;
     display: flex; align-items: center; justify-content: space-between;
     gap: 20px; flex-wrap: wrap;
-    width: calc(100% - 48px); max-width: 820px; margin: 0 auto 8px;
+    width: calc(100% - 48px); max-width: 820px;
+    /* The card lands straight after the article body, so it needs its own air above —
+       without it the border sat on the last line of the post. 48px matches the blog index. */
+    margin: 48px auto 8px;
     padding: 20px 22px;
     background: rgba(119, 117, 153, 0.08);
     border: 1px solid rgba(119, 117, 153, 0.28);
@@ -888,7 +891,7 @@ const PREFERRED_SOURCE_STYLES = `
     min-height: 0 !important; height: 48px;
   }
   @media (max-width: 560px) {
-    .${PREFERRED_SOURCE_CLASS} { width: calc(100% - 32px); padding: 18px; }
+    .${PREFERRED_SOURCE_CLASS} { width: calc(100% - 32px); padding: 18px; margin-top: 32px; }
   }
 </style>`;
 
