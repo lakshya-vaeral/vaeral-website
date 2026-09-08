@@ -24,7 +24,7 @@ export function organization(site) {
     description:
       'Vaeral is an online reputation management agency that builds brand credibility through Reddit marketing, Quora marketing, AI search visibility, review management, brand search result management and influencer marketing.',
     email: 'contact@vaeral.com',
-    telephone: '+91-9104491177',
+    telephone: '+91-9707648973',
     foundingDate: '2022',
     founder: { '@type': 'Person', name: 'Mayank Sureka', jobTitle: 'Founder' },
     areaServed: 'Worldwide',

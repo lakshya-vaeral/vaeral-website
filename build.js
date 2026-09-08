@@ -1365,6 +1365,44 @@ function patchImages(html) {
   return out.replace('</body>', `${IMAGE_SCRIPT}</body>`);
 }
 
+const PHONE_OLD = '+91 9104491177';
+const PHONE_NEW = '+91 9707648973';
+
+// The number is in the Framer export's markup three times per page (one per SSR variant), and
+// again inside the footer module the page hydrates from, so replacing the markup alone holds
+// only until hydration puts the old number back. Same shape as the nav fix above: correct the
+// markup so the first paint is right, then re-assert in the DOM and keep re-asserting.
+const PHONE_SCRIPT = `
+<script>
+(function () {
+  var OLD = ${JSON.stringify(PHONE_OLD)}, NEW = ${JSON.stringify(PHONE_NEW)}, busy = false;
+  function run() {
+    if (busy) return;
+    busy = true;
+    try {
+      var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
+      while ((node = walk.nextNode())) {
+        if (node.nodeValue.indexOf(OLD) > -1) node.nodeValue = node.nodeValue.split(OLD).join(NEW);
+      }
+    } finally {
+      busy = false;
+    }
+  }
+  function start() {
+    run();
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>`;
+
+// Every page that shows the number: fix the markup, and carry the re-assertion script.
+function patchPhone(html) {
+  if (!html.includes(PHONE_OLD)) return html;
+  return html.split(PHONE_OLD).join(PHONE_NEW).replace('</body>', `${PHONE_SCRIPT}</body>`);
+}
+
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   // Nav anchors are relative in the Framer export and resolve against the current
@@ -1375,7 +1413,7 @@ function writePage(dir, html) {
     : html;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    patchImages(patched.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
+    patchImages(patchPhone(patched).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
   );
 }
 
@@ -2855,7 +2893,7 @@ function main() {
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
-    fs.writeFileSync(indexFile, patchImages(indexHtml.replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')));
+    fs.writeFileSync(indexFile, patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')));
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
 
