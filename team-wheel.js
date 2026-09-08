@@ -12,6 +12,12 @@
 // Every count is asserted so a re-published Framer bundle fails the build instead of silently
 // serving a stale wheel. Fail-safe by construction: if index.html ever stops referencing this
 // exact chunk hash the import map matches nothing and the page shows Framer's own wheel.
+//
+// The same copy also lets the wheel grow. The component ignores its container — Framer hands it
+// width/height as "100%", so its size hook falls back to a fixed 520px box — which left it small
+// beside a lot of empty section on wide screens. Our copy measures its root and sizes from that,
+// so the container's CSS (HOMEPAGE_FIX_STYLES in build.js) decides how big the wheel is; the
+// avatars get a larger share of it and the card type scales with the viewport.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,6 +26,14 @@ const FRAMER_SITE_CDN = 'https://framerusercontent.com/sites/5p7kq1Z1Vb5AjJ64xQU
 const TEAM_CHUNK = 'hjgLgmMb-efQTkJ3DDF3pVhD3P9bwbE6193zSs1Qa68.n2FM1_kX.mjs';
 const TEAM_CHUNK_LOCAL = '/assets/framer/team-wheel.mjs';
 const SIBLING_IMPORTS = 14;
+
+// the orbit component's size hook and the measuring code that goes in front of it; `c`, `_` and
+// `pe` are the component's own useState, useEffect and root ref. 600 is the fallback for a
+// container CSS leaves content-sized (tablet); on desktop the measured size wins.
+const SIZE_HOOK = 'let F=v(()=>{let e=typeof D?.width==`number`?D?.width:void 0,t=typeof D?.height==`number`?D?.height:void 0,n=Math.max(240,Math.min(e??520,t??520));';
+const SIZE_HOOK_MEASURED = SIZE_HOOK.replace('Math.min(e??520,t??520)', 'Rz||Math.min(e??600,t??600)');
+const SIZE_HOOK_DEPS = '[S,C,w,D?.width,D?.height])';
+const MEASURE_ROOT = 'let[Rz,Rs]=c(0);_(()=>{let e=pe.current;if(!e||typeof ResizeObserver>`u`)return;let t=new ResizeObserver(([e])=>{let{width:t,height:n}=e.contentRect;Rs(Math.floor(Math.min(t,n)))});return t.observe(e),()=>t.disconnect()},[]);';
 
 // the ten members already in the export, keyed by the photo id the chunk uses
 const TEAM_PHOTOS = {
@@ -75,6 +89,35 @@ export const TEAM_EXTRA = [
     photo: 'placeholder.png', // no photo supplied yet
   },
 ];
+
+// Exact-count replacement: the chunk is minified, so a miss means the bundle changed.
+function swap(src, from, to, times, what) {
+  const n = src.split(from).length - 1;
+  if (n !== times) throw new Error(`team wheel: expected ${what} ${times}x, found ${n} — chunk changed`);
+  return src.split(from).join(to);
+}
+
+// The wheel's size comes from its container, the avatars take .095 of it instead of .085, and the
+// card's type scales 13→16px (body) / 17→20px (name) with the viewport, matching the wheel's own
+// clamp() in build.js. Touches the orbit component and the one instance Framer places on the
+// page; the phone carousel is a different component and keeps its own sizes.
+function enlargeOrbit(src) {
+  const orbit = src.indexOf('orbitRadiusFactor:S=.33'); // the orbit component's defaults
+  const hook = src.indexOf(SIZE_HOOK, orbit);
+  if (orbit < 0 || hook < 0) throw new Error('team wheel: orbit size hook not found — chunk changed');
+  src = swap(src, SIZE_HOOK, MEASURE_ROOT + SIZE_HOOK_MEASURED, 1, 'size hook');
+  src = swap(src, SIZE_HOOK_DEPS, '[S,C,w,D?.width,D?.height,Rz])', 1, 'size hook deps');
+
+  const factor = src.indexOf('orbitRadiusFactor:.39'); // the instance's props
+  const start = src.lastIndexOf('children:p(Ud,{', factor);
+  const end = src.indexOf('})', factor);
+  if (factor < 0 || start < 0 || end < 0) throw new Error('team wheel: orbit instance not found — chunk changed');
+  let props = src.slice(start, end);
+  props = swap(props, 'profileSizeFactor:.085', 'profileSizeFactor:.095', 1, 'avatar factor');
+  props = swap(props, 'fontSize:`12px`', 'fontSize:`clamp(13px, 0.95vw, 16px)`', 2, 'body/bio font size');
+  props = swap(props, 'fontSize:`16px`', 'fontSize:`clamp(17px, 1.2vw, 20px)`', 1, 'title font size');
+  return src.slice(0, start) + props + src.slice(end);
+}
 
 // Index just past the ']' closing the array that opens at `open`, skipping template strings —
 // the bios contain commas and brackets.
@@ -135,6 +178,8 @@ export function buildTeamWheelChunk({ root, distAssets }) {
     if (have !== existing) throw new Error(`team wheel: expected ${existing} members in an array, found ${have}`);
     src = src.slice(0, end - 1) + ',' + extra + src.slice(end - 1);
   }
+
+  src = enlargeOrbit(src);
 
   const out = path.join(distAssets, 'framer', 'team-wheel.mjs');
   fs.mkdirSync(path.dirname(out), { recursive: true });

@@ -578,6 +578,32 @@
     }
   }
 
+  /* --- Team wheel on desktop ---------------------------------------------------------------
+     The wheel sizes itself from its container (team-wheel.js), and the export leaves that
+     container content-sized beside a 464px heading in a section padded 150/220, so the wider the
+     screen the more empty room sat between the two. Let the wheel take that room: 40px off the
+     heading, 110px off the right edge, never under 600px (the 1280 layout, where it already meets
+     the heading) or over 840px. The section follows the wheel's height instead of holding the
+     export's fixed 789px, and past 1604px the spare room splits evenly around the wheel rather
+     than piling up on its left. The wheel's flex item is the min-content wrapper around the
+     container (it also carries the export's 30px bottom padding), so the margins go on that. */
+  @media (min-width: 1280px) {
+    .framer-ofgoy .framer-hceif5 {
+      height: auto;
+      min-height: 789px;
+      padding-right: 110px;
+    }
+    .framer-ofgoy .framer-353soo {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .framer-ofgoy .framer-un4g3d-container {
+      --wheel: clamp(600px, 100vw - 764px, 840px);
+      width: var(--wheel);
+      height: var(--wheel);
+    }
+  }
+
   /* --- Clipped heading descenders ---------------------------------------------------------
      The 'y' in "when they do." and the 'g' in "Blogs" were sliced off flat.
 
