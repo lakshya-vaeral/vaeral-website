@@ -17,6 +17,7 @@ import fm from 'front-matter';
 import { marked } from 'marked';
 import * as cheerio from 'cheerio';
 import * as schema from './schema.js';
+import { buildTeamWheelChunk, patchHomepageTeam } from './team-wheel.js';
 
 const ROOT = process.cwd();
 const SITE = 'https://vaeral.com';
@@ -467,6 +468,26 @@ ${FORM_FOCUS_CSS}
     }
     [data-framer-name="cards"] [data-framer-component-type="RichTextContainer"]:not([style*="extracted-r6o4lv"]) p.framer-text {
       --framer-text-color: rgb(155, 155, 189);
+    }
+  }
+
+  /* --- Team block on phone -----------------------------------------------------------------
+     The phone variant lays the team out as a card plus a wrapping row of chips, inside boxes the
+     export sized for ten people: the chip container is a fixed 465px, its component root fills
+     it at 100% and hides overflow, and the section is a fixed 893px. Sixteen chips wrap to four
+     rows at 390px, so the last two rows were cut off at the card's edge — measured: rows end 95px
+     below the container.
+
+     Let the three boxes follow their content instead of a fixed count. The heights are the only
+     things changed; padding, gap and every colour stay the export's. !important on the root
+     because its height is set inline by the component. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-jl381u-container,
+    .framer-ofgoy .framer-hceif5 {
+      height: auto;
+    }
+    .framer-ofgoy .framer-jl381u-container [aria-label="Team carousel"] {
+      height: auto !important;
     }
   }
 
@@ -2476,6 +2497,8 @@ function main() {
 
   // Ship CMS-uploaded / localized images into the deploy root.
   copyDir(PUBLIC_ASSETS, DIST_ASSETS);
+  const teamMembers = buildTeamWheelChunk({ root: ROOT, distAssets: DIST_ASSETS });
+  console.log(`  ✓ team wheel chunk: ${teamMembers} members`);
 
   // Ship the Decap CMS editor (index.html + config.yml) so /admin is served.
   copyDir(PUBLIC_ADMIN, DIST_ADMIN);
@@ -2767,6 +2790,7 @@ function main() {
     indexHtml = patchHomepageCopy(indexHtml);
     indexHtml = patchHomepageCaseStudiesCta(indexHtml);
     indexHtml = patchHomepageServices(indexHtml, publishedServices);
+    indexHtml = patchHomepageTeam(indexHtml);
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
