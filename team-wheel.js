@@ -117,7 +117,25 @@ function enlargeOrbit(src) {
   props = swap(props, 'cardWidthFactor:.55', 'cardWidthFactor:.5', 1, 'card width factor');
   props = swap(props, 'fontSize:`12px`', 'fontSize:`clamp(13px, 0.95vw, 16px)`', 2, 'body/bio font size');
   props = swap(props, 'fontSize:`16px`', 'fontSize:`clamp(17px, 1.2vw, 20px)`', 1, 'title font size');
-  return src.slice(0, start) + props + src.slice(end);
+  // The name sits in an overflow:hidden box the height of its line-height, and the export sets
+  // that to 1.15em while Plus Jakarta Sans needs 1.68em of ink — so every descender (Mayank,
+  // Lakshya, Gajanand) was sliced flat. 1.7em fits the glyphs; the export's own clipped-descender
+  // fixes in HOMEPAGE_FIX_STYLES do the same thing for the page headings.
+  props = swap(props, 'letterSpacing:`-0.02em`,lineHeight:`1.15em`', 'letterSpacing:`-0.02em`,lineHeight:`1.7em`', 1, 'title line height');
+  // The taller name line and the smaller wheel together left the card's corners within a pixel
+  // of the avatars on the diagonals, so the card gives back the room: 14px of inner padding
+  // instead of 19 (the text area gets wider, so the bio wraps into fewer lines).
+  props = swap(props, 'cardPadding:19', 'cardPadding:14', 1, 'card padding');
+  src = src.slice(0, start) + props + src.slice(end);
+
+  // The phone carousel and the export's dead third variant are separate instances of a sibling
+  // component carrying the same 1.15em title, so their names clip the same way. Same fix; matched
+  // on the weight so the two property-control defaults (which no instance reads) stay untouched.
+  for (const weight of [600, 700]) {
+    src = swap(src, `fontWeight:${weight},letterSpacing:\`-0.02em\`,lineHeight:\`1.15em\``,
+      `fontWeight:${weight},letterSpacing:\`-0.02em\`,lineHeight:\`1.7em\``, 1, `title line height (${weight})`);
+  }
+  return src;
 }
 
 // Index just past the ']' closing the array that opens at `open`, skipping template strings —

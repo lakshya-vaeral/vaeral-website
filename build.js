@@ -494,10 +494,10 @@ ${FORM_FOCUS_CSS}
   /* --- Team wheel on desktop ---------------------------------------------------------------
      The wheel sizes itself from its container (team-wheel.js), and the export leaves that
      container content-sized beside a 464px heading in a section padded 150/220, so the wider the
-     screen the more empty room sat between the two. Let the wheel take that room, less 10% (the
-     full fill read too big): 110px off the right edge, never over 758px and never under
-     600px — the 1280 layout, where it already meets the heading, and the smallest wheel whose
-     card still clears the diagonal avatars (the card cannot shrink with it: its text has a floor).
+     screen the more empty room sat between the two. Let the wheel take that room, less 15% (the
+     full fill read too big): 110px off the right edge, never over 714px and never under 570px.
+     The floor exists because the card cannot shrink with the wheel — its text has a minimum
+     size — so below it the card starts crowding the avatars on the diagonals.
      The section follows the wheel's height instead of holding the
      export's fixed 789px. Its 20/120 vertical padding was breathing room around a 520px wheel;
      at these sizes it just left the group sitting 50px above the section's middle, crowding the
@@ -519,7 +519,7 @@ ${FORM_FOCUS_CSS}
       margin-right: auto;
     }
     .framer-ofgoy .framer-un4g3d-container {
-      --wheel: clamp(600px, 90vw - 686px, 758px);
+      --wheel: clamp(570px, 85vw - 650px, 714px);
       width: var(--wheel);
       height: var(--wheel);
     }
