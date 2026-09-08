@@ -1,7 +1,7 @@
 # Vaeral
 
 > Online reputation management agency helping brands build and defend credibility
-> across Reddit, Quora, LinkedIn and AI search. Founded 2022, based in Guwahati,
+> across Reddit, Quora, LinkedIn and AI search. Founded 2020, based in Guwahati,
 > India, working with clients globally.
 
 ## What we do
@@ -64,7 +64,7 @@ Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce busi
 
 ## Company
 
-- Founded: 2022
+- Founded: 2020
 - Legal entity: House of Swing
 - Founder: Mayank Sureka
 - Location: Guwahati, Assam, India (serving clients globally)
