@@ -65,10 +65,10 @@ export const TEAM_EXTRA = [
     photo: 'vishal.webp',
   },
   {
-    name: 'Armin Virk',
-    role: 'Content Lead',
-    bio: 'Reads brand briefs like most people read novels. The first person to know when something is off and the last person to leave it that way. Has strong feelings about people who use words like "synergy".',
-    photo: 'armin.webp',
+    name: 'Lakshya Pandey',
+    role: 'Digital Infrastructure Specialist',
+    bio: "Nobody fully understands his job title, including him. Manages the website, fixes what breaks, helps in SEO improvements. Loves to give AI solutions for problems you don't even have.",
+    photo: 'placeholder.png', // no photo supplied yet
   },
   {
     name: 'Sirsha Barui',
@@ -77,16 +77,16 @@ export const TEAM_EXTRA = [
     photo: 'sirsha.webp',
   },
   {
+    name: 'Armin Virk',
+    role: 'Content Lead',
+    bio: 'Reads brand briefs like most people read novels. The first person to know when something is off and the last person to leave it that way. Has strong feelings about people who use words like "synergy".',
+    photo: 'armin.webp',
+  },
+  {
     name: 'Sandipan Das',
     role: 'Community Content Specialist',
     bio: 'Understands community tone the way musicians understand music. Not fond of people who get it wrong. Speaks less and feels 90% of meetings are unnecessary.',
     photo: 'sandipan.webp',
-  },
-  {
-    name: 'Lakshya Pandey',
-    role: 'Digital Infrastructure Specialist',
-    bio: "Nobody fully understands his job title, including him. Manages the website, fixes what breaks, helps in SEO improvements. Loves to give AI solutions for problems you don't even have.",
-    photo: 'placeholder.png', // no photo supplied yet
   },
 ];
 
