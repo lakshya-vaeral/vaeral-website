@@ -35,14 +35,46 @@ const TEAM_PHOTOS = {
   'Cz12KfKQ9D0L88sUUexAVYf08': 'rohit-bhattacharya.webp',
 };
 
-// The six new members. Placeholders until the real people are known: edit the entry, drop the
-// photo in public/assets/team/, rebuild. Same shape as the component's own data.
-export const TEAM_EXTRA = [1, 2, 3, 4, 5, 6].map((n) => ({
-  name: `Team Member ${n}`,
-  role: 'Team Member',
-  bio: 'Bio coming soon.',
-  photo: 'placeholder.png',
-}));
+// The six new members, in the order the team doc lists them. To change one: edit the entry, drop
+// a 303x303 photo in public/assets/team/, rebuild. Same shape as the component's own data.
+export const TEAM_EXTRA = [
+  {
+    name: 'Laksh Batra',
+    role: 'Account Manager',
+    bio: "Knows every client's brand, brief, and deadline better than the clients themselves. Replies within seconds. We're not sure when/if he sleeps.",
+    photo: 'laksh.webp',
+  },
+  {
+    name: 'Vishal Rathod',
+    role: 'Account Manager',
+    bio: 'Manages five accounts simultaneously without making it sound like a big deal. Sends the most organised emails in the building. His favourite hobby is to take follow-ups.',
+    photo: 'vishal.webp',
+  },
+  {
+    name: 'Armin Virk',
+    role: 'Content Lead',
+    bio: 'Reads brand briefs like most people read novels. The first person to know when something is off and the last person to leave it that way. Has strong feelings about people who use words like "synergy".',
+    photo: 'armin.webp',
+  },
+  {
+    name: 'Sirsha Barui',
+    role: 'Community Content Specialist',
+    bio: 'Has written so many things on the internet that real strangers have genuinely agreed with, argued about, and bookmarked. Plans to do the same for a long time.',
+    photo: 'sirsha.webp',
+  },
+  {
+    name: 'Sandipan Das',
+    role: 'Community Content Specialist',
+    bio: 'Understands community tone the way musicians understand music. Not fond of people who get it wrong. Speaks less and feels 90% of meetings are unnecessary.',
+    photo: 'sandipan.webp',
+  },
+  {
+    name: 'Lakshya Pandey',
+    role: 'Digital Infrastructure Specialist',
+    bio: "Nobody fully understands his job title, including him. Manages the website, fixes what breaks, helps in SEO improvements. Loves to give AI solutions for problems you don't even have.",
+    photo: 'placeholder.png', // no photo supplied yet
+  },
+];
 
 // Index just past the ']' closing the array that opens at `open`, skipping template strings —
 // the bios contain commas and brackets.
