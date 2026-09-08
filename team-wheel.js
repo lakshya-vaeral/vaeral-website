@@ -126,6 +126,12 @@ function enlargeOrbit(src) {
   // of the avatars on the diagonals, so the card gives back the room: 14px of inner padding
   // instead of 19 (the text area gets wider, so the bio wraps into fewer lines).
   props = swap(props, 'cardPadding:19', 'cardPadding:14', 1, 'card padding');
+  // The role sits in the same nowrap/ellipsis box as the name, styled by bodyFont, and 1.2em
+  // clipped the tails of "Digital Infrastructure Specialist" and friends by a fraction of a
+  // pixel — enough to read as flattened. 1.5em leaves room at every size; the text gap comes
+  // down from 9 to 6 so the taller line does not grow the card back into the avatars.
+  props = swap(props, 'fontWeight:500,letterSpacing:`-0.01em`,lineHeight:`1.2em`', 'fontWeight:500,letterSpacing:`-0.01em`,lineHeight:`1.5em`', 1, 'role line height');
+  props = swap(props, 'cardTextGap:9', 'cardTextGap:6', 1, 'card text gap');
   src = src.slice(0, start) + props + src.slice(end);
 
   // The phone carousel and the export's dead third variant are separate instances of a sibling
