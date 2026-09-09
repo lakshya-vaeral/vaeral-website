@@ -551,16 +551,19 @@ ${FORM_FOCUS_CSS}
   .framer-1guo6mc h2 { padding-bottom: 14px; }
 
   /* --- Services section layout ------------------------------------------------------------
-     Every value here is measured off the #casestudies section chain so the new section shares
-     its rhythm exactly, rather than approximating it:
-       .framer-1a0ymfr  section wrapper  gap 100px, max-width 1440px, padding 100px 0 0
-       .framer-12qck6g  header block     gap 25px
-       .framer-2p1oou   text block       gap 15px
-       .framer-eci4z2   h2 container     max-width 700px
-       .framer-sk03rn   lede container   max-width 600px
-       .framer-fbd1z7   content          max-width 1000px (unset below 810px)
-     Colours and type come from the presets and tokens on the elements themselves, not from
-     here — this block is layout only. */
+     Split layout: the heading block sits left with a lede and a link to the hub, the ten
+     services sit right as cards. The asymmetry is deliberate — it is the team section's
+     arrangement ("The People Who Make it Happen" left, wheel right), so the page already
+     reads this shape once and the services section rhymes with it instead of adding a third
+     centred grid between the two.
+
+     Section rhythm is still measured off the #casestudies chain so it shares the page's
+     spacing exactly: wrapper max-width 1440px with padding 100px 0 0, content 1000px.
+     Type and colour are set here rather than borrowed from a preset for the same reason the
+     preferred-source card sets its own: 18px card titles and 14px body are a card-scale step
+     below the smallest heading preset (24px), so there is no preset to borrow. The fills are
+     the preferred-source card's (rgba(119,117,153,0.08) on a 0.28 border), which is this
+     page's quiet card; the lavender hover border and the CTA are the export's own tokens. */
   .vaeral-services {
     display: flex;
     flex-flow: column;
@@ -572,80 +575,90 @@ ${FORM_FOCUS_CSS}
     box-sizing: border-box;
     position: relative;
   }
-  .vaeral-services-header {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    gap: 25px;
+  .vaeral-services-split {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) 1fr;
+    gap: 56px;
+    align-items: start;
     width: 100%;
+    max-width: 1000px;
     padding: 0 24px;
     box-sizing: border-box;
   }
-  .vaeral-services-text {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
+  /* position:relative for the same reason the old grid needed it — see the note on the card
+     below; a positioned ancestor keeps any Framer ::after from insetting to the section. */
+  .vaeral-services-h2 { position: relative; }
+  .vaeral-services-lede {
+    margin: 18px 0 26px;
+    max-width: 34ch;
+    font-family: Inter, "Inter Placeholder", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #9b9bbd;
   }
-  /* These wrappers deliberately do NOT carry data-framer-component-type="RichTextContainer".
-     Mimicking the real markup that way pulled in a higher-specificity rule that sets
-     position:absolute on those containers — measured: both the heading and the lede computed
-     position: absolute, took each other out of flow and painted on top of one another, and a
-     plain position: relative here lost the specificity fight. The text presets live on the
-     h2/p themselves, so the attribute buys nothing. Same family of trap as the cloned button
-     whose absolutely-positioned label contributed no width. */
-  .vaeral-services-h2 {
-    flex: none;
-    width: 100%;
-    max-width: 700px;
-    height: auto;
-    position: relative;
+  /* Matched to the nav's Get Started button, measured: rgb(81,55,250), radius 12px,
+     padding 12px 24px, label Inter 16px/1.3 in the #deddff token. The label carries the
+     export's own preset so the face and weight cannot drift from it. */
+  .vaeral-services-cta {
+    display: inline-block;
+    background: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, rgb(81, 55, 250));
+    border-radius: 12px;
+    padding: 12px 24px;
+    text-decoration: none;
   }
   .vaeral-services-grid {
     display: grid;
-    /* Two columns, not three: ten items divide evenly into five rows with no orphan, and each
-       card still gets ~490px at the 1000px content width — ample for a label and one line. */
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    width: 100%;
-    max-width: 1000px;
+    gap: 14px;
   }
   .vaeral-services-card {
-    display: flex;
-    flex-flow: column;
-    /* position:relative is load-bearing. Framer draws the card edge with an absolutely
-       positioned ::after fed by the --border-* properties, so without a positioned card the
-       pseudo-element insets to the nearest positioned ancestor — the section — and paints ONE
-       border around the whole grid instead of ten card borders. The pill and the case-study
-       card both carry position:relative on themselves for this reason. */
-    position: relative;
-    gap: 6px;
-    /* padding borrowed from the case-study card; the pill's 8px/12px is pill-scale. */
+    display: block;
+    background: rgba(119, 117, 153, 0.08);
+    border: 1px solid rgba(119, 117, 153, 0.28);
+    border-radius: 16px;
     padding: 20px;
     text-decoration: none;
     box-sizing: border-box;
-    transition: filter 0.15s ease;
+    transition: background 0.18s ease, border-color 0.18s ease;
   }
-  .vaeral-services-card h3,
-  .vaeral-services-card p { margin: 0; }
-  /* Label centred. The h3 stretches to the card width by default, so text-align does the
-     centring; --framer-text-alignment on the element is the export's own mechanism for it and is
-     set alongside, the same way the section headings do it. Size steps down the site's own scale
-     from preset-1tx2fj3 (30px h3) to preset-1t2dmrb (24px h4) - same family and weight, one rung
-     lighter - rather than inventing a font-size. */
-  .vaeral-services-card { text-align: center; }
+  .vaeral-services-card h3 {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", "Plus Jakarta Sans Placeholder", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .vaeral-services-card p {
+    margin: 8px 0 0;
+    font-family: Inter, "Inter Placeholder", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #9b9bbd;
+  }
   @media (hover: hover) {
-    .vaeral-services-card:hover { filter: brightness(1.35); }
+    .vaeral-services-card:hover {
+      background: rgba(119, 117, 153, 0.14);
+      border-color: var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, rgba(197, 184, 255, 0.5));
+    }
   }
-  .vaeral-services-card:focus-visible {
+  .vaeral-services-card:focus-visible,
+  .vaeral-services-cta:focus-visible {
     outline: 2px solid rgba(197, 185, 246, 0.9);
     outline-offset: 3px;
   }
-  /* The export's own phone breakpoint, so this collapses exactly where every other section does. */
+  /* The aside stops earning its column before the export's own phone breakpoint: at the 1000px
+     content width a 280px column leaves the cards too narrow for a two-line hook. Stack there,
+     then drop to one card column at the export's phone breakpoint. */
+  @media (max-width: 1099.98px) {
+    .vaeral-services-split { grid-template-columns: 1fr; gap: 34px; }
+    .vaeral-services-lede { max-width: none; }
+  }
   @media (max-width: 809.98px) {
     .vaeral-services { padding-top: 60px; }
-    .vaeral-services-grid { grid-template-columns: 1fr; max-width: unset; }
+    .vaeral-services-split { padding: 0 20px; }
+    .vaeral-services-grid { grid-template-columns: 1fr; }
   }
 </style>`;
 
@@ -686,23 +699,9 @@ const SERVICES_LABEL_OVERRIDES = {
   'app-store-growth': 'Downloads and Signups',
 };
 
-const SERVICE_LABEL_COLOUR = '--framer-text-color:var(--token-e374d95c-0883-47b0-9f7c-6ff189c778da, rgb(255, 255, 255))';
-
-// The case-study cards' box, matched to their measured computed values rather than the Service
-// pill's. The pill's dark rgb(13,13,13) fill reads muddy at card scale; the case-study cards are
-// the site's card language and are transparent with a light border:
-//
-//   case-study card   background rgba(0,0,0,0)   radius 23px   ::after border 1px rgb(197,184,255)
-//   Service pill      background rgb(13,13,13)   radius  6px   ::after border 1px rgb(34,34,34)
-//
-// Framer draws the edge from an ::after pseudo-element fed by these --border-* custom properties,
-// which is why the border is invisible to `border-width` and has to be set this way. The colour is
-// the export's own token; declaring it inline is how the export's own elements do it.
-const SERVICE_CARD_BOX =
-  '--border-bottom-width:1px;--border-color:var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, rgb(197, 184, 255));' +
-  '--border-left-width:1px;--border-right-width:1px;--border-style:solid;--border-top-width:1px;' +
-  'background-color:rgba(0, 0, 0, 0);border-bottom-left-radius:23px;border-bottom-right-radius:23px;' +
-  'border-top-left-radius:23px;border-top-right-radius:23px';
+// The card's label colour and its box are set in HOMEPAGE_FIX_STYLES now: with the outlined
+// pill gone there is no Framer --border-* box to reproduce, and a plain CSS border works here
+// exactly as it does on the preferred-source card.
 
 function orderedServices(services) {
   const bySlug = new Map(services.map((s) => [s.slug, s]));
@@ -717,26 +716,52 @@ function serviceLabel(s) {
   return SERVICES_LABEL_OVERRIDES[s.slug] || s.category || s.title;
 }
 
+// The lede's count comes from the array so it cannot go stale when a service is added; the
+// build already refuses to run if that count and SERVICES_DISPLAY_ORDER disagree.
+const COUNT_WORDS = { 8: 'Eight', 9: 'Nine', 10: 'Ten', 11: 'Eleven', 12: 'Twelve' };
+
+function servicesLede(n) {
+  return `${COUNT_WORDS[n] || n} ways we shape what buyers and answer engines find about your brand.`;
+}
+
+// The hook is the first sentence of the service's own description — the claim, without the
+// "How Vaeral ..." half that follows it. Their copy, split at the sentence boundary, so the
+// homepage cannot drift from the service page the way a second hand-written line would.
+function serviceHook(s) {
+  const desc = (s.description || '').trim();
+  if (!desc) return '';
+  const first = desc.split('. ')[0];
+  return first === desc ? desc : `${first}.`;
+}
+
 // No <h1> anywhere in here: render-check compares the first hydrated <h1> against the first
 // served one, so an <h1> inserted above the hero's would fail that check even with hydration
 // working correctly.
 function servicesSectionHtml(services) {
   const cards = orderedServices(services)
-    .map(
-      (s) =>
-        `<a class="${SERVICES_SECTION_CLASS}-card" data-border="true" href="/services/${s.slug}" style="${SERVICE_CARD_BOX}">` +
-        `<h3 class="framer-text framer-styles-preset-1t2dmrb" data-styles-preset="FINgGXoDs" dir="auto" style="--framer-text-alignment:center;${SERVICE_LABEL_COLOUR}">${escapeHtml(serviceLabel(s))}</h3>` +
-        `</a>`,
-    )
+    .map((s) => {
+      const hook = serviceHook(s);
+      return (
+        `<a class="${SERVICES_SECTION_CLASS}-card" href="/services/${s.slug}">` +
+        `<h3>${escapeHtml(serviceLabel(s))}</h3>` +
+        (hook ? `<p>${escapeHtml(hook)}</p>` : '') +
+        `</a>`
+      );
+    })
     .join('');
 
   return (
     `<section class="${SERVICES_SECTION_CLASS}">` +
-    `<div class="${SERVICES_SECTION_CLASS}-header">` +
-    `<div class="${SERVICES_SECTION_CLASS}-text">` +
+    `<div class="${SERVICES_SECTION_CLASS}-split">` +
+    `<div class="${SERVICES_SECTION_CLASS}-aside">` +
     `<div class="${SERVICES_SECTION_CLASS}-h2">` +
-    `<h2 class="framer-text framer-styles-preset-398jw4" data-styles-preset="QnZFqE78z" dir="auto" style="--framer-text-alignment:center">Our Services</h2>` +
-    `</div></div>` +
+    `<h2 class="framer-text framer-styles-preset-398jw4" data-styles-preset="QnZFqE78z" dir="auto" style="--framer-text-alignment:left">Our Services</h2>` +
+    `</div>` +
+    `<p class="${SERVICES_SECTION_CLASS}-lede">${escapeHtml(servicesLede(services.length))}</p>` +
+    `<a class="${SERVICES_SECTION_CLASS}-cta" href="/services">` +
+    `<span class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">See all services</span>` +
+    `</a>` +
+    `</div>` +
     `<div class="${SERVICES_SECTION_CLASS}-grid">${cards}</div>` +
     `</div></section>`
   );
