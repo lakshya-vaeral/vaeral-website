@@ -83,7 +83,7 @@ export const TEAM_EXTRA = [
     photo: 'armin.webp',
   },
   {
-    name: 'Sandipan Das',
+    name: 'Sandipan Roy',
     role: 'Community Content Specialist',
     bio: 'Understands community tone the way musicians understand music. Not fond of people who get it wrong. Speaks less and feels 90% of meetings are unnecessary.',
     photo: 'sandipan.webp',
