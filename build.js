@@ -1458,6 +1458,42 @@ const NAV_PREFERRED_SOURCE_CLASS = 'vaeral-nav-prefsrc';
 const FOOT_PREFERRED_SOURCE_CLASS = 'vaeral-foot-prefsrc';
 const MOB_PREFERRED_SOURCE_CLASS = 'vaeral-mob-prefsrc';
 
+// Defers every image that is not painted in the first viewport.
+//
+// Measured on the built homepage: 85 <img> tags in the file, 50 of them render at 390px, and
+// exactly THREE sit above the fold — and the same three at 1280px too: the nav logo, the hero
+// plate and the hero's secondary mark. The other 47 were all eager, so a phone downloaded about
+// 1.3MB of off-screen artwork in competition with the image that decides LCP.
+//
+// The eager set is keyed off the file stems rather than position, because the export ships up to
+// three breakpoint variants of each block and DOM order does not match visual order. Keying on
+// the stem keeps the right images eager at every breakpoint without having to know which variant
+// is the visible one. Anything the head preloads must also stay eager, or the preload and the
+// lazy attribute fight and the browser fetches it twice.
+//
+// decoding="async" rides along so a large image cannot block the main thread while it paints.
+// Images that already declare loading= are left exactly as they are.
+const EAGER_IMAGE_STEMS = [
+  'vaeral-logo.svg',             // nav logo, served from /assets
+  'mxApJNEyaqa0EEnfiAbWSEiVOo',  // nav logo, the framerusercontent copy the runtime swaps in
+  'ui8KS5G13xZLHx95GVXLocBVlU',  // hero plate, the LCP element
+  'XzBd4KoG4q2LxAWIl0U4GPAz2c',  // hero secondary mark
+];
+
+function lazyLoadBelowFold(html) {
+  let lazied = 0, kept = 0;
+  const out = html.replace(/<img(?![a-zA-Z])[^>]*>/g, (tag) => {
+    if (/\sloading\s*=/.test(tag)) { kept++; return tag; }
+    if (EAGER_IMAGE_STEMS.some((stem) => tag.includes(stem))) { kept++; return tag; }
+    lazied++;
+    const withDecoding = /\sdecoding\s*=/.test(tag) ? tag : tag.replace(/^<img(?![a-zA-Z])/, '<img decoding="async"');
+    return withDecoding.replace(/^<img(?![a-zA-Z])/, '<img loading="lazy"');
+  });
+  if (!lazied) throw new Error('lazyLoadBelowFold: no images were deferred — the markup changed shape');
+  console.log(`  ✓ deferred ${lazied} below-fold images (${kept} kept eager)`);
+  return out;
+}
+
 const NAV_PREFERRED_SOURCE_STYLES = `
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
@@ -3373,16 +3409,24 @@ function main() {
       indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
     }
 
+    // Preload only what is actually painted in the first viewport. Measured on the built page
+    // at 390x664 and 1280x900: the SAME three images are above the fold at both — the nav logo
+    // (mxApJ..svg), the hero plate (ui8KS..png) and the hero's secondary mark (XzBd4..png).
+    //
+    // The previous list preloaded four, and three of them (r0nnng.., sNKeQ.., n2ZMsJ..) are below
+    // the fold at BOTH breakpoints, so they were being fetched at the highest priority while the
+    // element that actually decides LCP queued behind them. n2ZMsJ is the worst of the three: a
+    // 6000x4000 source. The logo is inline SVG-sized and arrives with the document, so the two
+    // raster hero images are the only ones worth the priority.
     const preloads = `
-<link rel="preload" as="image" href="https://framerusercontent.com/images/r0nnngidlqmFQKjVhqENbu42IA.png?width=1316&height=574">
-<link rel="preload" as="image" href="https://framerusercontent.com/images/sNKeQAU4GFrqfgvCqAIvZCU1KRA.png?scale-down-to=1024&width=1161&height=1080">
-<link rel="preload" as="image" href="https://framerusercontent.com/images/n2ZMsJIF5MgwK89prVzJKbCUcS0.jpg?scale-down-to=1024&width=6000&height=4000">
 <link rel="preload" as="image" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
+<link rel="preload" as="image" href="https://framerusercontent.com/images/XzBd4KoG4q2LxAWIl0U4GPAz2c.png?scale-down-to=1024">
 `;
     if (indexHtml.includes('</head>')) {
       indexHtml = indexHtml.replace('</head>', preloads + '</head>');
     }
 
+    indexHtml = lazyLoadBelowFold(indexHtml);
     indexHtml = patchHomepageCopy(indexHtml);
     indexHtml = patchHomepageCaseStudiesCta(indexHtml);
     indexHtml = patchHomepageServices(indexHtml, publishedServices);
