@@ -917,6 +917,104 @@ ${FORM_FOCUS_CSS}
       .framer-ofgoy .framer-fbd1z7 { scroll-snap-type: x proximity; }
     }
   }
+
+  /* --- Services as a swipe deck on phone ---------------------------------------------------
+     .framer-rqrgvh was 350x3132 at 390px — the largest block on the page and six full-height
+     cards the reader scrolls past one at a time. It is a horizontal scroll-snap deck now, the
+     same gesture #testimonials and the case studies already use. Nothing is redrawn and no copy,
+     colour or type changes: the same six cards, laid along x instead of y.
+
+     Structure first, because the stack does not hold six cards. It holds three Row wrappers
+     (18s4q43, bz7ss3, wybi0i) plus ONE card sitting directly on it — .framer-1txirs4 is the
+     LinkedIn card itself (data-framer-name="Card", the same rgba(255,255,255,.01) fill, 18px
+     radius and 24/20/30 padding as its five siblings), not a fourth wrapper. So only three
+     elements get display:contents.
+
+     display:contents drops a wrapper's box, so it is only safe if that box carries nothing.
+     Checked rather than assumed: all three Rows are background rgba(255,255,255,0), border 0,
+     padding 0, overflow visible, no transform, no filter. Then every absolutely-positioned
+     descendant was walked and its real containing block resolved — every one lands on its own
+     card, which is position:relative, and NONE resolves to a Row. Dissolving them reparents no
+     artwork. The LinkedIn card is the one element whose glow and image do use it as their
+     containing block, and it keeps its box.
+
+     Two traps, both of which break the deck silently, both measured:
+
+     1. The export sets its own order values. wybi0i is order:3 and .framer-1txirs4 is order:2,
+        LinkedIn renders FOURTH while sitting last in the DOM. Once the Rows dissolve, the cards'
+        own orders apply directly against the deck and LinkedIn slides to position six — the
+        service order would change without anyone asking. order:3/4 on the wybi0i pair restores
+        the export's own sequence, reusing its own numbering.
+     2. .framer-rqrgvh is justify-content:center. In an overflowing row scroller that centres the
+        line and puts the first three cards at NEGATIVE offsets where scrolling cannot reach them
+        — measured as scrollWidth 1870 collapsing to 1110, i.e. Reddit, Quora and Wikipedia
+        permanently unreachable. flex-start is load-bearing, not tidying.
+
+     Sizing: the deck sits inside the page's 20px rail, so its box is 350 wide. 300px cards on a
+     14px gap leave 36px of the next card showing — 12% of a card, enough that the edge reads as
+     swipeable rather than as a cropped layout.
+
+     Height 551 on all six rather than ragged tops, and it is free here: every card is
+     justify-content:flex-end, so extra height lands ABOVE the artwork as breathing room, not as
+     dead space under the stat strip. Measured — Review Seeding's art moves 25.2px further down,
+     LinkedIn's 17.3->25.8, Response Management's 24->45.1, and no card gains a gap at its bottom.
+     551 is not a new number: it is Quora's own height, already the tallest of the six.
+
+     At 300px the two left/right-anchored illustrations rescale with the card (1xupf9p 374->338,
+     5rq8mg 388->338) and keep aspect ratio via the export's own --framer-aspect-ratio-supported
+     height, so neither squashes; the four fixed-width ones crop ~27px more per side, which is
+     diagram margin — the Wikipedia W-node, the LinkedIn profile mock and the Response Management
+     hub all still sit inside. .framer-jcbzwd's 32px of clipped content is pre-existing.
+
+     THIS BLOCK MUST STAY AFTER the illustration-fit rules above: the card height rules there are
+     the same specificity (0,2,0), so source order is what makes 551 win over 470/440.
+
+     Verified at 390: container 3132 -> 551, page 14901 -> 12320, documentElement.scrollWidth
+     stays 390 — the deck scrolls internally, its own scrollWidth is 1870 — and the same holds at
+     360/430/600/768/809. All six snap positions reachable in the export's order: Reddit 0, Quora
+     314, Wikipedia 628, LinkedIn 942, Review Seeding 1256, Response Management 1520. One Tab
+     reaches the deck and ArrowRight advances exactly one card; nothing inside is focusable so it
+     cannot trap focus. At 1280 the stack is still column 1220x1835 with all six card rects
+     identical. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-18s4q43,
+    .framer-ofgoy .framer-bz7ss3,
+    .framer-ofgoy .framer-wybi0i { display: contents; }
+
+    .framer-ofgoy .framer-rqrgvh {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      column-gap: 14px;
+      row-gap: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 0;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+    }
+    .framer-ofgoy .framer-rqrgvh::-webkit-scrollbar { display: none; }
+
+    .framer-ofgoy .framer-jcbzwd,
+    .framer-ofgoy .framer-19xyygn,
+    .framer-ofgoy .framer-1lsar27,
+    .framer-ofgoy .framer-1txirs4,
+    .framer-ofgoy .framer-q2w3s5,
+    .framer-ofgoy .framer-1ej1of4 {
+      flex: 0 0 300px;
+      width: 300px;
+      height: 551px;
+      scroll-snap-align: start;
+    }
+    .framer-ofgoy .framer-q2w3s5 { order: 3; }
+    .framer-ofgoy .framer-1ej1of4 { order: 4; }
+  }
+  @media (max-width: 809.98px) and (prefers-reduced-motion: reduce) {
+    .framer-ofgoy .framer-rqrgvh { scroll-snap-type: x proximity; }
+  }
 </style>`;
 
 // --- Homepage services section ------------------------------------------------------------
