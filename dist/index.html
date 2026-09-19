@@ -1149,6 +1149,36 @@
       font-weight: 500 !important;
     }
   }
+
+  /* --- "One post. One thread." animation cards, 10% smaller on phone -----------------------
+     The three animated cards under that heading — the Reddit alert, the Quora "new mention" and
+     the Play Store ratings mock — are the biggest objects in the narrative band: 335x411,
+     350x415 and 335x434 at 390px, 1300px of card inside a 1922px section.
+
+     Scaled to 90% via zoom on their shared wrapper rather than on each card. One rule instead of
+     three, and it is the only primitive that shrinks the LAYOUT box as well as the painting —
+     transform:scale would shrink the art but leave the original height reserved, so the section
+     would keep its dead space.
+
+     width:350px on the wrapper is its own current width restated inside the zoomed coordinate
+     space. Without it the middle card, which is width:100%, resolves against a container that
+     zoom has made 389 wide and stays 350 on screen while its two fixed-width siblings shrink —
+     the cards would end up 302 / 350 / 302 and the middle one would look oddly wide. With it all
+     three come down by exactly 10% on both axes and keep the export's own width relationship
+     (the middle card stays the wider one, by the same 15px it always was). margin-inline:auto
+     keeps the narrower group centred in the 20px rail.
+
+     Measured at 390: cards 335x411 -> 302x370, 350x415 -> 315x374, 335x434 -> 302x391; wrapper
+     350x1300 -> 315x1170; section 1922 -> 1792; page 12320 -> 12190. scrollWidth stays 390. At
+     1280 the three cards are still 387x540 side by side and the page is still 12033 — zoom is
+     inside the phone query, so desktop never sees it. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-1ydpcp4 {
+      zoom: 0.9;
+      width: 350px;
+      margin-inline: auto;
+    }
+  }
 </style>
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
