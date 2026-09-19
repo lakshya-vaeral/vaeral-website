@@ -1102,6 +1102,53 @@
   @media (max-width: 809.98px) and (prefers-reduced-motion: reduce) {
     .framer-ofgoy .framer-rqrgvh { scroll-snap-type: x proximity; }
   }
+
+  /* --- Display type weight on phone ---------------------------------------------------------
+     Light text on a near-black background optically gains weight — the glyphs bloom against the
+     dark, so a given weight reads heavier than the same weight on white. The export never
+     accounts for that: it ships the SAME weights at phone sizes that it uses at desktop sizes,
+     where they are two-thirds larger and carry them comfortably.
+
+     Measured at 390 vs 1280, the display text was identical in weight and roughly half the size:
+       hero punchline   700 @36px on phone   vs   700 @68px on desktop
+       "We show up"     700 @36px            vs   500 @52px
+       emphasis inside  900 @36px            vs   700 @52px
+       sub-heads        600 @18px            vs   600 @18px
+     A weight that is right at 68px is chunky at 36px. The typographic rule is the ordinary one:
+     as the size comes down, the weight should come down with it.
+
+     So on phone only, display type steps down one notch to 600 and the 18px sub-heads to 500.
+     Neither is a new number — 600 and 500 are both already in use on this page at this
+     breakpoint. The 900 came from a <strong> nested inside an already-bold span, which is the
+     browser compounding two bolds rather than a deliberate choice; 600 brings the whole heading
+     onto one weight.
+
+     Deliberately untouched: everything already at 500 or below. "Our Services" and the card
+     titles like "Reddit Marketing" are 500 and stay there — an early attempt caught them in the
+     same rule and made them HEAVIER, the opposite of the point.
+
+     !important is needed twice over: the hero h1 carries its weight as an inline style, and the
+     rest resolve through Framer's own --framer-font-weight custom property, so both the property
+     and the longhand are set. Verified at 1280 that every one of these is unchanged: punchline
+     still 700@68, "We show up" 500@52, sub-heads 600@18. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy h1.framer-text,
+    .framer-ofgoy h1 span.framer-text,
+    .framer-ofgoy h2 span.framer-text,
+    .framer-ofgoy h3 span.framer-text,
+    .framer-ofgoy h1 strong,
+    .framer-ofgoy h2 strong,
+    .framer-ofgoy h3 strong {
+      --framer-font-weight: 600 !important;
+      font-weight: 600 !important;
+    }
+    .framer-ofgoy .framer-styles-preset-g7i2u9,
+    .framer-ofgoy .framer-styles-preset-171nmew,
+    .framer-ofgoy .vaeral-services-card h3 {
+      --framer-font-weight: 500 !important;
+      font-weight: 500 !important;
+    }
+  }
 </style>
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
