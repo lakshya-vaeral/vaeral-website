@@ -1,3 +1,24 @@
+const WINDOW_MS = 10 * 60 * 1000;
+// ponytail: per-instance memory, a KV store if spam crosses instances
+const recent = new Map(); // key -> timestamps within WINDOW_MS
+const BLOCKED = ['sk amin', 'ranger_rocky', 'rangerrockykhan07@gmail.com', '07846832004', ...(process.env.CONTACT_BLOCKLIST || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)];
+const digits = (v) => String(v).replace(/\D/g, '');
+// Entries with 10+ digits match on the last 10 so +91/0 prefixes do not matter; 7-9 digits must match exactly.
+function phoneBlocked(phone, entry) {
+  const p = digits(phone), e = digits(entry);
+  return e.length >= 10 ? p.slice(-10) === e.slice(-10) : e.length >= 7 && p === e;
+}
+
+// Records a hit for key and reports whether it now exceeds max within the window.
+function overLimit(key, max) {
+  const now = Date.now();
+  for (const [k, hits] of recent) if (now - hits[hits.length - 1] >= WINDOW_MS) recent.delete(k);
+  const hits = (recent.get(key) || []).filter(t => now - t < WINDOW_MS);
+  hits.push(now);
+  recent.set(key, hits);
+  return hits.length > max;
+}
+
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -19,6 +40,20 @@ export default async function handler(req, res) {
 
   // Check for honeypot field (spam bot trap)
   if (req.body.website) {
+    return res.status(200).json({ message: 'Message sent successfully!' });
+  }
+
+  const ip = String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '').split(',')[0].trim();
+  const userAgent = req.headers['user-agent'] || '';
+
+  // Blocklist, per-IP rate limit and duplicate email+phone: silently drop like the honeypot.
+  const fields = [name, email, phone].map(v => String(v).toLowerCase().trim());
+  const drop = [
+    BLOCKED.some(b => fields.includes(b) || phoneBlocked(phone, b)),
+    overLimit(`ip:${ip}`, 2),
+    overLimit(`dup:${fields[1]}|${digits(phone)}`, 1),
+  ].some(Boolean);
+  if (drop) {
     return res.status(200).json({ message: 'Message sent successfully!' });
   }
 
@@ -54,6 +89,8 @@ export default async function handler(req, res) {
         '',
         `Submitted: ${submittedAt}`,
         `Source: ${sourcePage}`,
+        `IP: ${ip}`,
+        `User agent: ${userAgent}`,
       ].join('\n'),
       html: `
 <!DOCTYPE html>
@@ -76,6 +113,7 @@ export default async function handler(req, res) {
                   <td>
                     <h1 style="margin:0 0 4px;font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">New Contact Inquiry</h1>
                     <p style="margin:0;font-size:13px;color:#888;">vaeral.com &middot; ${submittedAt}</p>
+                    <p style="margin:4px 0 0;font-size:12px;color:#888;">Source: ${sourcePage}<br>IP: ${ip}<br>User agent: ${userAgent}</p>
                   </td>
                   <td align="right" valign="top">
                     <div style="width:42px;height:42px;border-radius:10px;background:#6c63ff;display:inline-block;text-align:center;line-height:42px;font-size:20px;color:#fff;">&#9993;</div>
