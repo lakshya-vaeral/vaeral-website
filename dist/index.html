@@ -888,6 +888,122 @@
     .framer-ofgoy .framer-ntvl0g,
     .framer-ofgoy .framer-d4nayf { width: 100%; }
   }
+
+  /* --- Service-card illustrations on phone -------------------------------------------------
+     Five of the six illustrations in .framer-rqrgvh are position:absolute decoration inside a
+     card with a fixed height and overflow:hidden, so capping an illustration saves nothing on
+     its own — the card height is the lever and the art has to be re-fitted to match. Only
+     .framer-16y7axw is in flow.
+
+     214px is the cap, and it is the export's own number: .framer-1l25iqe already renders at 214
+     on phone and .framer-5m52d at 213. Those two cards land on a 41% illustration-to-card ratio
+     and .framer-5rq8mg independently matches it at 40%, so three of the six already agree. The
+     outliers are .framer-1xupf9p at 63%, .framer-n27ev7 at 65% and .framer-16y7axw at 52%.
+
+     Only width is set. Every one of these carries the export's aspect-ratio with
+     height: var(--framer-aspect-ratio-supported, Npx), i.e. height is already auto and derived
+     from width — so a width change cannot squash, it scales. Measured heights land at 213.9,
+     214.0 and 214.5.
+
+     Capping made two of them MORE legible, not less. .framer-1xupf9p was 637px wide inside a
+     336px card, cutting 150px of circuit board off each side; at 374 that drops to 19px and the
+     phone mockup's frame fits. .framer-n27ev7 was cropped 44px off its top; now 1.4px. Its
+     left:50% is the export's own desktop value for this element — the phone override's left:-1%
+     anchored the art near the card's left edge, and once scaled that left a 146px dead band.
+
+     .framer-jcbzwd is 470, not the 426 a flat delta would give: at 426 the heading cut straight
+     through the artwork. 470 scales the export's own image/text overlap by the same factor
+     (257.7/364.3 x 214 = 151.4, + 278.3 text + 40 padding). .framer-q2w3s5 is 440 because it
+     reproduces the ~2px gap the export leaves between that art's bottom and its heading.
+     .framer-1ej1of4 needs no rule — it is min-content and follows its in-flow image down.
+
+     Deliberately NOT touched: .framer-19xyygn, .framer-1lsar27 and .framer-1txirs4. Two of them
+     define the cap and the third already sits on the ratio. These diagrams are the section's
+     visual interest and a page of text blocks is worse than a slightly long page.
+
+     Verified at 390: 17291 -> 17035, stack 3388 -> 3132, scrollWidth stays 390, no illustration
+     reaches its card's bottom edge, and at 1280 all six card and illustration rects are
+     identical with and without these rules. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-jcbzwd { height: 470px; }
+    .framer-ofgoy .framer-1xupf9p { left: -19px; right: -19px; }
+    .framer-ofgoy .framer-q2w3s5 { height: 440px; }
+    .framer-ofgoy .framer-n27ev7 { width: 414px; left: 50%; }
+    .framer-ofgoy .framer-16y7axw { width: 207px; }
+  }
+
+  /* --- Case studies as a swipe deck on phone -----------------------------------------------
+     .framer-fbd1z7 is a 350px-wide column of five 494px cards: 2671px tall at 390, and five
+     identical scroll-throughs of the same card shape. The page already owns the fix —
+     #testimonials is a horizontal drag track at this same breakpoint — so the case studies
+     become the same gesture rather than a new idiom.
+
+     Row plus native scroll-snap on the real cards. Two things had to be found first, and both
+     would have read as "snap is broken":
+
+     1. The export's container is justify-content:center. Centred content in an overflowing flex
+        box puts the first items at NEGATIVE offsets that scrollLeft cannot reach — measured, at
+        scrollLeft 0 the THIRD card was on screen and cards 1-2 were unreachable at any scroll
+        position. flex-start is the whole cure.
+     2. The service-checklist panel's wrapper is a hard 350px — exactly the phone card width,
+        i.e. it is drawn to bleed past the card's own 20px inner padding and sit flush with its
+        border. At a narrower card it overflowed instead: labels lost their left edge and the
+        tick boxes were cut. calc(100% + 40px) restates that same relationship against whatever
+        the card now is, so the panel still lands on the card's edges. :has() picks the wrapper
+        because its class differs per card while the component root .framer-E2mUP is shared.
+
+     Card width is calc(100% - 40px), and 100% resolves against the container's content box, so
+     the next card peeks by exactly 44px at any phone width: 310px cards at 390, 280px at 360,
+     14-16% either way. That peek IS the affordance. The scrollbar is hidden because a snapping
+     deck with a visible bar reads as a broken layout on iOS.
+
+     height:auto is required before align-items:stretch will equalise the cards — narrower cards
+     wrap their titles differently and came out 537-591px. order:0 overrides the export's own
+     order:4/5 on the last two cards, which ran tab order backwards against visual order;
+     harmless in a column, wrong in a row where focus drives the scroll.
+
+     Measured at 390: container 2671 -> 537px, page 17035 -> 14901, and document scrollWidth
+     stays 390 — the deck scrolls internally. Snap targets land exactly on 0/326/652/978/1264
+     and all five cards reach full width. Tab walks all five links and exits, no trap. Desktop
+     1280 and tablet 810 are byte-identical with and without this block, every card rect
+     included. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-fbd1z7 {
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: stretch;
+      width: calc(100% + 40px);
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      box-sizing: border-box;
+      column-gap: 16px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 20px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .framer-ofgoy .framer-fbd1z7::-webkit-scrollbar { display: none; }
+    .framer-ofgoy .framer-fbd1z7 > .framer-lux5qc {
+      flex: 0 0 calc(100% - 40px);
+      width: calc(100% - 40px);
+      height: auto;
+      scroll-snap-align: start;
+      order: 0;
+    }
+    .framer-ofgoy .framer-fbd1z7 div:has(> .framer-E2mUP) {
+      width: calc(100% + 40px);
+    }
+    /* Mandatory snap takes the scroll away from the finger; proximity still parks the cards but
+       never overrides a deliberate stop. All five stay reachable — verified. */
+    @media (prefers-reduced-motion: reduce) {
+      .framer-ofgoy .framer-fbd1z7 { scroll-snap-type: x proximity; }
+    }
+  }
 </style>
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
