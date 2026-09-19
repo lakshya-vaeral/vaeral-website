@@ -764,6 +764,43 @@ ${FORM_FOCUS_CSS}
     .framer-ofgoy #testimonials { padding-bottom: 60px; }
     .framer-ofgoy .framer-1j25bf1.framer-v-1a63o24 { padding-top: 50px; }
   }
+
+  /* --- One content rail on phone ------------------------------------------------------------
+     The page had no single left edge. Measured at 390px, the content started at five different
+     insets going down: hero 30, #about 25, #features and #blog and the narrative band 20,
+     #casestudies and #testimonials 10, #contact 30. The visible card edge wandered the same way
+     — service cards sat at 20 and were 350 wide, case-study and testimonial cards at 10 and 370,
+     the contact card at 37 and 317. Nothing lined up with anything above or below it, which is
+     what makes a phone page feel like a shrunken desktop rather than something built for the
+     device.
+
+     20px is not a new number: it is the inset the export itself already gives #features, #blog
+     and the narrative band on phone, and it is where the service cards already sit. Putting the
+     five odd sections on it makes every card on the page 350px at x=20 and gives the eye one
+     rail to follow.
+
+     The contact form needed two extra rules because it was pinned, not padded. Its wrapper
+     .framer-ntvl0g carries a hard width:367px which broke it out of #contact's own padding, and
+     the card .framer-d4nayf a hard width:317px inside that. width:100% is .framer-d4nayf's OWN
+     base rule — the phone breakpoint overrides it to 317px — so restoring it is giving the card
+     back its declared behaviour. The form goes 317 -> 350 wide, and its fields and the Submit
+     button span the card instead of sitting in a narrow inset column.
+
+     Verified at 390: hero copy, contact form, case-study card and testimonial card all report
+     left 20 / width 350; document 17308 -> 17291; scrollWidth stays 390, so nothing gained a
+     horizontal scroll. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-kvgeaa,
+    .framer-ofgoy #about,
+    .framer-ofgoy #casestudies,
+    .framer-ofgoy #testimonials,
+    .framer-ofgoy #contact {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .framer-ofgoy .framer-ntvl0g,
+    .framer-ofgoy .framer-d4nayf { width: 100%; }
+  }
 </style>`;
 
 // --- Homepage services section ------------------------------------------------------------
