@@ -660,6 +660,56 @@ ${FORM_FOCUS_CSS}
     .vaeral-services-split { padding: 0 20px; }
     .vaeral-services-grid { grid-template-columns: 1fr; }
   }
+
+  /* --- Hero graphic on phone ---------------------------------------------------------------
+     Two faults at 390px, one cause each. Both measured, neither guessed.
+
+     1. The glowing "#V" plate was sliced off down its right edge. The export's own phone rule
+        (left:unset; right:-2px; width:239px) does apply — used left is 153px, so the BOX is
+        153..392, the 2px bleed Framer intended. What overflows is the inline transform:
+        rotate(13deg) baked onto the element. A 239x405.891 box turned 13deg has an axis-aligned
+        box of 239*cos13 + 405.891*sin13 = 324.18 wide, so (324.18-239)/2 = 42.59px of slack
+        appears on each side and the rotated right edge landed at 434.6 — 44.6px past the
+        viewport. right:43px is that slack rounded up: the box moves in by exactly what the
+        rotation adds, and the rotated edge lands at 389.6. The art, its size and its tilt are
+        untouched; only the offset that never accounted for the tilt changes.
+
+     2. The grey sub-headline sat inside the bloom. The hero column is a fixed 650px with
+        justify-content:flex-end, so the copy is pinned to its bottom (grey line y 361.8..457)
+        while the graphic hangs from top:-59px and ends at y 516.6 — the line lay entirely over
+        the brightest part. The line is white at 0.66 alpha so it composites over whatever is
+        behind it: 2.52% of its area measured below 4.5:1, worst 2.24:1. top:-132px is the value
+        the export already uses for this same element at the tablet breakpoint, not a new number,
+        and it drops that to 0.01% of area, worst 2.62:1, by lifting the bloom clear of the text.
+        The plate's top corner ends at y -5.7, behind the opaque nav band (0..80) where it
+        already was at top:-59, so nothing visible is lost.
+
+     Full separation is not reachable here: it needs a 155px lift, which would put half the #V
+     behind the nav. This is the limit without moving the copy, which would be a redesign.
+
+     Selector carries .framer-ofgoy because the export's own rule does (0,2,0) — a bare
+     .framer-byxt38 loses the cascade and is silently ignored. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-byxt38 {
+      right: 43px;
+      top: -132px;
+    }
+  }
+
+  /* --- Contact fields on phone -------------------------------------------------------------
+     The three contact inputs render at 14px. Mobile Safari zooms the whole page in whenever the
+     field being focused is under 16px, and it does not zoom back out again, so tapping "Full
+     name" left the page enlarged and side-scrolling — on the one form that converts.
+
+     16px is the export's own value for a form field on this page, not an invented one: the
+     footer's newsletter input is already 16px and does not trigger the zoom. The export simply
+     contradicts itself between its two forms.
+
+     Text-only change, verified to move nothing: field wrapper stays 277x40, the form 317px,
+     #contact 665px and the document 17633px, before and after. */
+  @media (max-width: 809.98px) {
+    #contact .framer-form-text-input input { font-size: 16px; }
+  }
 </style>`;
 
 // --- Homepage services section ------------------------------------------------------------
