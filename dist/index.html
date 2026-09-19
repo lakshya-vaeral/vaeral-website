@@ -1179,6 +1179,46 @@
       margin-inline: auto;
     }
   }
+
+  /* --- Two things sitting off-centre on phone ----------------------------------------------
+     1. The hero's "Take Control of Your Brand Reputation" button. Its wrapper fills the 20px
+        rail (20..370) but the button is 303.7 wide and flex-start inside it, so it sat at
+        gapL 0 / gapR 46.3. Everything else in the hero is symmetric — the lead-in and the
+        punchline span the rail 20/20, and the stat-chip row is centred 37.5/37.5 — which makes
+        the button the only asymmetric thing there. At 303.7 of 350 it is too close to full
+        width to read as deliberately left-aligned; it reads as off-centre, which is exactly
+        how it was reported. auto margins centre it at 23.2/23.2 without changing its size.
+
+        Left alone deliberately: on desktop the same button is flush left at gapL 0, and that IS
+        correct there — the desktop hero is the asymmetric split, text column left against the
+        glyph right. Only the phone layout is symmetric, so only the phone needs this.
+
+     2. The "Add to Preferred Sources" pills, in the hero and above the newsletter. The .btnwrap
+        this build injects is 238px and correctly centred (centre 195 on a 390 viewport), but
+        Google's widget renders 218px flush left inside it, leaving 20px dead on the right — so
+        the visible pill sat at centre 185, 10px left of everything above it. Making .btnwrap a
+        centring flex box puts the widget's own 218 in the middle of the 238: centre 195, off 0.
+        The wrapper's 238 width is left as it is, since the desktop nav copy depends on it.
+
+     Checked and NOT changed, both of which a naive symmetry sweep flags as false positives:
+     "View all case studies" is centred once its trailing arrow is counted (the text alone looks
+     13px left because the arrow adds 26px on the right), and "View all posts" is deliberately
+     left-aligned inside the purple blog card, matching that card's own copy.
+
+     Verified: phone button 0/46.3 -> 23.2/23.2, both pills centre 185 -> 195. At 1280 every one
+     of these measures identical with and without the block — the hero button still gapL 0, the
+     footer pill still centre 782.8, and the mobile pill is display:none there anyway. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-yux2lw-container {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .vaeral-mob-prefsrc .btnwrap,
+    .vaeral-foot-prefsrc .btnwrap {
+      display: flex;
+      justify-content: center;
+    }
+  }
 </style>
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
