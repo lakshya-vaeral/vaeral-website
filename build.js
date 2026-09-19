@@ -710,6 +710,60 @@ ${FORM_FOCUS_CSS}
   @media (max-width: 809.98px) {
     #contact .framer-form-text-input input { font-size: 16px; }
   }
+
+  /* --- Case-studies CTA heading on phone ---------------------------------------------------
+     "Next could be your case study." is the one heading on this page that never got a phone
+     step. Its size is an inline --framer-font-size: 60px on the h2 itself, so it renders at
+     60px/66px at every width; at 390 the card's column is 320px and the line wraps to FOUR
+     lines, 264px tall inside a 417px card — the heading is most of the card and the "Write to
+     us today" button gets pushed onto its bottom edge.
+
+     Every other h2 on the phone drops to 36px/43.2px — measured on the preset that renders
+     "Still Stuck in The Performance Marketing Trap?", which sits one section below this one and
+     does exactly that. So 36px/43.2px is this page's own phone h2 size, not a new number.
+     Measured result: 4 lines -> 3, box 264px -> 130px, document 17633 -> 17498.
+
+     font-size and line-height are set directly rather than through --framer-font-size /
+     --framer-line-height, because those two are inline on the element and a stylesheet cannot
+     outrank an inline custom property without !important. .framer-ofgoy is on the selector for
+     the usual reason: the export's own rules are (0,2,0) and a bare class is ignored. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-v3uq8l h2.framer-text {
+      font-size: 36px;
+      line-height: 43.2px;
+    }
+  }
+
+  /* --- Four spacing values the export never stepped down for phone -------------------------
+     Measured, not guessed. The phone page is 17633px against desktop's 12033, but that +5600 is
+     almost entirely content reflow, which is correct: #features' card stack is 3388px at 390
+     against 1835 at 1280 while the section's own padding already halves 160->80, and #contact
+     and #testimonials are actually SHORTER on phone than on desktop. Empty vertical bands total
+     2832px, i.e. ordinary section separation, not waste.
+
+     Only four containers carry a value identical to their 1280px one AND cost real height. The
+     twelve testimonial cards match too but are a marquee — all twelve share top 14362, so their
+     padding stacks nothing.
+
+     Every replacement is that value halved, which is the export's own phone idiom (#features
+     160->80, #contact 120->60 at this same breakpoint), and every result is a number the export
+     already uses on phone: 50 is .framer-fbd1z7's row-gap and #testimonials' padding-top, 30 is
+     #contact's row-gap. #testimonials is the clearest oversight of the four — the export halved
+     its top 80->50 and left its bottom at the desktop 120.
+
+     Deliberately NOT touched: .framer-fbd1z7's 50px between case-study cards, and the 40px gaps
+     in the footer and #features. Those are already the right rhythm and halving them reads
+     cramped. This is worth 190px of 17633 (1.1%) — it corrects leakage on principle, it is not
+     what makes the page long.
+
+     Verified: phone 17633 -> 17443, desktop 12033 -> 12033 with every computed value unchanged,
+     and no collision or lost separation at any of the three checked offsets. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-1a0ymfr { row-gap: 50px; }
+    .framer-ofgoy #casestudies { row-gap: 30px; }
+    .framer-ofgoy #testimonials { padding-bottom: 60px; }
+    .framer-ofgoy .framer-1j25bf1.framer-v-1a63o24 { padding-top: 50px; }
+  }
 </style>`;
 
 // --- Homepage services section ------------------------------------------------------------
