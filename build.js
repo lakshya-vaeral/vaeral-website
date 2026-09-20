@@ -3453,8 +3453,46 @@ function main() {
 <link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
 <link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/XzBd4KoG4q2LxAWIl0U4GPAz2c.png?scale-down-to=1024">
 `;
+    // loading="lazy" is baked into the markup for every below-fold image, and HTML gives no way
+    // to scope an attribute to a breakpoint. Desktop is not ours to retune, so above 810px the
+    // attribute is taken back off again before it can take effect.
+    //
+    // This has to run BEFORE the body parses, or the browser has already decided to defer and
+    // removing the attribute just triggers a late fetch. A script at the end of <head> runs
+    // first, and the observer then strips the attribute off each <img> as the parser inserts it.
+    // It disconnects at DOMContentLoaded and does one final sweep, so it costs a desktop visitor
+    // one observer for the duration of the parse and nothing afterwards.
+    //
+    // The query matches the phone breakpoint used everywhere else in this file, so a phone keeps
+    // every lazy attribute and this code returns immediately.
+    const desktopEagerScript = `
+<script>
+(function () {
+  if (window.matchMedia('(max-width: 809.98px)').matches) return;
+  var strip = function (root) {
+    if (root.nodeType !== 1) return;
+    if (root.tagName === 'IMG') { root.removeAttribute('loading'); return; }
+    if (root.querySelectorAll) {
+      var found = root.querySelectorAll('img[loading]');
+      for (var i = 0; i < found.length; i++) found[i].removeAttribute('loading');
+    }
+  };
+  var obs = new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      var added = records[i].addedNodes;
+      for (var j = 0; j < added.length; j++) strip(added[j]);
+    }
+  });
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', function () {
+    obs.disconnect();
+    strip(document.body);
+  });
+})();
+<\/script>
+`;
     if (indexHtml.includes('</head>')) {
-      indexHtml = indexHtml.replace('</head>', preloads + '</head>');
+      indexHtml = indexHtml.replace('</head>', preloads + desktopEagerScript + '</head>');
     }
 
     indexHtml = lazyLoadBelowFold(indexHtml);

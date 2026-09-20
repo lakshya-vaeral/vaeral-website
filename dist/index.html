@@ -326,6 +326,31 @@
 <link rel="preload" as="image" media="(min-width: 810px)" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
 <link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
 <link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/XzBd4KoG4q2LxAWIl0U4GPAz2c.png?scale-down-to=1024">
+
+<script>
+(function () {
+  if (window.matchMedia('(max-width: 809.98px)').matches) return;
+  var strip = function (root) {
+    if (root.nodeType !== 1) return;
+    if (root.tagName === 'IMG') { root.removeAttribute('loading'); return; }
+    if (root.querySelectorAll) {
+      var found = root.querySelectorAll('img[loading]');
+      for (var i = 0; i < found.length; i++) found[i].removeAttribute('loading');
+    }
+  };
+  var obs = new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      var added = records[i].addedNodes;
+      for (var j = 0; j < added.length; j++) strip(added[j]);
+    }
+  });
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', function () {
+    obs.disconnect();
+    strip(document.body);
+  });
+})();
+</script>
 <script type="application/ld+json">
 [
   {
