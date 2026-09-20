@@ -1263,73 +1263,13 @@
 
      The selector needs three classes to land. The export's rule is (0,3,0) and a two-class
      override is silently outranked — measured: with .framer-ofgoy .framer-4m1h3r the gap stayed
-     at 8px. Matching the specificity and relying on source order (this block is injected before
-     
-<script>
-  document.addEventListener('click', function(e) {
-    const a = e.target.closest('a');
-    if (!a) return;
-    if (a.getAttribute('target') === '_blank') return;
-    try {
-      const targetUrl = new URL(a.href, window.location.href);
-      if (targetUrl.origin === window.location.origin) {
-        if (targetUrl.pathname !== window.location.pathname) {
-          e.preventDefault();
-          e.stopPropagation();
-          window.location.href = a.href;
-        }
-      }
-    } catch (err) {}
-  }, { capture: true });
-</script>
+     at 8px. Matching the specificity and relying on source order (this block is injected at the
+     end of the document, after the export's own stylesheet) is what makes it apply.
 
-<script>
-(function () {
-  var OLD = "+91 9104491177", NEW = "+91 9707648973", busy = false;
-  function run() {
-    if (busy) return;
-    busy = true;
-    try {
-      var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
-      while ((node = walk.nextNode())) {
-        if (node.nodeValue.indexOf(OLD) > -1) node.nodeValue = node.nodeValue.split(OLD).join(NEW);
-      }
-    } finally {
-      busy = false;
-    }
-  }
-  function start() {
-    run();
-    new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
-  }
-  if (document.body) start();
-  else document.addEventListener('DOMContentLoaded', start);
-})();
-</script>
-<script>
-(function(){
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
-      if(!img.src.includes('/assets/robot_nodes.png')) {
-        img.src = '/assets/robot_nodes.png';
-        img.removeAttribute('srcset');
-      }
-    });
-    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
-      if(!img.src.includes('/assets/negative_post.png')) {
-        img.src = '/assets/negative_post.png';
-        img.removeAttribute('srcset');
-      }
-    });
-  });
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
-  } else {
-    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
-  }
-})();
-</script>
-</body>, after the export's own stylesheet) is what makes it apply.
+     NOTE: never write the literal body-closing tag inside these comments. Several patches in
+     this file inject by replacing the FIRST occurrence of it, so a copy sitting in a style
+     comment silently captures the injection — that is exactly how the runtime image re-assert
+     script ended up inside a <style> block and the two homepage illustrations broke.
 
      Verified on the live page at 390: left gap 8 -> 20, matching the 20 the same rows already
      have at 1280, and the 1280 gaps are unchanged. */
@@ -1878,6 +1818,71 @@
       });
     });
   }, 1000);
+})();
+</script>
+
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
+
+<script>
+(function () {
+  var OLD = "+91 9104491177", NEW = "+91 9707648973", busy = false;
+  function run() {
+    if (busy) return;
+    busy = true;
+    try {
+      var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
+      while ((node = walk.nextNode())) {
+        if (node.nodeValue.indexOf(OLD) > -1) node.nodeValue = node.nodeValue.split(OLD).join(NEW);
+      }
+    } finally {
+      busy = false;
+    }
+  }
+  function start() {
+    run();
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+  }
 })();
 </script>
 </body>

@@ -1149,8 +1149,13 @@ ${FORM_FOCUS_CSS}
 
      The selector needs three classes to land. The export's rule is (0,3,0) and a two-class
      override is silently outranked — measured: with .framer-ofgoy .framer-4m1h3r the gap stayed
-     at 8px. Matching the specificity and relying on source order (this block is injected before
-     </body>, after the export's own stylesheet) is what makes it apply.
+     at 8px. Matching the specificity and relying on source order (this block is injected at the
+     end of the document, after the export's own stylesheet) is what makes it apply.
+
+     NOTE: never write the literal body-closing tag inside these comments. Several patches in
+     this file inject by replacing the FIRST occurrence of it, so a copy sitting in a style
+     comment silently captures the injection — that is exactly how the runtime image re-assert
+     script ended up inside a <style> block and the two homepage illustrations broke.
 
      Verified on the live page at 390: left gap 8 -> 20, matching the 20 the same rows already
      have at 1280, and the 1280 gaps are unchanged. */
