@@ -1217,6 +1217,96 @@
       justify-content: center;
     }
   }
+
+  /* --- Get in Touch card's left padding on phone --------------------------------------------
+     The card holding "Get in Touch", the email, the phone and the social icons is padded
+     20px on three sides and 8px on the fourth. The export's phone-variant rule is
+
+       .framer-cTzwY.framer-v-1a63o24 .framer-4m1h3r { padding: 20px 20px 20px 8px }
+
+     so its contents sat 12px closer to the left edge than to the right, which is what reads as
+     the block being shoved left inside its own card. Desktop has no such rule and uses a plain
+     20px all round, so this is a phone-only slip rather than a deliberate asymmetry.
+
+     20px is therefore the card's OWN value, taken from its other three sides and from what it
+     uses at every other width. Nothing else about the card changes, and the contents stay
+     left-aligned as designed — they are simply inset by the same amount as everything else.
+
+     The selector needs three classes to land. The export's rule is (0,3,0) and a two-class
+     override is silently outranked — measured: with .framer-ofgoy .framer-4m1h3r the gap stayed
+     at 8px. Matching the specificity and relying on source order (this block is injected before
+     
+<script>
+  document.addEventListener('click', function(e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.getAttribute('target') === '_blank') return;
+    try {
+      const targetUrl = new URL(a.href, window.location.href);
+      if (targetUrl.origin === window.location.origin) {
+        if (targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = a.href;
+        }
+      }
+    } catch (err) {}
+  }, { capture: true });
+</script>
+
+<script>
+(function () {
+  var OLD = "+91 9104491177", NEW = "+91 9707648973", busy = false;
+  function run() {
+    if (busy) return;
+    busy = true;
+    try {
+      var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
+      while ((node = walk.nextNode())) {
+        if (node.nodeValue.indexOf(OLD) > -1) node.nodeValue = node.nodeValue.split(OLD).join(NEW);
+      }
+    } finally {
+      busy = false;
+    }
+  }
+  function start() {
+    run();
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
+<script>
+(function(){
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
+      if(!img.src.includes('/assets/robot_nodes.png')) {
+        img.src = '/assets/robot_nodes.png';
+        img.removeAttribute('srcset');
+      }
+    });
+    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
+      if(!img.src.includes('/assets/negative_post.png')) {
+        img.src = '/assets/negative_post.png';
+        img.removeAttribute('srcset');
+      }
+    });
+  });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+  }
+})();
+</script>
+</body>, after the export's own stylesheet) is what makes it apply.
+
+     Verified on the live page at 390: left gap 8 -> 20, matching the 20 the same rows already
+     have at 1280, and the 1280 gaps are unchanged. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-v-1a63o24 .framer-4m1h3r { padding-left: 20px; }
+  }
 </style>
 <style>
   /* nav copy: pinned to the right edge and pulled a little past the row's
@@ -1759,71 +1849,6 @@
       });
     });
   }, 1000);
-})();
-</script>
-
-<script>
-  document.addEventListener('click', function(e) {
-    const a = e.target.closest('a');
-    if (!a) return;
-    if (a.getAttribute('target') === '_blank') return;
-    try {
-      const targetUrl = new URL(a.href, window.location.href);
-      if (targetUrl.origin === window.location.origin) {
-        if (targetUrl.pathname !== window.location.pathname) {
-          e.preventDefault();
-          e.stopPropagation();
-          window.location.href = a.href;
-        }
-      }
-    } catch (err) {}
-  }, { capture: true });
-</script>
-
-<script>
-(function () {
-  var OLD = "+91 9104491177", NEW = "+91 9707648973", busy = false;
-  function run() {
-    if (busy) return;
-    busy = true;
-    try {
-      var walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), node;
-      while ((node = walk.nextNode())) {
-        if (node.nodeValue.indexOf(OLD) > -1) node.nodeValue = node.nodeValue.split(OLD).join(NEW);
-      }
-    } finally {
-      busy = false;
-    }
-  }
-  function start() {
-    run();
-    new MutationObserver(run).observe(document.body, { childList: true, subtree: true, characterData: true });
-  }
-  if (document.body) start();
-  else document.addEventListener('DOMContentLoaded', start);
-})();
-</script>
-<script>
-(function(){
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
-      if(!img.src.includes('/assets/robot_nodes.png')) {
-        img.src = '/assets/robot_nodes.png';
-        img.removeAttribute('srcset');
-      }
-    });
-    document.querySelectorAll('img[width="820"][height="415"]').forEach(img => {
-      if(!img.src.includes('/assets/negative_post.png')) {
-        img.src = '/assets/negative_post.png';
-        img.removeAttribute('srcset');
-      }
-    });
-  });
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
-  } else {
-    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
-  }
 })();
 </script>
 </body>

@@ -1132,6 +1132,31 @@ ${FORM_FOCUS_CSS}
       justify-content: center;
     }
   }
+
+  /* --- Get in Touch card's left padding on phone --------------------------------------------
+     The card holding "Get in Touch", the email, the phone and the social icons is padded
+     20px on three sides and 8px on the fourth. The export's phone-variant rule is
+
+       .framer-cTzwY.framer-v-1a63o24 .framer-4m1h3r { padding: 20px 20px 20px 8px }
+
+     so its contents sat 12px closer to the left edge than to the right, which is what reads as
+     the block being shoved left inside its own card. Desktop has no such rule and uses a plain
+     20px all round, so this is a phone-only slip rather than a deliberate asymmetry.
+
+     20px is therefore the card's OWN value, taken from its other three sides and from what it
+     uses at every other width. Nothing else about the card changes, and the contents stay
+     left-aligned as designed — they are simply inset by the same amount as everything else.
+
+     The selector needs three classes to land. The export's rule is (0,3,0) and a two-class
+     override is silently outranked — measured: with .framer-ofgoy .framer-4m1h3r the gap stayed
+     at 8px. Matching the specificity and relying on source order (this block is injected before
+     </body>, after the export's own stylesheet) is what makes it apply.
+
+     Verified on the live page at 390: left gap 8 -> 20, matching the 20 the same rows already
+     have at 1280, and the 1280 gaps are unchanged. */
+  @media (max-width: 809.98px) {
+    .framer-ofgoy .framer-v-1a63o24 .framer-4m1h3r { padding-left: 20px; }
+  }
 </style>`;
 
 // --- Homepage services section ------------------------------------------------------------
