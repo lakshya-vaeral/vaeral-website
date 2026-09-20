@@ -3434,18 +3434,24 @@ function main() {
       indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
     }
 
-    // Preload only what is actually painted in the first viewport. Measured on the built page
-    // at 390x664 and 1280x900: the SAME three images are above the fold at both — the nav logo
-    // (mxApJ..svg), the hero plate (ui8KS..png) and the hero's secondary mark (XzBd4..png).
+    // Preloads are split by breakpoint with the media attribute, so each width fetches only what
+    // it actually paints first and NEITHER inherits the other's list.
     //
-    // The previous list preloaded four, and three of them (r0nnng.., sNKeQ.., n2ZMsJ..) are below
-    // the fold at BOTH breakpoints, so they were being fetched at the highest priority while the
-    // element that actually decides LCP queued behind them. n2ZMsJ is the worst of the three: a
-    // 6000x4000 source. The logo is inline SVG-sized and arrives with the document, so the two
-    // raster hero images are the only ones worth the priority.
+    // Desktop and tablet (>=810px) keep the original four, unchanged, byte for byte. That list
+    // predates this work and desktop is not ours to retune.
+    //
+    // Phone (<=809.98px) gets its own pair. Measured on the built page at 390x664, exactly three
+    // images sit above the fold: the nav logo (inline-sized, arrives with the document) plus the
+    // hero plate (ui8KS) and the hero's secondary mark (XzBd4). Of the original four only ui8KS
+    // is one of them, so on a phone the other three were being fetched at the highest priority
+    // ahead of the element that decides LCP — n2ZMsJ worst of all, a 6000x4000 source.
     const preloads = `
-<link rel="preload" as="image" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
-<link rel="preload" as="image" href="https://framerusercontent.com/images/XzBd4KoG4q2LxAWIl0U4GPAz2c.png?scale-down-to=1024">
+<link rel="preload" as="image" media="(min-width: 810px)" href="https://framerusercontent.com/images/r0nnngidlqmFQKjVhqENbu42IA.png?width=1316&height=574">
+<link rel="preload" as="image" media="(min-width: 810px)" href="https://framerusercontent.com/images/sNKeQAU4GFrqfgvCqAIvZCU1KRA.png?scale-down-to=1024&width=1161&height=1080">
+<link rel="preload" as="image" media="(min-width: 810px)" href="https://framerusercontent.com/images/n2ZMsJIF5MgwK89prVzJKbCUcS0.jpg?scale-down-to=1024&width=6000&height=4000">
+<link rel="preload" as="image" media="(min-width: 810px)" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
+<link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/ui8KS5G13xZLHx95GVXLocBVlU.png?width=527&height=895">
+<link rel="preload" as="image" media="(max-width: 809.98px)" href="https://framerusercontent.com/images/XzBd4KoG4q2LxAWIl0U4GPAz2c.png?scale-down-to=1024">
 `;
     if (indexHtml.includes('</head>')) {
       indexHtml = indexHtml.replace('</head>', preloads + '</head>');
