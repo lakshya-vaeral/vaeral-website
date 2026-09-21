@@ -68,7 +68,7 @@ export const TEAM_EXTRA = [
     name: 'Lakshya Pandey',
     role: 'Digital Infrastructure Specialist',
     bio: "Nobody fully understands his job title, including him. Manages the website, fixes what breaks, helps in SEO improvements. Loves to give AI solutions for problems you don't even have.",
-    photo: 'placeholder.png', // no photo supplied yet
+    photo: 'lakshya-pandey.webp',
   },
   {
     name: 'Sirsha Barui',
