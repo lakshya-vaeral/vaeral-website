@@ -246,7 +246,13 @@
 <script>
 (function () {
   var done = false, root = document.documentElement;
-  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Deliberately NOT gated on prefers-reduced-motion. Framer ignores the preference for the
+  // Reddit and Quora bars, and it cannot be stopped from here because it drives them from
+  // JavaScript, not CSS. Honouring it on this one card therefore did not reduce motion, it just
+  // made this the only bar in the row that snapped to its end while the other two swept past.
+  // That is how it was reported: "the bar never moves at all". Matching the section is the
+  // lesser harm; if Framer ever honours the preference its bar will stay put and, because this
+  // one copies it, so will this one.
 
   function set(y, o) {
     root.style.setProperty('--vaeral-ps-y', y.toFixed(2) + 'px');
@@ -274,8 +280,16 @@
   // width and wrong at the others. Copying cannot drift, and it needs no trigger of its own,
   // because before Framer moves its bar ours simply tracks it at rest.
   function mirror() {
+    var seen = null;
     function step() {
       if (done) return;
+      // Whatever stalls the reference, the bar must not be left hidden at its start position.
+      // Four seconds after the card comes into view, settle it.
+      var c = shown(document.querySelectorAll('.framer-6w8gru'));
+      if (c && c.getBoundingClientRect().top < window.innerHeight) {
+        if (seen === null) seen = Date.now();
+        else if (Date.now() - seen > 4000) { done = true; set(0, 1); return; }
+      }
       // Re-resolved every frame on purpose. Framer swaps this node during hydration, and a
       // reference captured once goes detached: its computed style then comes back empty, which
       // silently froze the bar at its start position for the whole page.
@@ -312,7 +326,6 @@
     if (done) return true;
     var card = shown(document.querySelectorAll('.framer-6w8gru'));
     if (!card) return false;
-    if (REDUCED) { done = true; set(0, 1); return true; }
     var rect = card.getBoundingClientRect();
     var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
     var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
