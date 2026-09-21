@@ -223,6 +223,13 @@
   background-position: center;
 }
 .framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper] > img { opacity: 0; }
+/* Position and opacity come from two custom properties the script drives, NOT from a CSS
+   animation. A CSS animation here stays play-pending until the element gets a clean rendering
+   opportunity, and the surrounding Framer appear animations saturate the main thread for about
+   390ms as this section arrives, so the sweep latched its clock that much after the other two
+   and visibly trailed them. Framer drives its own bars from rAF, so doing the same is the only
+   way the three stay in step. The properties live on :root because every element in this
+   subtree has its inline style rewritten by Framer's renderer. */
 .framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper]::after {
   content: "";
   position: absolute;
@@ -231,47 +238,69 @@
   background-size: cover;
   background-position: center;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(-150px);
-}
-/* The class is added by the observer below, at the point in the scroll where Framer's own
-   appear animation fires on the other two cards. */
-.framer-ofgoy .framer-6w8gru.vaeral-ps-swept .framer-153kduw [data-framer-background-image-wrapper]::after {
-  animation: vaeral-ps-sweep 1.28s cubic-bezier(0.2, 0, 0.35, 1) forwards;
-}
-@keyframes vaeral-ps-sweep {
-  from { opacity: 0; transform: translateY(-150px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper]::after {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
+  opacity: var(--vaeral-ps-o, 0);
+  transform: translateY(var(--vaeral-ps-y, -150px));
 }
 </style>
 <script>
 (function () {
-  function arm() {
+  var done = false;
+  // 1.6s on a symmetric ease-in-out, both measured off the Reddit card's bar frame by frame.
+  // Opacity tracks the eased position exactly rather than running on a curve of its own.
+  function sweep() {
+    if (done) return;
+    done = true;
+    window.removeEventListener('scroll', check);
+    var root = document.documentElement, t0 = null;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      root.style.setProperty('--vaeral-ps-y', '0px');
+      root.style.setProperty('--vaeral-ps-o', '1');
+      return;
+    }
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var x = Math.min(1, (ts - t0) / 1600);
+      var e = x < 0.5 ? 2 * x * x : 1 - 2 * (1 - x) * (1 - x);
+      root.style.setProperty('--vaeral-ps-y', (-150 * (1 - e)).toFixed(2) + 'px');
+      root.style.setProperty('--vaeral-ps-o', e.toFixed(4));
+      if (x < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  // Deliberately not an IntersectionObserver. Its callback is queued behind whatever else the
+  // main thread is doing, and Framer's appear animations keep it busy exactly as this section
+  // arrives, which started the sweep ~380ms after the other two bars had left.
+  //
+  // The check runs in the scroll event, which is the same task as the scroll itself, so the
+  // sweep begins on the same frame Framer starts its two. A rAF loop backs it up for the case
+  // where the card is already in view without a scroll ever firing. One rect read per frame,
+  // stopping the moment it starts; rAF is suspended while the tab is hidden.
+  function check() {
+    if (done) return true;
     var card = document.querySelector('.framer-6w8gru');
-    if (!card || card.classList.contains('vaeral-ps-swept')) return;
-    if (!('IntersectionObserver' in window)) { card.classList.add('vaeral-ps-swept'); return; }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('vaeral-ps-swept');
-        io.disconnect();
-      });
-    }, { threshold: 0.25 });
-    io.observe(card);
+    if (!card) return false;
+    if (card.getBoundingClientRect().top < window.innerHeight) { sweep(); return true; }
+    return false;
+  }
+  function arm() {
+    if (!check()) requestAnimationFrame(arm);
   }
   // Framer rebuilds this subtree on hydration, so keep re-arming for a while after load.
   function start() {
+    // Fetch both halves up front. A CSS animation on a pseudo-element whose background is still
+    // loading stays PENDING (startTime null) and only begins once the image lands, which put the
+    // sweep ~650ms behind the other two cards. The section is far down the page, so warming the
+    // cache here costs nothing by the time anyone scrolls to it.
+    ['/assets/playstore-card.webp', '/assets/playstore-scanbar.webp'].forEach(function (u) {
+      var i = new Image();
+      i.src = u;
+    });
+    window.addEventListener('scroll', check, { passive: true });
     arm();
     var mo = new MutationObserver(arm);
     mo.observe(document.body, { childList: true, subtree: true });
     setTimeout(function () { mo.disconnect(); arm(); }, 8000);
+    // The properties live on :root, so a Framer re-render cannot undo a finished sweep.
   }
   if (document.body) start();
   else document.addEventListener('DOMContentLoaded', start);
