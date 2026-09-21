@@ -849,66 +849,107 @@ When a brand faces a review attack, the answer isn't panic. The answer is creati
 </style>
 <script>
 (function () {
-  var done = false;
-  // 1.6s on a symmetric ease-in-out, both measured off the Reddit card's bar frame by frame.
-  // Opacity tracks the eased position exactly rather than running on a curve of its own.
-  function sweep() {
-    if (done) return;
-    done = true;
-    window.removeEventListener('scroll', check);
-    var root = document.documentElement, t0 = null;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      root.style.setProperty('--vaeral-ps-y', '0px');
-      root.style.setProperty('--vaeral-ps-o', '1');
-      return;
+  var done = false, root = document.documentElement;
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function set(y, o) {
+    root.style.setProperty('--vaeral-ps-y', y.toFixed(2) + 'px');
+    root.style.setProperty('--vaeral-ps-o', o.toFixed(4));
+  }
+  // Two traps here, both of which pinned the bar at rest with no animation at all.
+  //
+  // The export ships several breakpoint copies of every element, so a bare querySelector can
+  // return a hidden one. Everything below is resolved inside the card that is actually laid out.
+  //
+  // And the reference's OPACITY, not its transform, says whether it has gone: the transform
+  // reads none both before Framer initialises it and after it finishes. A frame where it does
+  // not parse is "not ready", so we hold the last value instead of writing 0.
+  function shown(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].getBoundingClientRect().width > 0) return list[i];
     }
+    return null;
+  }
+
+  // Side by side, the only case where two of these bars are on screen together, the sweep COPIES
+  // the Reddit card's bar frame by frame instead of re-timing it. Matching Framer by hand does
+  // not hold: its trigger point drifts with the breakpoint (that card was 57%, 34% and 82%
+  // visible at 1440, 1024 and 390 when it fired), so any threshold chosen here is right at one
+  // width and wrong at the others. Copying cannot drift, and it needs no trigger of its own,
+  // because before Framer moves its bar ours simply tracks it at rest.
+  function mirror() {
+    function step() {
+      if (done) return;
+      // Re-resolved every frame on purpose. Framer swaps this node during hydration, and a
+      // reference captured once goes detached: its computed style then comes back empty, which
+      // silently froze the bar at its start position for the whole page.
+      var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
+      var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
+      if (ref) {
+        var cs = getComputedStyle(ref);
+        var o = parseFloat(cs.opacity) || 0;
+        if (o >= 0.999) { done = true; set(0, 1); return; }
+        var m = cs.transform.match(/matrix(([^)]*))/);
+        if (m) set(parseFloat(m[1].split(',')[5]), o);
+      }
+      requestAnimationFrame(step);
+    }
+    step();
+  }
+
+  // Stacked, where the card arrives alone and there is nothing beside it to match: its own
+  // 1.6s symmetric ease-in-out, both measured off that same Reddit bar.
+  function timed() {
+    var t0 = null;
     function step(ts) {
+      if (done) return;
       if (t0 === null) t0 = ts;
       var x = Math.min(1, (ts - t0) / 1600);
       var e = x < 0.5 ? 2 * x * x : 1 - 2 * (1 - x) * (1 - x);
-      root.style.setProperty('--vaeral-ps-y', (-150 * (1 - e)).toFixed(2) + 'px');
-      root.style.setProperty('--vaeral-ps-o', e.toFixed(4));
-      if (x < 1) requestAnimationFrame(step);
+      set(-150 * (1 - e), e);
+      if (x < 1) requestAnimationFrame(step); else done = true;
     }
     requestAnimationFrame(step);
   }
-  // Deliberately not an IntersectionObserver. Its callback is queued behind whatever else the
-  // main thread is doing, and Framer's appear animations keep it busy exactly as this section
-  // arrives, which started the sweep ~380ms after the other two bars had left.
-  //
-  // The check runs in the scroll event, which is the same task as the scroll itself, so the
-  // sweep begins on the same frame Framer starts its two. A rAF loop backs it up for the case
-  // where the card is already in view without a scroll ever firing. One rect read per frame,
-  // stopping the moment it starts; rAF is suspended while the tab is hidden.
-  function check() {
+
+  function arm() {
     if (done) return true;
-    var card = document.querySelector('.framer-6w8gru');
+    var card = shown(document.querySelectorAll('.framer-6w8gru'));
     if (!card) return false;
-    if (card.getBoundingClientRect().top < window.innerHeight) { sweep(); return true; }
+    if (REDUCED) { done = true; set(0, 1); return true; }
+    var rect = card.getBoundingClientRect();
+    var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
+    var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
+    if (peer && ref && Math.abs(peer.getBoundingClientRect().top - rect.top) < 24) {
+      // Hold off until the row is within a couple of screens, so the per-frame lookup the
+      // mirror does is not running for the whole time someone sits at the top of the page.
+      if (rect.top > window.innerHeight * 2) return false;
+      mirror();
+      return true;
+    }
+    // Stacked. Half the card showing; nothing is beside it, so the exact point is a judgement
+    // call rather than something to match.
+    if (rect.top < window.innerHeight - rect.height * 0.5) { timed(); return true; }
     return false;
   }
-  function arm() {
-    if (!check()) requestAnimationFrame(arm);
-  }
-  // Framer rebuilds this subtree on hydration, so keep re-arming for a while after load.
-  function start() {
-    // Fetch both halves up front. A CSS animation on a pseudo-element whose background is still
-    // loading stays PENDING (startTime null) and only begins once the image lands, which put the
-    // sweep ~650ms behind the other two cards. The section is far down the page, so warming the
-    // cache here costs nothing by the time anyone scrolls to it.
+  function poll() { if (!arm()) requestAnimationFrame(poll); }
+
+  function begin() {
+    // Fetch both halves up front. The section is far down the page, so warming the cache here
+    // costs nothing by the time anyone scrolls to it, and the bar is never a frame behind its
+    // own image.
     ['/assets/playstore-card.webp', '/assets/playstore-scanbar.webp'].forEach(function (u) {
       var i = new Image();
       i.src = u;
     });
-    window.addEventListener('scroll', check, { passive: true });
-    arm();
-    var mo = new MutationObserver(arm);
+    poll();
+    // Framer rebuilds this subtree on hydration; re-check after it settles.
+    var mo = new MutationObserver(function () { if (done) mo.disconnect(); });
     mo.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function () { mo.disconnect(); arm(); }, 8000);
-    // The properties live on :root, so a Framer re-render cannot undo a finished sweep.
+    setTimeout(function () { mo.disconnect(); }, 8000);
   }
-  if (document.body) start();
-  else document.addEventListener('DOMContentLoaded', start);
+  if (document.body) begin();
+  else document.addEventListener('DOMContentLoaded', begin);
 })();
 </script>
 </body></html>
