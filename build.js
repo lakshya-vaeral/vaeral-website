@@ -2111,27 +2111,14 @@ const IMAGE_SCRIPT = `
 </style>
 <script>
 (function () {
-  var done = false, root = document.documentElement;
-  // Deliberately NOT gated on prefers-reduced-motion. Framer ignores the preference for the
-  // Reddit and Quora bars, and it cannot be stopped from here because it drives them from
-  // JavaScript, not CSS. Honouring it on this one card therefore did not reduce motion, it just
-  // made this the only bar in the row that snapped to its end while the other two swept past.
-  // That is how it was reported: "the bar never moves at all". Matching the section is the
-  // lesser harm; if Framer ever honours the preference its bar will stay put and, because this
-  // one copies it, so will this one.
+  var root = document.documentElement, t0 = null, stall = null, parked = false;
 
   function set(y, o) {
     root.style.setProperty('--vaeral-ps-y', y.toFixed(2) + 'px');
     root.style.setProperty('--vaeral-ps-o', o.toFixed(4));
   }
-  // Two traps here, both of which pinned the bar at rest with no animation at all.
-  //
-  // The export ships several breakpoint copies of every element, so a bare querySelector can
-  // return a hidden one. Everything below is resolved inside the card that is actually laid out.
-  //
-  // And the reference's OPACITY, not its transform, says whether it has gone: the transform
-  // reads none both before Framer initialises it and after it finishes. A frame where it does
-  // not parse is "not ready", so we hold the last value instead of writing 0.
+  // The export ships hidden breakpoint copies of every element, so a bare querySelector can
+  // return one that is not laid out and never animates.
   function shown(list) {
     for (var i = 0; i < list.length; i++) {
       if (list[i].getBoundingClientRect().width > 0) return list[i];
@@ -2139,89 +2126,82 @@ const IMAGE_SCRIPT = `
     return null;
   }
 
-  // Side by side, the only case where two of these bars are on screen together, the sweep COPIES
-  // the Reddit card's bar frame by frame instead of re-timing it. Matching Framer by hand does
-  // not hold: its trigger point drifts with the breakpoint (that card was 57%, 34% and 82%
-  // visible at 1440, 1024 and 390 when it fired), so any threshold chosen here is right at one
-  // width and wrong at the others. Copying cannot drift, and it needs no trigger of its own,
-  // because before Framer moves its bar ours simply tracks it at rest.
-  function mirror() {
-    var seen = null;
-    function step() {
-      if (done) return;
-      // Whatever stalls the reference, the bar must not be left hidden at its start position.
-      // Four seconds after the card comes into view, settle it.
-      var c = shown(document.querySelectorAll('.framer-6w8gru'));
-      if (c && c.getBoundingClientRect().top < window.innerHeight) {
-        if (seen === null) seen = Date.now();
-        else if (Date.now() - seen > 4000) { done = true; set(0, 1); return; }
-      }
-      // Re-resolved every frame on purpose. Framer swaps this node during hydration, and a
-      // reference captured once goes detached: its computed style then comes back empty, which
-      // silently froze the bar at its start position for the whole page.
-      var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
-      var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
-      if (ref) {
-        var cs = getComputedStyle(ref);
-        var o = parseFloat(cs.opacity) || 0;
-        if (o >= 0.999) { done = true; set(0, 1); return; }
-        var m = cs.transform.match(/matrix\(([^)]*)\)/);
-        if (m) set(parseFloat(m[1].split(',')[5]), o);
-      }
-      requestAnimationFrame(step);
-    }
-    step();
-  }
-
-  // Stacked, where the card arrives alone and there is nothing beside it to match: its own
-  // 1.6s symmetric ease-in-out, both measured off that same Reddit bar.
-  function timed() {
-    var t0 = null;
-    function step(ts) {
-      if (done) return;
-      if (t0 === null) t0 = ts;
-      var x = Math.min(1, (ts - t0) / 1600);
-      var e = x < 0.5 ? 2 * x * x : 1 - 2 * (1 - x) * (1 - x);
-      set(-150 * (1 - e), e);
-      if (x < 1) requestAnimationFrame(step); else done = true;
-    }
-    requestAnimationFrame(step);
-  }
-
-  function arm() {
-    if (done) return true;
+  // One loop for the life of the page, and NOTHING latches. Framer replays its bars every time
+  // the section comes back into view, so a sweep that completed once and stayed finished was the
+  // only one in the row that did not replay on the way back up.
+  //
+  // Side by side, which is the only case where two of these bars are on screen together, this
+  // COPIES the Reddit card's bar frame by frame. Matching Framer by hand does not hold: its
+  // trigger point moves with the breakpoint (that card was 57%, 34% and 82% visible at 1440,
+  // 1024 and 390 when it fired), so a threshold read at one width is wrong at the others.
+  // Copying cannot drift and it needs no trigger, because before Framer moves its bar this one
+  // simply tracks it where it rests.
+  //
+  // Deliberately NOT gated on prefers-reduced-motion. Framer ignores the preference for its own
+  // two bars and cannot be stopped from here, so honouring it reduced no motion; it just made
+  // this the only static bar in a moving row. Copying means that if Framer ever does honour it,
+  // this bar stays put too.
+  function frame(ts) {
     var card = shown(document.querySelectorAll('.framer-6w8gru'));
-    if (!card) return false;
-    var rect = card.getBoundingClientRect();
-    var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
-    var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
-    if (peer && ref && Math.abs(peer.getBoundingClientRect().top - rect.top) < 24) {
-      // Hold off until the row is within a couple of screens, so the per-frame lookup the
-      // mirror does is not running for the whole time someone sits at the top of the page.
-      if (rect.top > window.innerHeight * 2) return false;
-      mirror();
-      return true;
+    if (card) {
+      var rect = card.getBoundingClientRect();
+      // Only do the per-frame reads near the section; elsewhere this is one rect and out.
+      if (rect.bottom > -700 && rect.top < window.innerHeight + 700) {
+        parked = false;
+        var peer = shown(document.querySelectorAll('.framer-1x6b0po'));
+        var ref = peer && shown(peer.querySelectorAll('.framer-1kvqo5m'));
+        if (peer && ref && Math.abs(peer.getBoundingClientRect().top - rect.top) < 24) {
+          // Re-resolved every frame: Framer swaps these nodes on hydration, and a reference held
+          // from before comes back with an empty computed style, which froze the bar in place.
+          var cs = getComputedStyle(ref);
+          var o = parseFloat(cs.opacity);
+          if (isNaN(o)) o = 0;
+          var m = cs.transform.match(/matrix\(([^)]*)\)/);
+          if (m) {
+            set(parseFloat(m[1].split(',')[5]), o);
+            // If the reference never moves while the card sits in view, show the bar anyway
+            // rather than leave it hidden above its resting place.
+            if (o > 0.001) stall = null;
+            else if (rect.top < window.innerHeight) {
+              if (stall === null) stall = ts;
+              else if (ts - stall > 4000) set(0, 1);
+            }
+          }
+          t0 = null;
+        } else {
+          // Stacked, where the card arrives alone: its own 1.6s symmetric ease-in-out, both
+          // measured off that same Reddit bar. Held at the start until the card is half showing.
+          if (t0 === null) {
+            if (rect.top > window.innerHeight - rect.height * 0.5) {
+              set(-150, 0);
+              requestAnimationFrame(frame);
+              return;
+            }
+            t0 = ts;
+          }
+          var x = Math.min(1, (ts - t0) / 1600);
+          var e = x < 0.5 ? 2 * x * x : 1 - 2 * (1 - x) * (1 - x);
+          set(-150 * (1 - e), e);
+        }
+      } else {
+        // Out of range. Re-arm AND put the bar back at its start, so the next approach replays
+        // from the top the way the other two do rather than resuming from where it was frozen.
+        t0 = null;
+        stall = null;
+        if (!parked) { set(-150, 0); parked = true; }
+      }
     }
-    // Stacked. Half the card showing; nothing is beside it, so the exact point is a judgement
-    // call rather than something to match.
-    if (rect.top < window.innerHeight - rect.height * 0.5) { timed(); return true; }
-    return false;
+    requestAnimationFrame(frame);
   }
-  function poll() { if (!arm()) requestAnimationFrame(poll); }
 
   function begin() {
     // Fetch both halves up front. The section is far down the page, so warming the cache here
-    // costs nothing by the time anyone scrolls to it, and the bar is never a frame behind its
-    // own image.
+    // costs nothing by the time anyone scrolls to it.
     ['/assets/playstore-card.webp', '/assets/playstore-scanbar.webp'].forEach(function (u) {
       var i = new Image();
       i.src = u;
     });
-    poll();
-    // Framer rebuilds this subtree on hydration; re-check after it settles.
-    var mo = new MutationObserver(function () { if (done) mo.disconnect(); });
-    mo.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function () { mo.disconnect(); }, 8000);
+    requestAnimationFrame(frame);
   }
   if (document.body) begin();
   else document.addEventListener('DOMContentLoaded', begin);
