@@ -575,92 +575,163 @@ ${FORM_FOCUS_CSS}
     box-sizing: border-box;
     position: relative;
   }
-  .vaeral-services-split {
-    display: grid;
-    grid-template-columns: minmax(280px, 360px) 1fr;
-    gap: 56px;
-    align-items: start;
+  .vaeral-services-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
     width: 100%;
     max-width: 1000px;
     padding: 0 24px;
     box-sizing: border-box;
   }
-  /* position:relative for the same reason the old grid needed it — see the note on the card
-     below; a positioned ancestor keeps any Framer ::after from insetting to the section. */
+  .vaeral-services-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .vaeral-services-headtext { max-width: 34em; }
+  /* position:relative so a Framer ::after cannot inset itself to the section instead. */
   .vaeral-services-h2 { position: relative; }
   .vaeral-services-lede {
-    margin: 18px 0 26px;
-    max-width: 34ch;
+    margin: 14px 0 0;
     font-family: Inter, "Inter Placeholder", sans-serif;
     font-size: 16px;
     line-height: 1.6;
-    color: #9b9bbd;
+    color: var(--token-f052e3c8-7cc9-4128-86fe-7a957812355f, #9b9bbd);
   }
-  /* Matched to the nav's Get Started button, measured: rgb(81,55,250), radius 12px,
-     padding 12px 24px, label Inter 16px/1.3 in the #deddff token. The label carries the
-     export's own preset so the face and weight cannot drift from it. */
+  /* Matched to the nav's Get Started button, measured: the accent token, radius 12px,
+     padding 12px 24px, label Inter 16px/1.3 in the #deddff token. */
   .vaeral-services-cta {
+    flex: none;
     display: inline-block;
-    background: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, rgb(81, 55, 250));
+    background: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, #5036f9);
     border-radius: 12px;
     padding: 12px 24px;
     text-decoration: none;
+    white-space: nowrap;
   }
   .vaeral-services-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    column-gap: 56px;
+    row-gap: 44px;
+    align-content: start;
   }
-  .vaeral-services-card {
-    display: block;
-    background: rgba(119, 117, 153, 0.08);
-    border: 1px solid rgba(119, 117, 153, 0.28);
-    border-radius: 16px;
-    padding: 20px;
+  .vaeral-services-item {
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
     text-decoration: none;
-    box-sizing: border-box;
-    transition: background 0.18s ease, border-color 0.18s ease;
+    transition: transform 0.2s cubic-bezier(0.44, 0, 0.56, 1);
   }
-  .vaeral-services-card h3 {
-    margin: 0;
+  .vaeral-services-halo {
+    position: relative;
+    display: block;
+    flex: none;
+  }
+  /* The resting bloom. Both stops are the page's own tokens read as rgb: #c5b8ff is
+     rgb(197,184,255) and the accent #5036f9 is rgb(80,54,249) — a gradient cannot take a
+     token through rgba(), so the components are written out rather than approximated. */
+  .vaeral-services-halo::before {
+    content: "";
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(50% 50%, rgba(197, 184, 255, 0.42) 0%, rgba(80, 54, 249, 0.26) 46%, rgba(80, 54, 249, 0) 74%);
+    opacity: 0.72;
+    transform: scale(0.92);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.44, 0, 0.56, 1);
+  }
+  /* One ring travels outward each time a pointer arrives. Nothing loops on its own. */
+  .vaeral-services-halo::after {
+    content: "";
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 1px solid rgba(197, 184, 255, 0.55);
+    opacity: 0;
+    transform: scale(0.62);
+  }
+  @keyframes vaeral-services-ripple {
+    from { transform: scale(0.62); opacity: 0.85; }
+    to { transform: scale(1.5); opacity: 0; }
+  }
+  .vaeral-services-ring {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(80, 54, 249, 0.55);
+    background: #02010a;
+    color: var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, #deddff);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .vaeral-services-name {
+    display: block;
     font-family: "Plus Jakarta Sans", "Plus Jakarta Sans Placeholder", sans-serif;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.02em;
-    color: #fff;
+    color: var(--token-55fce8bf-ab86-42dc-8b77-6335cf9cf588, #fff);
+    transition: color 0.2s ease;
   }
-  .vaeral-services-card p {
-    margin: 8px 0 0;
+  .vaeral-services-hook {
+    display: block;
+    margin: 6px 0 0;
     font-family: Inter, "Inter Placeholder", sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #9b9bbd;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--token-f052e3c8-7cc9-4128-86fe-7a957812355f, #9b9bbd);
   }
   @media (hover: hover) {
-    .vaeral-services-card:hover {
-      background: rgba(119, 117, 153, 0.14);
-      border-color: var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, rgba(197, 184, 255, 0.5));
+    .vaeral-services-item:hover { transform: translateX(6px); }
+    .vaeral-services-item:hover .vaeral-services-halo::before { opacity: 1; transform: scale(1.18); }
+    .vaeral-services-item:hover .vaeral-services-halo::after { animation: vaeral-services-ripple 0.95s cubic-bezier(0.22, 0.7, 0.3, 1); }
+    .vaeral-services-item:hover .vaeral-services-ring {
+      border-color: rgba(197, 184, 255, 0.9);
+      color: var(--token-55fce8bf-ab86-42dc-8b77-6335cf9cf588, #fff);
+    }
+    .vaeral-services-item:hover .vaeral-services-name {
+      color: var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, #c5b8ff);
     }
   }
-  .vaeral-services-card:focus-visible,
+  /* Keyboard gets the same bloom, so the feedback is not pointer-only. */
+  .vaeral-services-item:focus-visible .vaeral-services-halo::before { opacity: 1; transform: scale(1.18); }
+  .vaeral-services-item:focus-visible,
   .vaeral-services-cta:focus-visible {
     outline: 2px solid rgba(197, 185, 246, 0.9);
-    outline-offset: 3px;
+    outline-offset: 6px;
+    border-radius: 14px;
   }
-  /* The aside stops earning its column before the export's own phone breakpoint: at the 1000px
-     content width a 280px column leaves the cards too narrow for a two-line hook. Stack there,
-     then drop to one card column at the export's phone breakpoint. */
+  @media (prefers-reduced-motion: reduce) {
+    .vaeral-services-item,
+    .vaeral-services-halo::before { transition: none; }
+    .vaeral-services-item:hover { transform: none; }
+    .vaeral-services-item:hover .vaeral-services-halo::before { transform: scale(1); }
+    .vaeral-services-item:hover .vaeral-services-halo::after { animation: none; }
+  }
   @media (max-width: 1099.98px) {
-    .vaeral-services-split { grid-template-columns: 1fr; gap: 34px; }
-    .vaeral-services-lede { max-width: none; }
+    .vaeral-services-grid { column-gap: 36px; }
   }
+  /* Phone: one column, and the head stacks so the button is not squeezed beside the lede.
+     There is no hover on touch, so the bloom rests at full strength — the dimmed resting
+     state only makes sense where a pointer can lift it. */
   @media (max-width: 809.98px) {
     .vaeral-services { padding-top: 60px; }
-    .vaeral-services-split { padding: 0 20px; }
-    .vaeral-services-grid { grid-template-columns: 1fr; }
+    .vaeral-services-inner { padding: 0 20px; gap: 34px; }
+    .vaeral-services-head { flex-direction: column; align-items: flex-start; gap: 22px; }
+    .vaeral-services-headtext { max-width: none; }
+    .vaeral-services-grid { grid-template-columns: 1fr; row-gap: 26px; }
+    .vaeral-services-item { gap: 16px; }
+    .vaeral-services-halo::before { opacity: 1; transform: scale(1); }
+    .vaeral-services-ring { width: 44px; height: 44px; }
   }
-
   /* --- Hero graphic on phone ---------------------------------------------------------------
      Two faults at 390px, one cause each. Both measured, neither guessed.
 
@@ -1057,7 +1128,7 @@ ${FORM_FOCUS_CSS}
     }
     .framer-ofgoy .framer-styles-preset-g7i2u9,
     .framer-ofgoy .framer-styles-preset-171nmew,
-    .framer-ofgoy .vaeral-services-card h3 {
+    .framer-ofgoy .vaeral-services-name {
       --framer-font-weight: 500 !important;
       font-weight: 500 !important;
     }
@@ -1236,17 +1307,49 @@ function serviceHook(s) {
   return first === desc ? desc : `${first}.`;
 }
 
+// One line-icon per service, drawn rather than fetched: a sprite would be another request and
+// an emoji is not a mark. Stroke-only on currentColor so the ring's colour drives them, and
+// aria-hidden because the service name beside each one is already the link's text.
+const SERVICE_ICON_PATHS = {
+  'review-management': '<path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z"/>',
+  'brand-search-results': '<circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path d="M7.6 9.6h5.8M7.6 12.4h3.4"/>',
+  'comment-management': '<path d="M4 5.5h11a2 2 0 012 2v5a2 2 0 01-2 2H9l-4 3v-3H4a1 1 0 01-1-1v-6a2 2 0 011-2z"/><path d="M19 9.5h1a1 1 0 011 1v6a1 1 0 01-1 1h-1v2.5l-3-2.5"/>',
+  'reddit-marketing': '<path d="M12 19V6"/><path d="M7 11l5-5 5 5"/><path d="M5 21h14"/>',
+  'quora-marketing': '<circle cx="12" cy="12" r="8.4"/><path d="M9.7 9.6a2.4 2.4 0 114.1 1.8c-.9.8-1.7 1.2-1.7 2.3"/><path d="M12 17.2h.01"/>',
+  'ai-search-visibility': '<path d="M12 3.5l1.9 4.9 4.9 1.9-4.9 1.9L12 17.1l-1.9-4.9L5.2 10.3l4.9-1.9z"/><path d="M18.5 16.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  'wikipedia-page-creation': '<path d="M12 7.2C10.4 5.9 8.4 5.3 4.5 5.3v12c3.9 0 5.9.6 7.5 1.9 1.6-1.3 3.6-1.9 7.5-1.9v-12c-3.9 0-5.9.6-7.5 1.9z"/><path d="M12 7.2v11.9"/>',
+  'linkedin-personal-branding': '<rect x="3.5" y="4.8" width="17" height="14.4" rx="2.4"/><circle cx="9" cy="11" r="2.1"/><path d="M5.8 16.4c.5-1.6 1.8-2.4 3.2-2.4s2.7.8 3.2 2.4"/><path d="M14.8 10.4h3.4M14.8 13.4h3.4"/>',
+  'influencer-marketing': '<path d="M4 10.2v3.6a1.6 1.6 0 001.6 1.6h2L14 19V5l-6.4 3.6h-2A1.6 1.6 0 004 10.2z"/><path d="M17.4 9.2a4 4 0 010 5.6"/><path d="M19.8 6.8a7.4 7.4 0 010 10.4"/>',
+  'app-store-growth': '<path d="M12 4v9.4"/><path d="M8.2 10.2L12 14l3.8-3.8"/><path d="M4.5 16.4v1.6a2 2 0 002 2h11a2 2 0 002-2v-1.6"/>'
+};
+
+function serviceIcon(slug) {
+  const d = SERVICE_ICON_PATHS[slug];
+  if (!d) throw new Error(`serviceIcon: no icon for "${slug}" — add one so the row is not blank`);
+  return (
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    d +
+    '</svg>'
+  );
+}
+
 // No <h1> anywhere in here: render-check compares the first hydrated <h1> against the first
 // served one, so an <h1> inserted above the hero's would fail that check even with hydration
 // working correctly.
 function servicesSectionHtml(services) {
-  const cards = orderedServices(services)
+  const items = orderedServices(services)
     .map((s) => {
       const hook = serviceHook(s);
       return (
-        `<a class="${SERVICES_SECTION_CLASS}-card" href="/services/${s.slug}">` +
-        `<h3>${escapeHtml(serviceLabel(s))}</h3>` +
-        (hook ? `<p>${escapeHtml(hook)}</p>` : '') +
+        `<a class="${SERVICES_SECTION_CLASS}-item" href="/services/${s.slug}">` +
+        `<span class="${SERVICES_SECTION_CLASS}-halo">` +
+        `<span class="${SERVICES_SECTION_CLASS}-ring">${serviceIcon(s.slug)}</span>` +
+        `</span>` +
+        `<span>` +
+        `<span class="${SERVICES_SECTION_CLASS}-name">${escapeHtml(serviceLabel(s))}</span>` +
+        (hook ? `<span class="${SERVICES_SECTION_CLASS}-hook">${escapeHtml(hook)}</span>` : '') +
+        `</span>` +
         `</a>`
       );
     })
@@ -1254,17 +1357,19 @@ function servicesSectionHtml(services) {
 
   return (
     `<section class="${SERVICES_SECTION_CLASS}">` +
-    `<div class="${SERVICES_SECTION_CLASS}-split">` +
-    `<div class="${SERVICES_SECTION_CLASS}-aside">` +
+    `<div class="${SERVICES_SECTION_CLASS}-inner">` +
+    `<div class="${SERVICES_SECTION_CLASS}-head">` +
+    `<div class="${SERVICES_SECTION_CLASS}-headtext">` +
     `<div class="${SERVICES_SECTION_CLASS}-h2">` +
     `<h2 class="framer-text framer-styles-preset-398jw4" data-styles-preset="QnZFqE78z" dir="auto" style="--framer-text-alignment:left">Our Services</h2>` +
     `</div>` +
     `<p class="${SERVICES_SECTION_CLASS}-lede">${escapeHtml(servicesLede(services.length))}</p>` +
+    `</div>` +
     `<a class="${SERVICES_SECTION_CLASS}-cta" href="/services">` +
     `<span class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">See all services</span>` +
     `</a>` +
     `</div>` +
-    `<div class="${SERVICES_SECTION_CLASS}-grid">${cards}</div>` +
+    `<div class="${SERVICES_SECTION_CLASS}-grid">${items}</div>` +
     `</div></section>`
   );
 }
