@@ -844,4 +844,86 @@
   }
 })();
 </script>
+
+<style>
+/* --- Play Store card: give it the sliding bar the other two cards have --------------------
+   The three "One post. One thread." cards each show a glowing bar sweeping down as the card
+   scrolls in. The Reddit and Quora cards carry that bar as a SEPARATE image layer over their
+   artwork, which is why it can move. The Play Store card never had one: its red bar and the
+   arrow badge are painted into the artwork PNG, so nothing could animate. The June 2026 mirror
+   of the site has the same structure, so this was never a regression.
+
+   Fixed by splitting that PNG in two, both served from /assets at the source's own 1152:1073
+   aspect so background-size:cover maps them identically:
+     playstore-card.webp     the artwork with the bar removed and the band behind it rebuilt
+     playstore-scanbar.webp  the bar and badge alone, on transparency
+
+   The plate replaces the artwork through the wrapper's background rather than by swapping the
+   img src, because Framer rehydrates this page and rebuilds img attributes from its own chunk;
+   a background on the wrapper is CSS and survives. The img stays for layout and alt text at
+   opacity 0.
+
+   Travel is 150px, the distance the other two bars move, and overflow:hidden on the artwork
+   box clips the bar while it is still above its resting place. */
+.framer-ofgoy .framer-6w8gru .framer-153kduw { overflow: hidden; }
+.framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper] {
+  background-image: url("/assets/playstore-card.webp");
+  background-size: cover;
+  background-position: center;
+}
+.framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper] > img { opacity: 0; }
+.framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets/playstore-scanbar.webp");
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-150px);
+}
+/* The class is added by the observer below, at the point in the scroll where Framer's own
+   appear animation fires on the other two cards. */
+.framer-ofgoy .framer-6w8gru.vaeral-ps-swept .framer-153kduw [data-framer-background-image-wrapper]::after {
+  animation: vaeral-ps-sweep 1.28s cubic-bezier(0.2, 0, 0.35, 1) forwards;
+}
+@keyframes vaeral-ps-sweep {
+  from { opacity: 0; transform: translateY(-150px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .framer-ofgoy .framer-6w8gru .framer-153kduw [data-framer-background-image-wrapper]::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+</style>
+<script>
+(function () {
+  function arm() {
+    var card = document.querySelector('.framer-6w8gru');
+    if (!card || card.classList.contains('vaeral-ps-swept')) return;
+    if (!('IntersectionObserver' in window)) { card.classList.add('vaeral-ps-swept'); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('vaeral-ps-swept');
+        io.disconnect();
+      });
+    }, { threshold: 0.25 });
+    io.observe(card);
+  }
+  // Framer rebuilds this subtree on hydration, so keep re-arming for a while after load.
+  function start() {
+    arm();
+    var mo = new MutationObserver(arm);
+    mo.observe(document.body, { childList: true, subtree: true });
+    setTimeout(function () { mo.disconnect(); arm(); }, 8000);
+  }
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
 </body></html>
