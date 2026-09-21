@@ -2069,8 +2069,10 @@ const IMAGE_SCRIPT = `
    arrow badge are painted into the artwork PNG, so nothing could animate. The June 2026 mirror
    of the site has the same structure, so this was never a regression.
 
-   Fixed by splitting that PNG in two, both served from /assets at the source's own 1152:1073
-   aspect so background-size:cover maps them identically:
+   Fixed by splitting that PNG in two. The source is Framer's
+   jR3xO4UqNnOFOYBwWcdiZoSo4Uk.png at 1152x1073; if it is ever republished, both files below
+   have to be regenerated from it or the card will show stale art. Both keep the source's own
+   1152:1073 aspect so background-size:cover maps them identically:
      playstore-card.webp     the artwork with the bar removed and the band behind it rebuilt
      playstore-scanbar.webp  the bar and badge alone, on transparency
 
