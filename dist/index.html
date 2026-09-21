@@ -692,7 +692,9 @@
   .vaeral-services-inner {
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    /* The gap to the grid is deliberately larger than the grid's own 44px row gap, so the
+       heading and button read as a header rather than as the first row of the list. */
+    gap: 76px;
     width: 100%;
     max-width: 1000px;
     padding: 0 24px;
@@ -716,7 +718,12 @@
   }
   /* Matched to the nav's Get Started button, measured: the accent token, radius 12px,
      padding 12px 24px, label Inter 16px/1.3 in the #deddff token. */
+  /* The button carries the same bloom as the rings, shaped to its own rectangle instead of a
+     circle: a box-shadow glow rather than a radial gradient, which is the treatment the export
+     already uses for its own lit controls. Resting strength is lower than the hover so there is
+     somewhere to travel to. */
   .vaeral-services-cta {
+    position: relative;
     flex: none;
     display: inline-block;
     background: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, #5036f9);
@@ -724,6 +731,24 @@
     padding: 12px 24px;
     text-decoration: none;
     white-space: nowrap;
+    box-shadow: 0 0 20px 0 rgba(80, 54, 249, 0.4);
+    transition: box-shadow 0.22s ease, transform 0.2s cubic-bezier(0.44, 0, 0.56, 1);
+  }
+  /* The ring that travels outward once per pointer entry. It inherits the button's radius so it
+     leaves as a rounded rectangle, not a circle. */
+  .vaeral-services-cta::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 1px solid rgba(197, 184, 255, 0.55);
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  @keyframes vaeral-services-cta-ripple {
+    from { transform: scale(0.94); opacity: 0.8; }
+    to { transform: scale(1.2); opacity: 0; }
   }
   .vaeral-services-grid {
     display: grid;
@@ -814,9 +839,17 @@
     .vaeral-services-item:hover .vaeral-services-name {
       color: var(--token-4c441323-6a04-4cdd-b867-6bcb5399d3b3, #c5b8ff);
     }
+    .vaeral-services-cta:hover {
+      box-shadow: 0 0 34px 2px rgba(80, 54, 249, 0.62);
+      transform: translateY(-1px);
+    }
+    .vaeral-services-cta:hover::after {
+      animation: vaeral-services-cta-ripple 0.95s cubic-bezier(0.22, 0.7, 0.3, 1);
+    }
   }
   /* Keyboard gets the same bloom, so the feedback is not pointer-only. */
   .vaeral-services-item:focus-visible .vaeral-services-halo::before { opacity: 1; transform: scale(1.18); }
+  .vaeral-services-cta:focus-visible { box-shadow: 0 0 34px 2px rgba(80, 54, 249, 0.62); }
   .vaeral-services-item:focus-visible,
   .vaeral-services-cta:focus-visible {
     outline: 2px solid rgba(197, 185, 246, 0.9);
@@ -829,6 +862,9 @@
     .vaeral-services-item:hover { transform: none; }
     .vaeral-services-item:hover .vaeral-services-halo::before { transform: scale(1); }
     .vaeral-services-item:hover .vaeral-services-halo::after { animation: none; }
+    .vaeral-services-cta { transition: box-shadow 0.22s ease; }
+    .vaeral-services-cta:hover { transform: none; }
+    .vaeral-services-cta:hover::after { animation: none; }
   }
   @media (max-width: 1099.98px) {
     .vaeral-services-grid { column-gap: 36px; }
@@ -838,13 +874,14 @@
      state only makes sense where a pointer can lift it. */
   @media (max-width: 809.98px) {
     .vaeral-services { padding-top: 60px; }
-    .vaeral-services-inner { padding: 0 20px; gap: 34px; }
+    .vaeral-services-inner { padding: 0 20px; gap: 48px; }
     .vaeral-services-head { flex-direction: column; align-items: flex-start; gap: 22px; }
     .vaeral-services-headtext { max-width: none; }
     .vaeral-services-grid { grid-template-columns: 1fr; row-gap: 26px; }
     .vaeral-services-item { gap: 16px; }
     .vaeral-services-halo::before { opacity: 1; transform: scale(1); }
     .vaeral-services-ring { width: 44px; height: 44px; }
+    .vaeral-services-cta { box-shadow: 0 0 26px 1px rgba(80, 54, 249, 0.52); }
   }
   /* --- Hero graphic on phone ---------------------------------------------------------------
      Two faults at 390px, one cause each. Both measured, neither guessed.
