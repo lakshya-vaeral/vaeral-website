@@ -97,6 +97,22 @@ function swap(src, from, to, times, what) {
   return src.split(from).join(to);
 }
 
+// The export wires its forms to Framer's own backend, which mails the Framer account and skips
+// every check in api/contact.js. Our scripts already intercept each form, so this is the second
+// line: the Framer URL is taken out of the bundle entirely. That also removes the form id from a
+// file anyone can read, which is how it gets found in the first place.
+//
+// The replacement is same-origin and fails closed. api/contact.js requires lowercase name, email
+// and phone, and Framer posts Name, Email and Phone, so if that handler ever did run it would be
+// answered with a 400 and nothing would be sent or mailed.
+//
+// NOTE: this does not close the Framer endpoint, which lives on Framer's servers and still
+// accepts a direct POST from anywhere. Only the Framer account owner can disable that form.
+function dropFramerFormBackend(src) {
+  const url = 'https://api.framer.com/forms/v1/forms/344a8d78-c6e5-4098-bcca-7694547b54b8/submit';
+  return swap(src, '`' + url + '`', '`/api/contact`', 1, 'framer form action');
+}
+
 // The wheel's size comes from its container, the avatars take .095 of it instead of .085, and the
 // card's type scales 13→16px (body) / 17→20px (name) with the viewport, matching the wheel's own
 // clamp() in build.js. Touches the orbit component and the one instance Framer places on the
@@ -205,6 +221,7 @@ export function buildTeamWheelChunk({ root, distAssets }) {
   }
 
   src = enlargeOrbit(src);
+  src = dropFramerFormBackend(src);
 
   const out = path.join(distAssets, 'framer', 'team-wheel.mjs');
   fs.mkdirSync(path.dirname(out), { recursive: true });

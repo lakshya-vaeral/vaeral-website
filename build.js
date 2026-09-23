@@ -18,6 +18,7 @@ import { marked } from 'marked';
 import * as cheerio from 'cheerio';
 import * as schema from './schema.js';
 import { buildTeamWheelChunk, patchHomepageTeam } from './team-wheel.js';
+import { buildFormChunks, applyFormChunkMap } from './framer-forms.js';
 
 const ROOT = process.cwd();
 const SITE = 'https://vaeral.com';
@@ -2425,6 +2426,9 @@ const NEWSLETTER_FORM_SCRIPT = `
 </script>
 `;
 
+// Set by buildFormChunks before any page is written; every page is pointed at our copies.
+let FORM_CHUNK_MAP = null;
+
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   // Nav anchors are relative in the Framer export and resolve against the current
@@ -2433,9 +2437,11 @@ function writePage(dir, html) {
   const patched = hasFramerNav(html)
     ? patchNavHrefs(html).replace('</body>', `${NAV_SCRIPT}</body>`)
     : html;
-  const withForms = patched.includes('</body>')
-    ? patched.replace('</body>', CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>')
-    : patched;
+  if (!FORM_CHUNK_MAP) throw new Error('writePage ran before the Framer form chunks were built');
+  const noFramer = applyFormChunkMap(patched, FORM_CHUNK_MAP);
+  const withForms = noFramer.includes('</body>')
+    ? noFramer.replace('</body>', CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>')
+    : noFramer;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
     patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
@@ -3622,6 +3628,7 @@ function main() {
   // Ship CMS-uploaded / localized images into the deploy root.
   copyDir(PUBLIC_ASSETS, DIST_ASSETS);
   const teamMembers = buildTeamWheelChunk({ root: ROOT, distAssets: DIST_ASSETS });
+  FORM_CHUNK_MAP = buildFormChunks({ root: ROOT, distAssets: DIST_ASSETS });
   console.log(`  ✓ team wheel chunk: ${teamMembers} members`);
 
   // Ship the Decap CMS editor (index.html + config.yml) so /admin is served.
@@ -3815,6 +3822,7 @@ function main() {
     indexHtml = patchHomepageCaseStudiesCta(indexHtml);
     indexHtml = patchHomepageServices(indexHtml, publishedServices);
     indexHtml = patchHomepageTeam(indexHtml);
+    indexHtml = applyFormChunkMap(indexHtml, FORM_CHUNK_MAP);
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
