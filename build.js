@@ -2255,6 +2255,176 @@ function patchPhone(html) {
   return html.split(PHONE_OLD).join(PHONE_NEW).replace('</body>', `${PHONE_SCRIPT}</body>`);
 }
 
+// Both form scripts, at module scope so EVERY page gets them, not just the homepage.
+// The Framer export wires its forms to Framer's own backend, so any form that these do not
+// take over posts to api.framer.com and mails the Framer account instead of reaching us,
+// skipping the blocklist, the rate limit and the honeypots in api/contact.js. They were only
+// injected into the homepage, so the newsletter field on /about, the service pages and the
+// landing pages had been submitting to Framer all along.
+// Both are idempotent: they mark the form with a data attribute and skip it next time.
+const CONTACT_FORM_SCRIPT = `
+<script>
+(function() {
+  setInterval(function() {
+    var nameField = document.querySelector('input[placeholder="Full name"]');
+    if (!nameField) return;
+    var form = nameField.closest('form');
+    if (!form || form.dataset.vaeralInjected) return;
+    
+    form.dataset.vaeralInjected = "true";
+    
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      
+      var nameInput = form.querySelector('input[name="Name"]');
+      var emailInput = form.querySelector('input[name="Email"]');
+      var phoneInput = form.querySelector('input[name="Phone"]');
+      var submitBtn = form.querySelector('button[type="submit"]');
+      
+      var name = nameInput ? nameInput.value.trim() : '';
+      var email = emailInput ? emailInput.value.trim() : '';
+      var phone = phoneInput ? phoneInput.value.trim() : '';
+      
+      if (!name || !email || !phone) {
+        alert("Please fill in Name, Email, and Phone.");
+        return;
+      }
+      
+      var originalText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.textContent = "Sending...";
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.7";
+      }
+      
+      try {
+        var res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, phone: phone })
+        });
+        
+        if (res.ok) {
+          if (submitBtn) {
+            submitBtn.textContent = "Message Sent!";
+            submitBtn.style.opacity = "1";
+          }
+          if(nameInput) nameInput.value = '';
+          if(emailInput) emailInput.value = '';
+          if(phoneInput) phoneInput.value = '';
+          setTimeout(function() {
+            if (submitBtn) {
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+            }
+          }, 4000);
+        } else {
+          var data = await res.json().catch(function() { return {}; });
+          alert("Error: " + (data.message || "Failed to send message."));
+          if (submitBtn) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error. Please try again.");
+        if (submitBtn) {
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = "1";
+        }
+      }
+    });
+  }, 1000);
+})();
+</script>
+`;
+
+const NEWSLETTER_FORM_SCRIPT = `
+<script>
+(function() {
+  setInterval(function() {
+    // Matched by SHAPE, not by class. The export uses a different generated class per newsletter
+    // placement (framer-w8wwxz in the page footer, framer-ushtcb on blog posts), so a class list
+    // silently misses any new one and that form goes back to posting at Framer. Anything with an
+    // email field and no name or phone field is a newsletter; the contact form is excluded by
+    // both tests.
+    var forms = [].slice.call(document.querySelectorAll('form')).filter(function(f) {
+      if (f.dataset.vaeralInjected) return false;
+      if (f.querySelector('input[name="Name"], input[name="Phone"]')) return false;
+      return !!f.querySelector('input[type="email"]');
+    });
+    forms.forEach(function(form) {
+      if (form.dataset.vaeralNewsletterInjected) return;
+      form.dataset.vaeralNewsletterInjected = "true";
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        var emailInput = form.querySelector('input[type="email"]');
+        var submitBtn = form.querySelector('button[type="submit"]');
+
+        var email = emailInput ? emailInput.value.trim() : '';
+        if (!email) {
+          alert("Please enter your email address.");
+          return;
+        }
+
+        var originalText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.textContent = "Subscribing...";
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = "0.7";
+        }
+
+        try {
+          var res = await fetch('/api/newsletter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          });
+
+          if (res.ok) {
+            if (submitBtn) {
+              submitBtn.textContent = "Subscribed ✓";
+              submitBtn.style.opacity = "1";
+            }
+            if (emailInput) emailInput.value = '';
+            setTimeout(function() {
+              if (submitBtn) {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+              }
+            }, 4000);
+          } else {
+            var data = await res.json().catch(function() { return {}; });
+            alert("Error: " + (data.message || "Failed to subscribe."));
+            if (submitBtn) {
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = "1";
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Network error. Please try again.");
+          if (submitBtn) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+          }
+        }
+      });
+    });
+  }, 1000);
+})();
+</script>
+`;
+
 function writePage(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   // Nav anchors are relative in the Framer export and resolve against the current
@@ -2263,9 +2433,12 @@ function writePage(dir, html) {
   const patched = hasFramerNav(html)
     ? patchNavHrefs(html).replace('</body>', `${NAV_SCRIPT}</body>`)
     : html;
+  const withForms = patched.includes('</body>')
+    ? patched.replace('</body>', CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>')
+    : patched;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    patchImages(patchPhone(patched).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
+    patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
   );
 }
 
@@ -3570,162 +3743,10 @@ function main() {
 </style>
 `;
 
-    const contactFormScript = `
-<script>
-(function() {
-  setInterval(function() {
-    var nameField = document.querySelector('input[placeholder="Full name"]');
-    if (!nameField) return;
-    var form = nameField.closest('form');
-    if (!form || form.dataset.vaeralInjected) return;
-    
-    form.dataset.vaeralInjected = "true";
-    
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      
-      var nameInput = form.querySelector('input[name="Name"]');
-      var emailInput = form.querySelector('input[name="Email"]');
-      var phoneInput = form.querySelector('input[name="Phone"]');
-      var submitBtn = form.querySelector('button[type="submit"]');
-      
-      var name = nameInput ? nameInput.value.trim() : '';
-      var email = emailInput ? emailInput.value.trim() : '';
-      var phone = phoneInput ? phoneInput.value.trim() : '';
-      
-      if (!name || !email || !phone) {
-        alert("Please fill in Name, Email, and Phone.");
-        return;
-      }
-      
-      var originalText = submitBtn ? submitBtn.textContent : '';
-      if (submitBtn) {
-        submitBtn.textContent = "Sending...";
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = "0.7";
-      }
-      
-      try {
-        var res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, phone: phone })
-        });
-        
-        if (res.ok) {
-          if (submitBtn) {
-            submitBtn.textContent = "Message Sent!";
-            submitBtn.style.opacity = "1";
-          }
-          if(nameInput) nameInput.value = '';
-          if(emailInput) emailInput.value = '';
-          if(phoneInput) phoneInput.value = '';
-          setTimeout(function() {
-            if (submitBtn) {
-              submitBtn.textContent = originalText;
-              submitBtn.disabled = false;
-            }
-          }, 4000);
-        } else {
-          var data = await res.json().catch(function() { return {}; });
-          alert("Error: " + (data.message || "Failed to send message."));
-          if (submitBtn) {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = "1";
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Network error. Please try again.");
-        if (submitBtn) {
-          submitBtn.textContent = originalText;
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = "1";
-        }
-      }
-    });
-  }, 1000);
-})();
-</script>
-`;
 
-    const newsletterFormScript = `
-<script>
-(function() {
-  setInterval(function() {
-    var forms = document.querySelectorAll('form.framer-w8wwxz');
-    forms.forEach(function(form) {
-      if (form.dataset.vaeralNewsletterInjected) return;
-      form.dataset.vaeralNewsletterInjected = "true";
-
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-
-        var emailInput = form.querySelector('input[type="email"]');
-        var submitBtn = form.querySelector('button[type="submit"]');
-
-        var email = emailInput ? emailInput.value.trim() : '';
-        if (!email) {
-          alert("Please enter your email address.");
-          return;
-        }
-
-        var originalText = submitBtn ? submitBtn.textContent : '';
-        if (submitBtn) {
-          submitBtn.textContent = "Subscribing...";
-          submitBtn.disabled = true;
-          submitBtn.style.opacity = "0.7";
-        }
-
-        try {
-          var res = await fetch('/api/newsletter', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
-          });
-
-          if (res.ok) {
-            if (submitBtn) {
-              submitBtn.textContent = "Subscribed ✓";
-              submitBtn.style.opacity = "1";
-            }
-            if (emailInput) emailInput.value = '';
-            setTimeout(function() {
-              if (submitBtn) {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-              }
-            }, 4000);
-          } else {
-            var data = await res.json().catch(function() { return {}; });
-            alert("Error: " + (data.message || "Failed to subscribe."));
-            if (submitBtn) {
-              submitBtn.textContent = originalText;
-              submitBtn.disabled = false;
-              submitBtn.style.opacity = "1";
-            }
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Network error. Please try again.");
-          if (submitBtn) {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = "1";
-          }
-        }
-      });
-    });
-  }, 1000);
-})();
-</script>
-`;
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + contactFormScript + newsletterFormScript + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>');
     }
 
     // Preloads are split by breakpoint with the media attribute, so each width fetches only what

@@ -1861,7 +1861,16 @@
 <script>
 (function() {
   setInterval(function() {
-    var forms = document.querySelectorAll('form.framer-w8wwxz');
+    // Matched by SHAPE, not by class. The export uses a different generated class per newsletter
+    // placement (framer-w8wwxz in the page footer, framer-ushtcb on blog posts), so a class list
+    // silently misses any new one and that form goes back to posting at Framer. Anything with an
+    // email field and no name or phone field is a newsletter; the contact form is excluded by
+    // both tests.
+    var forms = [].slice.call(document.querySelectorAll('form')).filter(function(f) {
+      if (f.dataset.vaeralInjected) return false;
+      if (f.querySelector('input[name="Name"], input[name="Phone"]')) return false;
+      return !!f.querySelector('input[type="email"]');
+    });
     forms.forEach(function(form) {
       if (form.dataset.vaeralNewsletterInjected) return;
       form.dataset.vaeralNewsletterInjected = "true";
