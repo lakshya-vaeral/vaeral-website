@@ -18,7 +18,7 @@ import { marked } from 'marked';
 import * as cheerio from 'cheerio';
 import * as schema from './schema.js';
 import { buildTeamWheelChunk, patchHomepageTeam } from './team-wheel.js';
-import { buildFormChunks, applyFormChunkMap } from './framer-forms.js';
+import { buildFormChunks, applyFormChunkMap, assertNoFramerForms } from './framer-forms.js';
 
 const ROOT = process.cwd();
 const SITE = 'https://vaeral.com';
@@ -3830,6 +3830,8 @@ function main() {
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
 
+  // Nothing ships with a Framer form endpoint in it. See framer-forms.js.
+  assertNoFramerForms(DIST);
   console.log(`\nBuild complete: ${publishedPosts.length} posts, ${cases.filter((c) => !c.attributes.draft).length} case studies.`);
 }
 

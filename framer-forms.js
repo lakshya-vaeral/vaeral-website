@@ -111,3 +111,29 @@ export function applyFormChunkMap(html, map) {
   const tag = `<script type="importmap">${JSON.stringify({ imports: entries })}</script>`;
   return html.slice(0, at) + tag + html.slice(at);
 }
+
+// Build guard. Nothing we publish may contain a Framer form endpoint or one of its ids, by any
+// route: a re-vendored chunk, a new page type, a copied asset. Walks the whole output rather
+// than only the files this module touches, so it catches what the patching above misses.
+export function assertNoFramerForms(dist) {
+  const needles = ['forms/v1/forms', '344a8d78-c6e5-4098-bcca-7694547b54b8']
+    .concat(FORM_CHUNKS.map((c) => c.formId));
+  const offenders = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { walk(full); continue; }
+      if (!/\.(html|mjs|js|json|txt|xml|css)$/i.test(entry.name)) continue;
+      const body = fs.readFileSync(full, 'utf8');
+      const hit = needles.find((n) => body.includes(n));
+      if (hit) offenders.push(path.relative(dist, full) + ' (' + hit + ')');
+    }
+  };
+  walk(dist);
+  if (offenders.length) {
+    throw new Error(
+      'framer forms: a Framer form endpoint is still in the build, so submissions would reach ' +
+      'Framer and skip every check in api/contact.js: ' + offenders.join(', '),
+    );
+  }
+}
