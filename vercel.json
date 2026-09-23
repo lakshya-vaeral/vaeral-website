@@ -5,6 +5,15 @@
   "cleanUrls": true,
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "connect-src 'self' https://events.framer.com https://framerusercontent.com https://app.framerstatic.com https://play.google.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://fonts.gstatic.com https://www.gstatic.com; form-action 'self'; frame-src 'self' https://news.google.com https://*.google.com;"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {

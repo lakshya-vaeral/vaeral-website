@@ -2256,6 +2256,30 @@ function patchPhone(html) {
   return html.split(PHONE_OLD).join(PHONE_NEW).replace('</body>', `${PHONE_SCRIPT}</body>`);
 }
 
+const FORM_BUTTON_STYLES = `
+<style>
+/* The newsletter button ships filled with the panel navy #040128, the same colour as the surface
+   it sits on, so against a dark page it reads as an inert box rather than something to click. Its
+   twin in the same footer, "Book a Free Audit", is the accent violet at the same 12px radius, the
+   same 44px height and the same inset glow, so the fill is the only thing that differs between
+   them. The colour is an inline style on the element, hence !important.
+
+   On blog posts the same button is additionally stuck in Framer's "Disabled" variant at half
+   opacity. That variant never switches, not even once a valid address has been typed, so it
+   always looks dead; the opacity is reset for the same reason.
+
+   Matched two ways on purpose. The generated class names style it from the first paint, with no
+   flash of the old colour, and the data attribute our newsletter script sets covers any further
+   placement the export grows, since that script matches newsletters by shape rather than name. */
+form.framer-w8wwxz button[type="submit"],
+form.framer-ushtcb button[type="submit"],
+form[data-vaeral-newsletter-injected] button[type="submit"] {
+  background-color: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, #5036f9) !important;
+  opacity: 1 !important;
+}
+</style>
+`;
+
 // Both form scripts, at module scope so EVERY page gets them, not just the homepage.
 // The Framer export wires its forms to Framer's own backend, so any form that these do not
 // take over posts to api.framer.com and mails the Framer account instead of reaching us,
@@ -2440,7 +2464,7 @@ function writePage(dir, html) {
   if (!FORM_CHUNK_MAP) throw new Error('writePage ran before the Framer form chunks were built');
   const noFramer = applyFormChunkMap(patched, FORM_CHUNK_MAP);
   const withForms = noFramer.includes('</body>')
-    ? noFramer.replace('</body>', CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>')
+    ? noFramer.replace('</body>', FORM_BUTTON_STYLES + CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>')
     : noFramer;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
@@ -3753,7 +3777,7 @@ function main() {
 
 
     if (indexHtml.includes('</body>')) {
-      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>');
+      indexHtml = indexHtml.replace('</body>', styleFix + HOMEPAGE_FIX_STYLES + NAV_PREFERRED_SOURCE_STYLES + blogNavScript + CASE_STUDIES_CTA_SCRIPT + servicesSectionScript(publishedServices) + NAV_PREFERRED_SOURCE_SCRIPT + FORM_BUTTON_STYLES + CONTACT_FORM_SCRIPT + NEWSLETTER_FORM_SCRIPT + '</body>');
     }
 
     // Preloads are split by breakpoint with the media attribute, so each width fetches only what

@@ -717,6 +717,28 @@
 })();
 </script>
 
+<style>
+/* The newsletter button ships filled with the panel navy #040128, the same colour as the surface
+   it sits on, so against a dark page it reads as an inert box rather than something to click. Its
+   twin in the same footer, "Book a Free Audit", is the accent violet at the same 12px radius, the
+   same 44px height and the same inset glow, so the fill is the only thing that differs between
+   them. The colour is an inline style on the element, hence !important.
+
+   On blog posts the same button is additionally stuck in Framer's "Disabled" variant at half
+   opacity. That variant never switches, not even once a valid address has been typed, so it
+   always looks dead; the opacity is reset for the same reason.
+
+   Matched two ways on purpose. The generated class names style it from the first paint, with no
+   flash of the old colour, and the data attribute our newsletter script sets covers any further
+   placement the export grows, since that script matches newsletters by shape rather than name. */
+form.framer-w8wwxz button[type="submit"],
+form.framer-ushtcb button[type="submit"],
+form[data-vaeral-newsletter-injected] button[type="submit"] {
+  background-color: var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, #5036f9) !important;
+  opacity: 1 !important;
+}
+</style>
+
 <script>
 (function() {
   setInterval(function() {
