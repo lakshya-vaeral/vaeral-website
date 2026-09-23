@@ -44,7 +44,6 @@ export default async function handler(req, res) {
   }
 
   const ip = String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '').split(',')[0].trim();
-  const userAgent = req.headers['user-agent'] || '';
 
   // Blocklist, per-IP rate limit and duplicate email+phone: silently drop like the honeypot.
   const fields = [name, email, phone].map(v => String(v).toLowerCase().trim());
@@ -89,8 +88,6 @@ export default async function handler(req, res) {
         '',
         `Submitted: ${submittedAt}`,
         `Source: ${sourcePage}`,
-        `IP: ${ip}`,
-        `User agent: ${userAgent}`,
       ].join('\n'),
       html: `
 <!DOCTYPE html>
@@ -113,7 +110,7 @@ export default async function handler(req, res) {
                   <td>
                     <h1 style="margin:0 0 4px;font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.5px;">New Contact Inquiry</h1>
                     <p style="margin:0;font-size:13px;color:#888;">vaeral.com &middot; ${submittedAt}</p>
-                    <p style="margin:4px 0 0;font-size:12px;color:#888;">Source: ${sourcePage}<br>IP: ${ip}<br>User agent: ${userAgent}</p>
+                    <p style="margin:4px 0 0;font-size:12px;color:#888;">Source: ${sourcePage}</p>
                   </td>
                   <td align="right" valign="top">
                     <div style="width:42px;height:42px;border-radius:10px;background:#6c63ff;display:inline-block;text-align:center;line-height:42px;font-size:20px;color:#fff;">&#9993;</div>
