@@ -3,7 +3,7 @@ const WINDOW_MS = 10 * 60 * 1000;
 const recent = new Map(); // key -> timestamps within WINDOW_MS
 // Who gets notified. Comma-separated FORM_NOTIFY_TO in the Vercel env overrides this, so a
 // mailbox can be added or removed without a code change. Both handlers read the same list.
-const NOTIFY_TO = (process.env.FORM_NOTIFY_TO || 'lakshya@vaeral.com,mayank@vaeral.com')
+const NOTIFY_TO = (process.env.FORM_NOTIFY_TO || 'lakshya@vaeral.com,mayank@vaeral.com,twinkle@vaeral.com')
   .split(',').map(s => s.trim()).filter(Boolean).join(', ');
 
 const BLOCKED = ['sk amin', 'ranger_rocky', 'rangerrockykhan07@gmail.com', '07846832004', ...(process.env.CONTACT_BLOCKLIST || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)];

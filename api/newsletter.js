@@ -1,6 +1,6 @@
 // Who gets notified. Comma-separated FORM_NOTIFY_TO in the Vercel env overrides this, so a
 // mailbox can be added or removed without a code change. Both handlers read the same list.
-const NOTIFY_TO = (process.env.FORM_NOTIFY_TO || 'lakshya@vaeral.com,mayank@vaeral.com')
+const NOTIFY_TO = (process.env.FORM_NOTIFY_TO || 'lakshya@vaeral.com,mayank@vaeral.com,twinkle@vaeral.com')
   .split(',').map(s => s.trim()).filter(Boolean).join(', ');
 
 export default async function handler(req, res) {
