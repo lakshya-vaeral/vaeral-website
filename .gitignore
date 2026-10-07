@@ -2,3 +2,10 @@ node_modules/
 .npm-cache/
 package-lock.json
 .env
+
+# Google API credentials — never commit these, they grant read access to our
+# Search Console and Analytics data.
+.vaeral-google.json
+*service-account*.json
+*credentials*.json
+*google-creds*.json
