@@ -31,8 +31,9 @@ try {
   console.log('token      : obtained\n');
 } catch (e) {
   console.error('token      : FAILED —', e.message);
-  console.error('\nIf this says invalid_grant on a refresh token, the OAuth consent screen is');
-  console.error('probably still in Testing, where refresh tokens last seven days.');
+  console.error('\ninvalid_grant means the token was revoked, or the consent screen is still in');
+  console.error('Testing, where Google expires refresh tokens after seven days.');
+  console.error('Re-mint one with: node scripts/google-authorize.mjs');
   process.exit(1);
 }
 

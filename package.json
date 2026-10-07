@@ -12,7 +12,8 @@
     "health": "node scripts/health-check.mjs",
     "google:check": "node scripts/google-check.mjs",
     "report:analytics": "node scripts/analytics-report.mjs",
-    "report:search": "node scripts/index-report.mjs"
+    "report:search": "node scripts/index-report.mjs",
+    "google:authorize": "node scripts/google-authorize.mjs"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
