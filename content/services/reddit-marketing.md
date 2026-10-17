@@ -12,7 +12,7 @@ sectionOneHeading: "What Reddit marketing is"
 sectionOne: |
   Reddit marketing is the work of building a presence in the communities where your category is already discussed, and improving what customers and critics say about you there. It is both at once: the threads you take part in, and the search result that outranks your homepage because a stranger wrote it three years ago.
 
-  It matters for two reasons. Reddit threads rank persistently in Google for brand-plus-modifier searches — your brand name next to "review", "worth it", "scam" or "alternative". And Reddit is unusually heavily represented in the training and retrieval sets behind AI answer engines, so what is said there shapes what ChatGPT or Perplexity tells someone who asks about your category.
+  It matters for two reasons. Reddit threads rank persistently in Google for brand-plus-modifier searches: your brand name next to "review", "worth it", "scam" or "alternative". And Reddit is unusually heavily represented in the training and retrieval sets behind AI answer engines, so what is said there shapes what ChatGPT or Perplexity tells someone who asks about your category.
 
   This service is for brands whose Reddit presence is currently being written entirely by other people.
 
@@ -52,7 +52,7 @@ sectionThree: |
 
 faqs:
   - question: "Can you get a negative Reddit post removed?"
-    answer: "Usually not, and it is rarely the right goal. Only Reddit admins or a subreddit's moderators can remove content, and they do so for rule violations — not because a brand dislikes it. Posts containing genuinely defamatory claims, doxxing or leaked private information can be reported successfully. For ordinary criticism, the workable path is to respond well and to build enough credible surrounding content that one thread stops being the whole story."
+    answer: "Usually not, and it is rarely the right goal. Only Reddit admins or a subreddit's moderators can remove content, and they do so for rule violations, not because a brand dislikes it. Posts containing genuinely defamatory claims, doxxing or leaked private information can be reported successfully. For ordinary criticism, the workable path is to respond well and to build enough credible surrounding content that one thread stops being the whole story."
   - question: "Is it against Reddit's rules for a brand to post?"
     answer: "No, provided you are transparent. Reddit prohibits undisclosed coordinated promotion and vote manipulation, not brand participation. Many subreddits explicitly welcome vendors who identify themselves. The rules vary by community, which is why we read each subreddit's policy before participating."
   - question: "How long does Reddit marketing take to show results?"

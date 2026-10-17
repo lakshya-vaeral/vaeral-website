@@ -22,7 +22,7 @@ faqs:
     answer: "Do not mass downvote, use fake accounts, buy reviews, impersonate customers or pressure moderators to remove accurate criticism. Those actions create additional and often more durable reputation damage."
 ---
 
-**When a negative Reddit thread goes viral, move fast but do not panic.** Verify the claim before responding, decide whether a public reply will help or inflame, engage the wider community rather than only the original poster, fix the underlying issue, and then manage the search fallout — a viral thread often outranks your own site for months. Each step is covered in order below.
+**When a negative Reddit thread goes viral, move fast but do not panic.** Verify the claim before responding, decide whether a public reply will help or inflame, engage the wider community rather than only the original poster, fix the underlying issue, and then manage the search fallout: a viral thread often outranks your own site for months. Each step is covered in order below.
 
 
 ## Why Reddit Hits Different Than Other Platforms

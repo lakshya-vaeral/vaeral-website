@@ -4,11 +4,11 @@ Allow: /
 # AI crawlers are explicitly allowed. Vaeral works on AI search visibility,
 # and these crawlers are what make citation in AI answers possible.
 
-# ChatGPT search — retrieval for live answers
+# ChatGPT search: retrieval for live answers
 User-agent: OAI-SearchBot
 Allow: /
 
-# Perplexity — retrieval for live answers
+# Perplexity: retrieval for live answers
 User-agent: PerplexityBot
 Allow: /
 
@@ -16,15 +16,15 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# OpenAI — training
+# OpenAI: training
 User-agent: GPTBot
 Allow: /
 
-# Anthropic — training
+# Anthropic: training
 User-agent: ClaudeBot
 Allow: /
 
-# Common Crawl — feeds many downstream models
+# Common Crawl: feeds many downstream models
 User-agent: CCBot
 Allow: /
 

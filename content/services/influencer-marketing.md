@@ -35,18 +35,18 @@ sectionTwo: |
 
   ### 5. Measure against the brief, and against what people search afterwards
 
-  Views and engagement, judged against the objective set in step one — and then the part most campaigns never look at: whether brand-name search, community mentions and AI answers about your category changed in the weeks after the coverage.
+  Views and engagement, judged against the objective set in step one, and then the part most campaigns never look at: whether brand-name search, community mentions and AI answers about your category changed in the weeks after the coverage.
 sectionThreeHeading: "Who it's for"
 sectionThree: |
   **This is a fit if** you are in a category where trial follows demonstration or transferred trust, you are launching something that needs explaining before it needs reach, or you are entering an unfamiliar market where one credible local voice is worth more than broad national coverage.
 
-  **This is not a fit if** you want the partnership to read as unpaid, organic enthusiasm. Undisclosed paid promotion breaches ASCI's guidelines and the platforms' branded-content policies, and a creator being called out for a hidden advertisement produces a bigger and far more durable story than the advertisement ever was — attached to your brand as much as to theirs.
+  **This is not a fit if** you want the partnership to read as unpaid, organic enthusiasm. Undisclosed paid promotion breaches ASCI's guidelines and the platforms' branded-content policies, and a creator being called out for a hidden advertisement produces a bigger and far more durable story than the advertisement ever was, attached to your brand as much as to theirs.
 
   It is also the wrong fit for brands treating creators as media inventory at a fixed cost per view. Outcomes vary in a way paid placements do not, and nobody can guarantee a return on a particular person's endorsement. And it is the wrong moment if the product has an unresolved quality problem: creators read their own comment sections, and one bad wave ends the relationship in public.
 
   ### Related work
 
-  Creator coverage frequently produces a rise in organic reviews as a downstream effect, which is worth planning for in [review and response management](/services/review-management) — the same page that sets out plainly what we will not do about reviews. Creator claims get dissected in communities within days, which is [Reddit marketing](/services/reddit-marketing), and the coverage itself becomes a retrieved source that changes what models say about your category, covered in [AI search visibility](/services/ai-search-visibility). For categories where creator-driven trust is the mechanism, see [a silver jewellery brand](/silver-jewellery) and [a premium pet nutrition brand](/premium-pet-nutrition).
+  Creator coverage frequently produces a rise in organic reviews as a downstream effect, which is worth planning for in [review and response management](/services/review-management), the same page that sets out plainly what we will not do about reviews. Creator claims get dissected in communities within days, which is [Reddit marketing](/services/reddit-marketing), and the coverage itself becomes a retrieved source that changes what models say about your category, covered in [AI search visibility](/services/ai-search-visibility). For categories where creator-driven trust is the mechanism, see [a silver jewellery brand](/silver-jewellery) and [a premium pet nutrition brand](/premium-pet-nutrition).
 faqs:
   - question: "How do you choose which creators to work with?"
     answer: "On audience overlap with your buyer, the quality of their comment section, and whether their past work suggests they will still be defensible in a year. Follower count is the last thing considered, because it is the number most easily inflated and the one least connected to whether anyone acts on a recommendation."

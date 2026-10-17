@@ -32,7 +32,7 @@ sectionTwo: |
 
   ### 4. Respond to answers about your brand
 
-  Where an existing answer is factually wrong or out of date, a disclosed reply from the company correcting the record is usually more effective than trying to get it removed — and it is visible to everyone who reads the original.
+  Where an existing answer is factually wrong or out of date, a disclosed reply from the company correcting the record is usually more effective than trying to get it removed, and it is visible to everyone who reads the original.
 
   ### 5. Maintain them
 
@@ -40,7 +40,7 @@ sectionTwo: |
 
 sectionThreeHeading: "Who it's for"
 sectionThree: |
-  **This is a fit if** your category involves research and comparison — software, healthcare, financial services, education, considered consumer purchases. It works best where buyers ask open questions before they know which brands exist.
+  **This is a fit if** your category involves research and comparison: software, healthcare, financial services, education, considered consumer purchases. It works best where buyers ask open questions before they know which brands exist.
 
   **This is not a fit if** your buyers do not research on Quora, which is true for many local services and impulse purchases. It is also a poor fit if the honest answer to the question does not favour you: writing an answer that overstates your product invites correction in the replies, in public, permanently.
 
@@ -52,11 +52,11 @@ sectionThree: |
 
 faqs:
   - question: "Can you delete a negative Quora answer about my company?"
-    answer: "Only the author or Quora's moderation team can delete an answer, and Quora removes content for policy violations — harassment, spam, plagiarism — not for being unflattering. If an answer contains false statements of fact you can report it, with limited success. The reliable approach is a disclosed reply correcting the record, plus stronger answers on the same question, so the ranking answer is no longer the only one a reader sees."
+    answer: "Only the author or Quora's moderation team can delete an answer, and Quora removes content for policy violations (harassment, spam, plagiarism) not for being unflattering. If an answer contains false statements of fact you can report it, with limited success. The reliable approach is a disclosed reply correcting the record, plus stronger answers on the same question, so the ranking answer is no longer the only one a reader sees."
   - question: "How long do Quora answers keep bringing traffic?"
     answer: "Well-ranked answers to durable questions can generate views for years, which is the main argument for the channel. That said, the lifespan depends entirely on whether the question stays relevant and whether better answers arrive. We treat answers as assets that need occasional updating, not as one-off posts."
   - question: "Do I need to disclose that I work for the company?"
-    answer: "Yes. Quora requires disclosure of affiliation when you write about your own company or a competitor, and readers are good at spotting undisclosed promotion regardless. Disclosure also works in your favour — a clearly identified company representative giving a straight answer reads as more credible than an anonymous account praising a product."
+    answer: "Yes. Quora requires disclosure of affiliation when you write about your own company or a competitor, and readers are good at spotting undisclosed promotion regardless. Disclosure also works in your favour: a clearly identified company representative giving a straight answer reads as more credible than an anonymous account praising a product."
   - question: "How is this different from writing blog posts?"
     answer: "A blog post competes for a keyword on a domain you own and control. A Quora answer competes on a domain with existing authority, in a format buyers trust more precisely because it is not on your website. They complement each other; Quora tends to reach people earlier, when they are still asking open questions rather than comparing named vendors."
   - question: "How much does Quora marketing cost?"

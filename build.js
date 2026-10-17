@@ -3108,7 +3108,7 @@ function buildServiceIndex(services) {
   // stopped being true the moment a seventh page shipped; a count would go stale the same way
   // at eleven. This is the one string here that must survive the service list changing.
   const description =
-    'Reputation, search visibility and growth services — what each one covers, who it suits, and who it does not.';
+    'Reputation, search visibility and growth services: what each one covers, who it suits, and who it does not.';
 
   const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
     TITLE: escapeHtml('ORM, Search and Growth Services | Vaeral'),
@@ -3379,11 +3379,11 @@ function writeIndexNowKey() {
 // drift out of date as pages are added or renamed.
 function writeLlmsTxt({ services, cases, posts, pages }) {
   const line = (p, prefix = '') => {
-    const desc = p.description ? ` — ${p.description.split('.')[0]}.` : '';
+    const desc = p.description ? `: ${p.description.split('.')[0]}.` : '';
     return `- [${p.title}](${SITE}${prefix}/${p.slug})${desc}`;
   };
   const caseLine = (c) => {
-    const desc = c.description ? ` — ${c.description.split('.')[0]}.` : '';
+    const desc = c.description ? `: ${c.description.split('.')[0]}.` : '';
     return `- [${c.title}](${SITE}/${c.slug})${desc}`;
   };
 
@@ -3477,12 +3477,12 @@ function writeLlmsTxt({ services, cases, posts, pages }) {
 // Note Google-Extended governs Gemini and AI Overviews grounding only — it has no
 // effect on ordinary Google Search ranking, which is a common misreading.
 const AI_CRAWLERS = [
-  ['OAI-SearchBot', 'ChatGPT search — retrieval for live answers'],
-  ['PerplexityBot', 'Perplexity — retrieval for live answers'],
+  ['OAI-SearchBot', 'ChatGPT search: retrieval for live answers'],
+  ['PerplexityBot', 'Perplexity: retrieval for live answers'],
   ['Google-Extended', 'Gemini / AI Overviews grounding (not Search ranking)'],
-  ['GPTBot', 'OpenAI — training'],
-  ['ClaudeBot', 'Anthropic — training'],
-  ['CCBot', 'Common Crawl — feeds many downstream models'],
+  ['GPTBot', 'OpenAI: training'],
+  ['ClaudeBot', 'Anthropic: training'],
+  ['CCBot', 'Common Crawl: feeds many downstream models'],
 ];
 
 function writeRobots() {
@@ -3543,7 +3543,7 @@ const HOMEPAGE_COPY = [
     what: 'proxy-backed clusters',
     count: 1,
     from: 'With proxy-backed clusters, original ideas, and tailored blueprints, we turn crises into non‑events stopping trouble before it starts.',
-    to: 'With community strategy, original research and tailored response playbooks, we turn crises into non‑events — stopping trouble before it starts.',
+    to: 'With community strategy, original research and tailored response playbooks, we turn crises into non‑events, stopping trouble before it starts.',
   },
   {
     what: 'seeding reviews',
@@ -3561,13 +3561,13 @@ const HOMEPAGE_COPY = [
     what: 'Wikipedia success-rate statistic',
     count: 3,
     from: '100% of our Wikipedia pages have passed editorial review on the first attempt.',
-    to: 'We assess notability before we write. If the independent coverage is not there yet, we say so — a declined draft costs months.',
+    to: 'We assess notability before we write. If the independent coverage is not there yet, we say so: a declined draft costs months.',
   },
   {
     what: 'AI-answers statistic',
     count: 3,
     from: '95% of our clients appear in AI-generated answers on ChatGPT, Google AI Overview, and Perplexity within 60 days.',
-    to: 'We track whether your brand appears in AI answers across ChatGPT, Google AI Overviews and Perplexity — measured on a fixed prompt set, re-run on a schedule, so you can see it change.',
+    to: 'We track whether your brand appears in AI answers across ChatGPT, Google AI Overviews and Perplexity, measured on a fixed prompt set, re-run on a schedule, so you can see it change.',
   },
   {
     // Missing space, visible to every reader, repeated once per testimonial copy.

@@ -10,7 +10,7 @@ coverImage: "/assets/og-image.png"
 draft: false
 sectionOneHeading: "What download and signup growth is"
 sectionOne: |
-  Download and signup growth is the work of closing the gap between the people who already consider you and the people who actually complete — installing the app, or finishing the signup.
+  Download and signup growth is the work of closing the gap between the people who already consider you and the people who actually complete: installing the app, or finishing the signup.
 
   It is not paid acquisition. There is no media buying here, no cost-per-install target and no budget being spent to put your listing in front of more people. The premise is the opposite: most brands have more consideration than they convert, and the cheapest growth available is fixing the reasons that people who found you decided against you.
 
@@ -23,7 +23,7 @@ sectionTwo: |
 
   ### 2. Fix what the listing says and shows
 
-  Title, subtitle, description and screenshots, judged by what a visitor reads in the seconds before deciding — which is far less than what was written. Most listings describe the product to someone who already understands the category, and lose everyone who does not.
+  Title, subtitle, description and screenshots, judged by what a visitor reads in the seconds before deciding, which is far less than what was written. Most listings describe the product to someone who already understands the category, and lose everyone who does not.
 
   ### 3. Address the rating, because it is the gate
 
@@ -31,7 +31,7 @@ sectionTwo: |
 
   ### 4. Own the searches that happen before the store
 
-  People check before they install. "Is it safe", "is it legit", "review", "alternative" — asked on search engines, in communities, and increasingly of answer engines that summarise all three. What those searches return is part of the install decision even though none of it happens on your listing.
+  People check before they install. "Is it safe", "is it legit", "review", "alternative" are asked on search engines, in communities, and increasingly of answer engines that summarise all three. What those searches return is part of the install decision even though none of it happens on your listing.
 
   ### 5. Measure installs against retention, not on their own
 
@@ -46,10 +46,10 @@ sectionThree: |
 
   ### Related work
 
-  The rating is usually the binding constraint, and it is addressed in [review and response management](/services/review-management) — which is also where our position on what we will not do is set out. What people find when they check you before installing is covered by [AI search visibility](/services/ai-search-visibility) and [Reddit marketing](/services/reddit-marketing). For what this work looks like when the store rating was the whole problem, see [an on-demand services app that rebuilt a rating under coordinated attack](/on-demand-services-app), or [a streaming app that went from unknown to a fixture in its category](/ott-streaming-app).
+  The rating is usually the binding constraint, and it is addressed in [review and response management](/services/review-management), which is also where our position on what we will not do is set out. What people find when they check you before installing is covered by [AI search visibility](/services/ai-search-visibility) and [Reddit marketing](/services/reddit-marketing). For what this work looks like when the store rating was the whole problem, see [an on-demand services app that rebuilt a rating under coordinated attack](/on-demand-services-app), or [a streaming app that went from unknown to a fixture in its category](/ott-streaming-app).
 faqs:
   - question: "Why are our downloads falling when traffic is flat?"
-    answer: "Because installs are a conversion rate, not a traffic number. If the same number of people reach the listing and fewer install, something changed in what they see — most often the rating, the top reviews now shown, a competitor's listing, or a screenshot set that no longer matches what the app does. The first step is establishing which of those moved."
+    answer: "Because installs are a conversion rate, not a traffic number. If the same number of people reach the listing and fewer install, something changed in what they see: most often the rating, the top reviews now shown, a competitor's listing, or a screenshot set that no longer matches what the app does. The first step is establishing which of those moved."
   - question: "Does the store rating affect downloads?"
     answer: "Yes, more than the listing copy does. The rating is read before anything else and is used as a filter, so a visitor often decides against installing without reading a word you wrote. That is why the rating work is treated as part of this engagement rather than as a separate reputation project, and why it links to [review and response management](/services/review-management)."
   - question: "How much of this is keywords?"

@@ -10,16 +10,16 @@ coverImage: "/assets/og-image.png"
 draft: false
 sectionOneHeading: "What search result management is"
 sectionOne: |
-  Search result management is the work of changing what a person finds when they search your brand name — both the results themselves and the suggestions Google offers around them.
+  Search result management is the work of changing what a person finds when they search your brand name, both the results themselves and the suggestions Google offers around them.
 
-  It is not the same as removal. A page that moves from the second position to the eleventh still exists, is still linked, and is still found by anyone who looks twice. Almost nothing on the open web can be deleted on request, and the work that matters is making better pages outrank the ones you would rather nobody read. Where a result genuinely breaches a platform's own rules, there are official routes, and we use them — but those cases are the exception, not the plan.
+  It is not the same as removal. A page that moves from the second position to the eleventh still exists, is still linked, and is still found by anyone who looks twice. Almost nothing on the open web can be deleted on request, and the work that matters is making better pages outrank the ones you would rather nobody read. Where a result genuinely breaches a platform's own rules, there are official routes, and we use them, but those cases are the exception, not the plan.
 
   The scope is the whole first page for your name and its common variants: organic results, image and video results, People Also Ask entries, related searches, and the predictions that appear in the search box before anyone has finished typing.
 sectionTwoHeading: "How it works"
 sectionTwo: |
   ### 1. Map what the first page actually shows
 
-  Every result, image, video, People Also Ask entry and autocomplete prediction for your brand name and its modifier variants — your name with "review", with "complaint", with "alternative", with "is it legit" — captured from the locations your buyers actually search from. Results differ by country and by device, and a founder in one city is often not seeing what a customer in another is seeing.
+  Every result, image, video, People Also Ask entry and autocomplete prediction for your brand name and its modifier variants (your name with "review", with "complaint", with "alternative", with "is it legit") captured from the locations your buyers actually search from. Results differ by country and by device, and a founder in one city is often not seeing what a customer in another is seeing.
 
   ### 2. Separate what can move from what cannot
 
@@ -38,18 +38,18 @@ sectionTwo: |
   The same query set, from the same locations, re-run on a fixed cadence. Movement is only meaningful against a recorded baseline, and a single screenshot from one machine on one day proves nothing about what a buyer sees.
 sectionThreeHeading: "Who it's for"
 sectionThree: |
-  **This is a fit if** your brand name returns something unrepresentative — an old incident, a complaint forum, a defunct product, a competitor's comparison page, or a prediction pairing your name with a word like "scam" — and there is a truer version of the story that could hold those positions instead.
+  **This is a fit if** your brand name returns something unrepresentative: an old incident, a complaint forum, a defunct product, a competitor's comparison page, or a prediction pairing your name with a word like "scam", and there is a truer version of the story that could hold those positions instead.
 
   **This is not a fit if** you want accurate journalism or a court record taken down. We do not attempt that, and not only for reasons of principle: pressuring a publisher to withdraw a fair story reliably produces a second story about the pressure, which then ranks for your brand name alongside the first one.
 
-  It is also a poor fit for brands with almost no brand-name search volume. If very few people search your name, there is nothing yet to manage and the budget belongs in getting known at all. And where the result is driven by a live, unresolved problem, positions re-rank as fast as they are displaced — the sequence there is to fix the problem first.
+  It is also a poor fit for brands with almost no brand-name search volume. If very few people search your name, there is nothing yet to manage and the budget belongs in getting known at all. And where the result is driven by a live, unresolved problem, positions re-rank as fast as they are displaced, the sequence there is to fix the problem first.
 
   ### Related work
 
   This is the Google side of a pair. What answer engines say about you is a different mechanism, covered in [AI search visibility](/services/ai-search-visibility). The result being displaced is very often a community thread, which is where [Reddit marketing](/services/reddit-marketing) does the work, and the most durable brand-search asset of all is discussed honestly in [Wikipedia page creation](/services/wikipedia-page-creation). For what this looks like in practice, see [an online pharmacy whose brand searches returned scam questions](/online-pharmacy) or [a membership brand whose every high-intent search was complaint-led](/holiday-membership).
 faqs:
   - question: "Can you remove a negative result from Google?"
-    answer: "Usually no, and you should be wary of anyone who says otherwise. Google indexes what publishers publish; it removes pages on request only in narrow cases such as court-ordered content, doxxing or clear policy breaches. What works reliably is outranking — putting better, more relevant pages above it — which changes what people see without pretending the page is gone."
+    answer: "Usually no, and you should be wary of anyone who says otherwise. Google indexes what publishers publish; it removes pages on request only in narrow cases such as court-ordered content, doxxing or clear policy breaches. What works reliably is outranking (putting better, more relevant pages above it) which changes what people see without pretending the page is gone."
   - question: "Can Google autocomplete be changed?"
     answer: "Indirectly, and slowly. Predictions come from aggregate search behaviour, so there is no setting to edit and no submission that rewrites them. Predictions that breach Google's published policies can be reported, and the underlying behaviour can shift as more people search for and find something better. Anyone selling a direct autocomplete lever is describing a mechanism that does not exist."
   - question: "What about news articles and court records?"

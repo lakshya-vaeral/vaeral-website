@@ -1,6 +1,6 @@
 ---
 title: "From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack"
-seoTitle: "On-Demand Services App Reputation Recovery — Case Study | Vaeral"
+seoTitle: "On-Demand Services App Reputation Recovery Case Study | Vaeral"
 slug: "on-demand-services-app"
 category: "On-Demand Home Services"
 tags: ["Reputation Recovery", "Competitive Review Attack", "Rating Restoration"]
