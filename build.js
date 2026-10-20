@@ -2225,6 +2225,14 @@ const IMAGE_SCRIPT = `
 // Framer export ships it with a bare `alt`. An image with no accessible name
 // inside a link leaves the link with no name either, so a screen reader reads
 // both as just "link". Naming the image names the link.
+// Framer's export has no main landmark, so assistive tech and agents have no
+// "skip to content" target and no way to tell the page body from the chrome.
+// The hydration root is the right element for it: React renders into that div
+// rather than owning it, so an attribute set here survives hydration.
+function addMainLandmark(html) {
+  return html.split('<div id="main"').join('<div id="main" role="main"');
+}
+
 function nameLogoLinks(html) {
   return html.split('src="/assets/vaeral-logo.svg" alt ').join('src="/assets/vaeral-logo.svg" alt="Vaeral" ');
 }
@@ -2487,10 +2495,11 @@ function writePage(dir, html) {
     : noFramer;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    nameLogoLinks(
-      patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
-    ),
-  );
+    addMainLandmark(
+      nameLogoLinks(
+        patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))),
+      ),
+    );
 }
 
 function copyDir(src, dst) {
@@ -3853,7 +3862,7 @@ function main() {
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(
       indexFile,
-      nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))),
+      addMainLandmark(nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')))),
     );
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
