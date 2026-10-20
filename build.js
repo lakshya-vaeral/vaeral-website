@@ -2807,6 +2807,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
     // schema, so the visible Q&A and the structured data cannot drift apart.
     BODY: restyle(marked.parse(body), BLOG_PRESETS, `blog/${a.slug} body`) + renderFaqs(a.faqs, BLOG_PRESETS),
     JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
       schema.blogPosting({
         site: SITE,
@@ -2900,6 +2901,7 @@ function buildCaseStudy({ attributes: a }) {
     WHATWEDID: restyle(marked.parse(a.whatWeDid || ''), CASE_PRESETS, `case-study/${a.slug} "What We Did"`),
     RESULTS: restyle(marked.parse(a.results || ''), CASE_PRESETS, `case-study/${a.slug} "The Results"`),
     JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       schema.caseStudyArticle({
         site: SITE,
         url,
@@ -2931,22 +2933,6 @@ function buildCaseStudy({ attributes: a }) {
   };
 }
 
-// Service content already stores its workflow as Markdown headings. Reuse those
-// visible steps for HowTo instead of maintaining a second copy in frontmatter.
-function deriveHowToSteps(markdown) {
-  if (!markdown) return [];
-  const steps = [];
-  const headingPattern = /^###\s+(.+?)\s*$([\s\S]*?)(?=^###\s+|(?![\s\S]))/gim;
-  for (const match of markdown.matchAll(headingPattern)) {
-    const text = match[2]
-      .trim()
-      .replace(/\s+/g, ' ')
-      .replace(/\*\*|__|`/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-    if (text) steps.push({ name: match[1].trim(), text });
-  }
-  return steps;
-}
 
 // Service pages and /about reuse the case-study shell rather than introducing new
 // UI. Same three rich-text regions, with the section headings supplied by
@@ -2954,9 +2940,6 @@ function deriveHowToSteps(markdown) {
 function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaType }) {
   const url = `${SITE}/${dir ? `${dir}/` : ''}${a.slug}`;
   const faqHtml = renderFaqs(a.faqs);
-  const howToSteps = Array.isArray(a.howToSteps) && a.howToSteps.length
-    ? a.howToSteps
-    : deriveHowToSteps(a.sectionTwo);
 
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study.html'), 'utf8'), {
     TITLE: escapeHtml(a.title),
@@ -2980,6 +2963,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     // copy — FAQPage schema without visible Q&A breaches Google's policy.
     RESULTS: restyle(marked.parse(a.sectionThree || ''), CASE_PRESETS, `${a.slug} section 3`) + faqHtml,
     JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       schemaType === 'Service'
         ? schema.service({
             site: SITE,
@@ -3013,13 +2997,6 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
           }),
       schemaType === 'AboutPage' ? schema.person(SITE) : null,
       a.faqs && a.faqs.length ? schema.faqPage(a.faqs) : null,
-      schemaType === 'Service'
-        ? schema.howTo({
-            name: `How ${a.title} Works`,
-            description: a.description,
-            steps: howToSteps,
-          })
-        : null,
       schema.breadcrumbList(
         [
           { name: 'Home', url: `${SITE}/` },
@@ -3075,12 +3052,13 @@ function buildCaseStudyIndex(cases) {
     DESCRIPTION: escapeHtml('Explore our portfolio of successful projects and case studies.'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
-    JSONLD: schema.renderJsonLd(
+    JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       schema.breadcrumbList([
         { name: 'Home', url: `${SITE}/` },
         { name: 'Case Studies', url: `${SITE}/casestudies` },
       ]),
-    ),
+    ]),
   });
   writePage(path.join(DIST, 'casestudies'), disableSPARouting(html));
 }
@@ -3119,6 +3097,7 @@ function buildServiceIndex(services) {
     URL: escapeHtml(`${SITE}/services`),
     CASES: cards,
     JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       schema.breadcrumbList([
         { name: 'Home', url: `${SITE}/` },
         { name: 'Services', url: `${SITE}/services` },
@@ -3160,12 +3139,13 @@ function buildBlogIndex(posts) {
     TITLE: escapeHtml('ORM, Reddit & AI Search Insights | Vaeral Blog'),
     URL: escapeHtml(`${SITE}/blog`),
     POSTS: cards,
-    JSONLD: schema.renderJsonLd(
+    JSONLD: schema.renderJsonLd([
+      schema.organization(SITE),
       schema.breadcrumbList([
         { name: 'Home', url: `${SITE}/` },
         { name: 'Blog', url: `${SITE}/blog` },
       ]),
-    ),
+    ]),
   });
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
 }

@@ -16,6 +16,12 @@ export function organization(site) {
     '@id': orgId(site),
     name: 'Vaeral',
     legalName: 'House of Swing',
+    // Search Console records the brand reached as "viral", "wiral", "veeral",
+    // "vairal" and "vrual". Spelling these out gives an answer engine something
+    // to resolve the misspellings against instead of guessing.
+    alternateName: ['Vaeral Media', 'Vaeral ORM'],
+    disambiguatingDescription:
+      'Vaeral (pronounced vay-ral) is an online reputation management agency based in Guwahati, India. It is not related to the words "viral" or "wiral".',
     url: `${site}/`,
     // The real logo asset is an SVG. Google's logo rich result expects a raster
     // image (PNG/JPG) — export one and swap this path if that result is wanted.
@@ -41,7 +47,12 @@ export function organization(site) {
     sameAs: [
       'https://www.linkedin.com/company/vaeral/',
       'https://www.instagram.com/vaeral.media_',
-      // Add these once the profiles are live:
+      'https://www.youtube.com/@vaeral',
+      // Checked 2026-10-21. GoodFirms returns 200 but the page is a soft 404 with
+      // no mention of Vaeral, so it stays out: a sameAs pointing at nothing is a
+      // worse entity signal than a short list. Crunchbase, Clutch and G2 all
+      // answer 403 to any non-browser request, so they cannot be verified from a
+      // script -- open them by hand before uncommenting.
       // 'https://www.crunchbase.com/organization/vaeral',
       // 'https://clutch.co/profile/vaeral',
       // 'https://www.g2.com/sellers/vaeral',
@@ -141,22 +152,6 @@ export function webSite(site) {
     description: 'Online reputation management agency for Reddit, Quora, AI search and review management.',
     publisher: { '@id': orgId(site) },
     inLanguage: 'en',
-  };
-}
-
-export function howTo({ name, description, steps }) {
-  if (!steps || !steps.length) return null;
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'HowTo',
-    name,
-    description,
-    step: steps.map((s, i) => ({
-      '@type': 'HowToStep',
-      position: i + 1,
-      name: s.name,
-      text: s.text,
-    })),
   };
 }
 

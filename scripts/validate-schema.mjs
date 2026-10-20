@@ -13,6 +13,14 @@ import path from 'node:path';
 const DIST = 'dist';
 const CANONICAL_HOST = 'https://www.vaeral.com';
 
+// Types Google has retired. Emitting them is not an error a browser or a
+// validator will show you -- the markup stays valid forever, it just stopped
+// earning anything. HowTo rich results were retired, so the build should refuse
+// to ship it rather than carry it silently on every service page.
+const RETIRED = {
+  HowTo: 'Google retired HowTo rich results. Remove the node.',
+};
+
 const REQUIRED = {
   ProfessionalService: ['@id', 'name', 'url', 'description'],
   BlogPosting: ['@id', 'headline', 'datePublished', 'author', 'publisher', 'mainEntityOfPage'],
@@ -55,6 +63,11 @@ for (const file of htmlFiles(DIST).sort()) {
     for (const node of [].concat(parsed)) {
       const type = node['@type'] || '(untyped)';
       types.push(type);
+
+      if (RETIRED[type]) {
+        console.log(`FAIL ${file}: retired type "${type}" -- ${RETIRED[type]}`);
+        errors++;
+      }
 
       if (node['@id']) declaredIds.add(node['@id']);
       for (const key of ['author', 'publisher']) {
