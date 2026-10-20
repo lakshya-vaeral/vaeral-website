@@ -2040,7 +2040,17 @@ function injectContentStyles(html) {
 const IMAGE_SCRIPT = `
 <script>
 (function(){
+  // The header and footer home links contain nothing but the logo, and Framer
+  // re-renders that image on hydration with an empty alt, so patching the served
+  // HTML does not hold. Naming the anchor instead survives the re-render and
+  // gives both links an accessible name.
+  const nameLogoLinks = () => {
+    // The header link is named "Logo" and the footer one "Logo Wrap".
+    document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+  };
   const observer = new MutationObserver(() => {
+    nameLogoLinks();
     document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
       if(!img.src.includes('/assets/robot_nodes.png')) {
         img.src = '/assets/robot_nodes.png';
@@ -2054,10 +2064,11 @@ const IMAGE_SCRIPT = `
       }
     });
   });
+  nameLogoLinks();
   if (document.body) {
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
   } else {
-    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+    document.addEventListener('DOMContentLoaded', () => { nameLogoLinks(); observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }); });
   }
 })();
 </script>
@@ -2209,6 +2220,14 @@ const IMAGE_SCRIPT = `
 })();
 </script>
 `;
+
+// The logo is the only content of the header and footer home links, and the
+// Framer export ships it with a bare `alt`. An image with no accessible name
+// inside a link leaves the link with no name either, so a screen reader reads
+// both as just "link". Naming the image names the link.
+function nameLogoLinks(html) {
+  return html.split('src="/assets/vaeral-logo.svg" alt ').join('src="/assets/vaeral-logo.svg" alt="Vaeral" ');
+}
 
 function patchImages(html) {
   const replace1 = `<img decoding="async" width="608" height="698" sizes="(min-width: 1280px) 363px, (max-width: 809.98px) 301px, (min-width: 810px) and (max-width: 1279.98px) 239px" src="/assets/robot_nodes.png" alt style="display:block;width:100%;height:100%;border-radius:inherit;corner-shape:inherit;object-position:center;object-fit:contain">`;
@@ -2468,7 +2487,9 @@ function writePage(dir, html) {
     : noFramer;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
+    nameLogoLinks(
+      patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')),
+    ),
   );
 }
 
@@ -3830,7 +3851,10 @@ function main() {
     indexHtml = patchHomepageSeo(indexHtml);
     indexHtml = patchNavHrefs(indexHtml, { isHomepage: true });
     indexHtml = disableSPARouting(indexHtml, true);
-    fs.writeFileSync(indexFile, patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')));
+    fs.writeFileSync(
+      indexFile,
+      nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))),
+    );
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
 

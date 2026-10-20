@@ -1107,7 +1107,17 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
 </script>
 <script>
 (function(){
+  // The header and footer home links contain nothing but the logo, and Framer
+  // re-renders that image on hydration with an empty alt, so patching the served
+  // HTML does not hold. Naming the anchor instead survives the re-render and
+  // gives both links an accessible name.
+  const nameLogoLinks = () => {
+    // The header link is named "Logo" and the footer one "Logo Wrap".
+    document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+  };
   const observer = new MutationObserver(() => {
+    nameLogoLinks();
     document.querySelectorAll('img[width="608"][height="698"]').forEach(img => {
       if(!img.src.includes('/assets/robot_nodes.png')) {
         img.src = '/assets/robot_nodes.png';
@@ -1121,10 +1131,11 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
       }
     });
   });
+  nameLogoLinks();
   if (document.body) {
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
   } else {
-    document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }));
+    document.addEventListener('DOMContentLoaded', () => { nameLogoLinks(); observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] }); });
   }
 })();
 </script>
