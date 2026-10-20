@@ -47,7 +47,10 @@ export function organization(site) {
     sameAs: [
       'https://www.linkedin.com/company/vaeral/',
       'https://www.instagram.com/vaeral.media_',
-      'https://www.youtube.com/@vaeral',
+      // sameAs asserts "this profile IS this organisation". Only ever add a
+      // profile the owner has confirmed is theirs -- a matching name is not
+      // ownership. youtube.com/@vaeral is titled VAERAL and is NOT this company;
+      // it was added on 2026-10-21 and removed the same day.
       // Checked 2026-10-21. GoodFirms returns 200 but the page is a soft 404 with
       // no mention of Vaeral, so it stays out: a sameAs pointing at nothing is a
       // worse entity signal than a short list. Crunchbase, Clutch and G2 all
