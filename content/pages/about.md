@@ -14,8 +14,6 @@ sectionOne: |
 
   The agency was founded in **2020** by **Mayank Sureka** and operates from **Guwahati, Assam, India**, working with brands globally. Vaeral trades as **House of Swing**.
 
-  <!-- TODO: confirm with owner: team size, and 1–2 lines on Mayank's background before this page ships -->
-
   Most marketing spend goes toward what a brand says about itself. Almost none goes toward what everyone else says about it. That second conversation is the one buyers actually check, and increasingly it is the one language models read when someone asks them which company to trust.
 
 sectionTwoHeading: "How we work"
