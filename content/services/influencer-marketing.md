@@ -31,7 +31,7 @@ sectionTwo: |
 
   ### 4. Get disclosure right before publication
 
-  India's ASCI guidelines require a prominent, hard-to-miss disclosure on any paid or barter promotion, and the platforms have their own branded-content rules on top of that. The label belongs where the audience sees it before they form a view, not in the last line of a caption. This gets settled before anything goes live, not after someone asks.
+  India's [ASCI guidelines](https://www.ascionline.in/guidelines/) require a prominent, hard-to-miss disclosure on any paid or barter promotion, and the platforms have their own branded-content rules on top of that. The label belongs where the audience sees it before they form a view, not in the last line of a caption. This gets settled before anything goes live, not after someone asks.
 
   ### 5. Measure against the brief, and against what people search afterwards
 

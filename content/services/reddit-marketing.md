@@ -52,7 +52,7 @@ sectionThree: |
 
 faqs:
   - question: "Can you get a negative Reddit post removed?"
-    answer: "Usually not, and it is rarely the right goal. Only Reddit admins or a subreddit's moderators can remove content, and they do so for rule violations, not because a brand dislikes it. Posts containing genuinely defamatory claims, doxxing or leaked private information can be reported successfully. For ordinary criticism, the workable path is to respond well and to build enough credible surrounding content that one thread stops being the whole story."
+    answer: "Usually not, and it is rarely the right goal. Only Reddit admins or a subreddit's moderators can remove content, and they do so for violations of [Reddit's content policy](https://www.redditinc.com/policies/content-policy) or a subreddit's own rules, not because a brand dislikes it. Posts containing genuinely defamatory claims, doxxing or leaked private information can be reported successfully. For ordinary criticism, the workable path is to respond well and to build enough credible surrounding content that one thread stops being the whole story."
   - question: "Is it against Reddit's rules for a brand to post?"
     answer: "No, provided you are transparent. Reddit prohibits undisclosed coordinated promotion and vote manipulation, not brand participation. Many subreddits explicitly welcome vendors who identify themselves. The rules vary by community, which is why we read each subreddit's policy before participating."
   - question: "How long does Reddit marketing take to show results?"

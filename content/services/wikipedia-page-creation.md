@@ -10,7 +10,7 @@ coverImage: "/assets/og-image.png"
 draft: false
 sectionOneHeading: "What this service is"
 sectionOne: |
-  Wikipedia page creation is the work of establishing whether a company or person qualifies for an article under Wikipedia's notability guidelines, and if so, drafting one that meets its sourcing and neutrality standards and can survive editorial review.
+  Wikipedia page creation is the work of establishing whether a company or person qualifies for an article under [Wikipedia's notability guidelines](https://en.wikipedia.org/wiki/Wikipedia:Notability), and if so, drafting one that meets its sourcing and neutrality standards and can survive editorial review.
 
   The honest framing matters here more than in any other service we offer. **Nobody can guarantee a Wikipedia page.** Wikipedia is written and governed by volunteer editors who apply notability criteria independently, and articles about organisations are among the most frequently rejected and deleted. Any agency promising a guaranteed page is either misunderstanding the process or planning to breach it.
 
