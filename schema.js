@@ -47,17 +47,24 @@ export function organization(site) {
     sameAs: [
       'https://www.linkedin.com/company/vaeral/',
       'https://www.instagram.com/vaeral.media_',
-      // sameAs asserts "this profile IS this organisation". Only ever add a
-      // profile the owner has confirmed is theirs -- a matching name is not
-      // ownership. youtube.com/@vaeral is titled VAERAL and is NOT this company;
-      // it was added on 2026-10-21 and removed the same day.
-      // Checked 2026-10-21. GoodFirms returns 200 but the page is a soft 404 with
-      // no mention of Vaeral, so it stays out: a sameAs pointing at nothing is a
-      // worse entity signal than a short list. Crunchbase, Clutch and G2 all
-      // answer 403 to any non-browser request, so they cannot be verified from a
-      // script -- open them by hand before uncommenting.
-      // 'https://www.crunchbase.com/organization/vaeral',
-      // 'https://clutch.co/profile/vaeral',
+      'https://clutch.co/profile/vaeral',
+      'https://www.crunchbase.com/organization/vaeral',
+      // sameAs asserts "this profile IS this organisation", so a profile only
+      // goes in once it has been opened and seen to describe THIS company.
+      // Checked 2026-10-21, in a real browser where needed:
+      //   Clutch      - real. h1 "Vaeral", "The Reputation Company ... ORM first".
+      //   GoodFirms   - answers 200 but the page is a soft 404 with no mention
+      //                 of Vaeral. A sameAs pointing at nothing is a worse
+      //                 signal than a short list.
+      //   Crunchbase  - sits behind a Cloudflare challenge that will not clear
+      //                 for an automated browser, so it cannot be checked from
+      //                 here. Confirmed by the owner on 2026-10-21, which is the
+      //                 only authority that settles ownership anyway.
+      //   G2          - empty shell, no mention of Vaeral, and a search finds
+      //                 no profile. Treat as non-existent until shown otherwise.
+      //   YouTube     - youtube.com/@vaeral is titled VAERAL and is NOT this
+      //                 company. Added 2026-10-21 and removed the same day.
+      //                 A matching name is not ownership.
       // 'https://www.g2.com/sellers/vaeral',
       // 'https://www.goodfirms.co/company/vaeral',
     ],
