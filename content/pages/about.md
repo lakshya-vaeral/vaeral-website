@@ -34,7 +34,7 @@ sectionTwo: |
 
 sectionThreeHeading: "What we do"
 sectionThree: |
-  Vaeral works across six service areas:
+  Vaeral works across ten service areas:
 
   - **[Reddit Marketing](/services/reddit-marketing)**: credible presence in the threads that rank for your category.
   - **[Quora Marketing](/services/quora-marketing)**: expert answers that own high-intent questions for years.
@@ -42,6 +42,10 @@ sectionThree: |
   - **[LinkedIn Personal Branding](/services/linkedin-personal-branding)**: founder positioning and a sustainable posting voice.
   - **[Review Management](/services/review-management)**: monitoring, solicitation from real customers, and response systems.
   - **[AI Search Visibility](/services/ai-search-visibility)**: being resolvable and citable by answer engines, and measuring it.
+  - **[Brand Search Result Management](/services/brand-search-results)**: displacing unwanted results and shaping the suggestions around your name.
+  - **[Comment Management](/services/comment-management)**: moderation, replies and escalation across social and community platforms.
+  - **[Influencer Marketing](/services/influencer-marketing)**: creator selection, honest briefs and disclosure that meets the rules.
+  - **[App Download and Signup Growth](/services/app-store-growth)**: the ratings, listing and search results people check before installing.
 
   ### Who we work with
 
