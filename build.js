@@ -2853,7 +2853,9 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
           title: a.title,
           description: a.description,
           datePublished: isoDate(a.date),
-          dateModified: isoDate(a.date),
+          // Optional `updated:` in frontmatter. Absent on every page today, which is
+          // deliberate: it must mean a real revision, not a build timestamp.
+          dateModified: isoDate(a.updated || a.date),
           keywords: Array.isArray(a.tags) ? a.tags : [],
         },
       }),
@@ -2947,7 +2949,7 @@ function buildCaseStudy({ attributes: a }) {
           description: a.description,
           category: a.category,
           datePublished: isoDate(a.date),
-          dateModified: isoDate(a.date),
+          dateModified: isoDate(a.updated || a.date),
         },
       }),
       schema.breadcrumbList([
@@ -3027,7 +3029,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
               description: a.description,
               category: a.category,
               datePublished: isoDate(a.date),
-              dateModified: isoDate(a.date),
+              dateModified: isoDate(a.updated || a.date),
             },
             type: schemaType,
           }),

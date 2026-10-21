@@ -48,7 +48,7 @@ sectionThree: |
 
   ### Related work
 
-  See how [a B2B fintech platform recovered from a public outage](/b2b-fintech-platform), or read [handling a viral negative post](/blog/viral-negative).
+  See how [a B2B fintech platform recovered from a public outage](/b2b-fintech-platform), or read [handling a viral negative post](/blog/viral-negative) and [do reputation agencies use bots and fake accounts?](/blog/do-orm-agencies-use-bots).
 
 faqs:
   - question: "Can you remove a negative review?"

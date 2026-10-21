@@ -76,6 +76,7 @@ Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce busi
 ## Blog
 
 - [Full index](https://www.vaeral.com/blog)
+- [Do reputation agencies use bots and fake accounts?](https://www.vaeral.com/blog/do-orm-agencies-use-bots)
 - [How Google AI Overviews choose which sources to cite](https://www.vaeral.com/blog/google-ai-overviews)
 - [How to get cited by ChatGPT](https://www.vaeral.com/blog/how-to-get-cited-by-chatgpt)
 - [How to handle a negative Quora answer about your company](https://www.vaeral.com/blog/negative-quora-answer)

@@ -48,7 +48,7 @@ sectionThree: |
 
   ### Related work & guides
 
-  See how a [premium pet nutrition brand recovered from a Reddit backlash](/premium-pet-nutrition), or read our guides on [how to remove a negative Reddit post from Google](/blog/remove-reddit-post-google), [using Reddit for marketing](/blog/using-reddit-marketing), and [handling a viral negative post](/blog/viral-negative). Explore all client stories in our [Case Studies directory](/casestudies).
+  See how a [premium pet nutrition brand recovered from a Reddit backlash](/premium-pet-nutrition), or read our guides on [how to remove a negative Reddit post from Google](/blog/remove-reddit-post-google), [using Reddit for marketing](/blog/using-reddit-marketing), and [handling a viral negative post](/blog/viral-negative). If you are weighing up providers, [do reputation agencies use bots and fake accounts?](/blog/do-orm-agencies-use-bots) sets out what we will not do and how to vet anyone who says the same. Explore all client stories in our [Case Studies directory](/casestudies).
 
 faqs:
   - question: "Can you get a negative Reddit post removed?"
