@@ -76,6 +76,7 @@ Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce busi
 ## Blog
 
 - [Full index](https://www.vaeral.com/blog)
+- [Why Quora answers get cited by AI search engines](https://www.vaeral.com/blog/quora-ai-citations)
 - [How to get a negative Reddit post removed from Google search results](https://www.vaeral.com/blog/remove-reddit-post-google)
 - [How to use reddit for marketing: A step-by-step guide](https://www.vaeral.com/blog/using-reddit-marketing)
 - [How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide](https://www.vaeral.com/blog/viral-negative)

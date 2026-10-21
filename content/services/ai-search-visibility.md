@@ -52,7 +52,7 @@ sectionThree: |
 
   ### Related work & insights
 
-  Read our in-depth guide on [What is Answer Engine Optimisation (AEO)?](/blog/what-is-aeo), learn [about how we work](/about), explore [Reddit marketing](/services/reddit-marketing), or review our verified client results across all [ORM Case Studies](/casestudies).
+  Read our in-depth guide on [What is Answer Engine Optimisation (AEO)?](/blog/what-is-aeo) and [why Quora answers get cited by AI search engines](/blog/quora-ai-citations), learn [about how we work](/about), explore [Reddit marketing](/services/reddit-marketing), or review our verified client results across all [ORM Case Studies](/casestudies).
 
 faqs:
   - question: "Why does ChatGPT recommend some brands and not others?"
