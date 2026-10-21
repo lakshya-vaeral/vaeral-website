@@ -48,7 +48,7 @@ sectionThree: |
 
   ### Related work
 
-  See how [an Indian e-pharmacy rebuilt trust](/online-pharmacy) when "scam" and "fraud" keywords were ranking alongside its brand name, read [why Quora answers get cited by AI search engines](/blog/quora-ai-citations), or read about [AI search visibility](/services/ai-search-visibility), which Quora content directly feeds.
+  See how [an Indian e-pharmacy rebuilt trust](/online-pharmacy) when "scam" and "fraud" keywords were ranking alongside its brand name. Our guides cover [how to use Quora for marketing](/blog/quora-marketing-guide), [handling a negative Quora answer about your company](/blog/negative-quora-answer), and [why Quora answers get cited by AI search engines](/blog/quora-ai-citations). You can also read about [AI search visibility](/services/ai-search-visibility), which Quora content directly feeds.
 
 faqs:
   - question: "Can you delete a negative Quora answer about my company?"

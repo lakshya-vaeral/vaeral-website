@@ -574,13 +574,18 @@
     }
   }
   /* Code, for the same reason as tables: the export has no rules for it, so a snippet from
-     the CMS would render as unspaced body text. Colour comes from the preset. */
+     the CMS would render as unspaced body text.
+     Colour does NOT come from the preset, despite what this comment used to claim. The
+     export's colour rules are p-qualified, so code inherited black on the near-black page
+     and rendered at 1.01:1 — invisible, and caught by render-check only once a post
+     actually used backticks. Same fix as th/td: consume the design's own variable. */
   [data-framer-component-type="RichTextContainer"] code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.9em;
     background: rgba(255, 255, 255, 0.07);
     padding: 0.15em 0.4em;
     border-radius: 4px;
+    color: var(--framer-text-color, #deddff);
   }
   [data-framer-component-type="RichTextContainer"] pre {
     background: rgba(255, 255, 255, 0.05);
@@ -589,6 +594,7 @@
     padding: 12px 14px;
     margin: 16px 0;
     overflow-x: auto;
+    color: var(--framer-text-color, #deddff);
   }
   [data-framer-component-type="RichTextContainer"] pre code {
     background: none;
@@ -763,7 +769,7 @@
 <h3 class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))"><strong class="framer-text">An honest note on measurement</strong></h3>
 <p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">Answer engines are non-deterministic: the same prompt can return different answers on different days. We report mention rates across repeated runs and multiple models rather than single-run screenshots, because a screenshot proves nothing. We use this method on our own visibility too.</p>
 <h3 class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))"><strong class="framer-text">Related work &amp; insights</strong></h3>
-<p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">Read our in-depth guide on <a href="/blog/what-is-aeo" class="framer-text" target="_blank" rel="noopener">What is Answer Engine Optimisation (AEO)?</a> and <a href="/blog/quora-ai-citations" class="framer-text" target="_blank" rel="noopener">why Quora answers get cited by AI search engines</a>, learn <a href="/about" class="framer-text" target="_blank" rel="noopener">about how we work</a>, explore <a href="/services/reddit-marketing" class="framer-text" target="_blank" rel="noopener">Reddit marketing</a>, or review our verified client results across all <a href="/casestudies" class="framer-text" target="_blank" rel="noopener">ORM Case Studies</a>.</p>
+<p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">Read our in-depth guide on <a href="/blog/what-is-aeo" class="framer-text" target="_blank" rel="noopener">What is Answer Engine Optimisation (AEO)?</a>, or the platform-specific breakdowns: <a href="/blog/how-to-get-cited-by-chatgpt" class="framer-text" target="_blank" rel="noopener">how to get cited by ChatGPT</a>, <a href="/blog/google-ai-overviews" class="framer-text" target="_blank" rel="noopener">how Google AI Overviews choose their sources</a>, <a href="/blog/track-brand-mentions-ai-search" class="framer-text" target="_blank" rel="noopener">how to track whether AI engines mention your brand</a>, and <a href="/blog/quora-ai-citations" class="framer-text" target="_blank" rel="noopener">why Quora answers get cited by AI search engines</a>. You can also learn <a href="/about" class="framer-text" target="_blank" rel="noopener">about how we work</a>, explore <a href="/services/reddit-marketing" class="framer-text" target="_blank" rel="noopener">Reddit marketing</a>, or review our verified client results across all <a href="/casestudies" class="framer-text" target="_blank" rel="noopener">ORM Case Studies</a>.</p>
 <h2 class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))"><strong class="framer-text">Frequently asked questions</strong></h2>
 <h3 class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))"><strong class="framer-text">Why does ChatGPT recommend some brands and not others?</strong></h3>
 <p class="framer-text framer-styles-preset-hj0x3x" data-styles-preset="G4spYZp3J" dir="auto" style="--framer-text-color:var(--token-05f7c79d-9f6d-455d-9542-2f5b1e17e42e, rgb(222, 221, 255))">Largely because it can resolve them confidently and its sources mention them. Models favour entities with consistent, corroborated facts across independent places: a site that identifies itself clearly, plus directories, community discussion and coverage that agree with each other. Brands that are absent from those sources, or described inconsistently across them, tend not to be named even when they are a good fit.</p>

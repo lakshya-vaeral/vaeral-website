@@ -574,13 +574,18 @@
     }
   }
   /* Code, for the same reason as tables: the export has no rules for it, so a snippet from
-     the CMS would render as unspaced body text. Colour comes from the preset. */
+     the CMS would render as unspaced body text.
+     Colour does NOT come from the preset, despite what this comment used to claim. The
+     export's colour rules are p-qualified, so code inherited black on the near-black page
+     and rendered at 1.01:1 — invisible, and caught by render-check only once a post
+     actually used backticks. Same fix as th/td: consume the design's own variable. */
   [data-framer-component-type="RichTextContainer"] code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.9em;
     background: rgba(255, 255, 255, 0.07);
     padding: 0.15em 0.4em;
     border-radius: 4px;
+    color: var(--framer-text-color, #deddff);
   }
   [data-framer-component-type="RichTextContainer"] pre {
     background: rgba(255, 255, 255, 0.05);
@@ -589,6 +594,7 @@
     padding: 12px 14px;
     margin: 16px 0;
     overflow-x: auto;
+    color: var(--framer-text-color, #deddff);
   }
   [data-framer-component-type="RichTextContainer"] pre code {
     background: none;

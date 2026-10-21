@@ -76,8 +76,13 @@ Vaeral works with D2C brands, SaaS companies, fintech platforms, e-commerce busi
 ## Blog
 
 - [Full index](https://www.vaeral.com/blog)
+- [How Google AI Overviews choose which sources to cite](https://www.vaeral.com/blog/google-ai-overviews)
+- [How to get cited by ChatGPT](https://www.vaeral.com/blog/how-to-get-cited-by-chatgpt)
+- [How to handle a negative Quora answer about your company](https://www.vaeral.com/blog/negative-quora-answer)
 - [Why Quora answers get cited by AI search engines](https://www.vaeral.com/blog/quora-ai-citations)
+- [How to use Quora for marketing: a step-by-step guide](https://www.vaeral.com/blog/quora-marketing-guide)
 - [How to get a negative Reddit post removed from Google search results](https://www.vaeral.com/blog/remove-reddit-post-google)
+- [How to track whether AI engines mention your brand](https://www.vaeral.com/blog/track-brand-mentions-ai-search)
 - [How to use reddit for marketing: A step-by-step guide](https://www.vaeral.com/blog/using-reddit-marketing)
 - [How to Deal with a Viral Negative Post for your Brand on Reddit: A Practical ORM Guide](https://www.vaeral.com/blog/viral-negative)
 - [What is Answer Engine Optimisation (AEO) and how is it different from SEO?](https://www.vaeral.com/blog/what-is-aeo)
