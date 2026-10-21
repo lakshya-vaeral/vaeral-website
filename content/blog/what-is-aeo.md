@@ -3,6 +3,7 @@ title: What is Answer Engine Optimisation (AEO) and how is it different from SEO
 seoTitle: What is Answer Engine Optimisation (AEO)? | Vaeral
 slug: what-is-aeo
 date: 2026-08-21
+updated: 2026-10-21
 description: AEO is the practice of structuring content so AI engines like
   ChatGPT, Perplexity and Google AI Overviews extract and cite it. Here is how
   it differs from traditional SEO, and what Google says about it.
