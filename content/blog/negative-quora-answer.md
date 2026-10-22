@@ -3,9 +3,7 @@ title: "How to handle a negative Quora answer about your company"
 seoTitle: "Negative Quora Answer About Your Company? | Vaeral"
 slug: negative-quora-answer
 date: 2026-10-21
-description: You cannot delete someone else's Quora answer, and reporting one
-  that breaks no rule will fail. What works is changing what the whole page
-  says. Here is the practical sequence.
+description: You cannot delete someone else's Quora answer, and reporting one that breaks no rule will fail. What works is changing what the whole page says.
 coverImage: /assets/blog-viral-negative.jpg
 draft: false
 tags:

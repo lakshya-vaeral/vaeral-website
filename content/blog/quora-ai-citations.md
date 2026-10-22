@@ -3,9 +3,7 @@ title: "Why Quora answers get cited by AI search engines"
 seoTitle: "Quora and AI Citations: Why Answers Get Cited | Vaeral"
 slug: quora-ai-citations
 date: 2026-10-21
-description: Quora is the sixth most-cited domain in Google AI Overviews, and
-  most cited pages no longer rank in the organic top ten. That makes a Quora
-  answer a route into AI answers that does not depend on your own rankings.
+description: Quora is the sixth most-cited domain in Google AI Overviews, and most cited pages no longer rank top ten. A route in that your own rankings do not gate.
 coverImage: /assets/blog-reddit-marketing.jpg
 draft: false
 tags:

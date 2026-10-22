@@ -3,9 +3,7 @@ title: "How to get cited by ChatGPT"
 seoTitle: "How to Get Cited by ChatGPT | Vaeral"
 slug: how-to-get-cited-by-chatgpt
 date: 2026-10-21
-description: Most advice about ChatGPT citations gets the crawler wrong. The bot
-  that decides whether ChatGPT can cite you is not the one most sites block.
-  Here is what actually governs it.
+description: Most advice gets the crawler wrong. The bot deciding whether ChatGPT can cite you is not the one most sites block. Here is what actually governs it.
 coverImage: /assets/blog-reddit-marketing.jpg
 draft: false
 tags:

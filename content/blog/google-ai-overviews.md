@@ -3,9 +3,7 @@ title: "How Google AI Overviews choose which sources to cite"
 seoTitle: "How Google AI Overviews Choose Sources | Vaeral"
 slug: google-ai-overviews
 date: 2026-10-21
-description: More than a third of pages cited in AI Overviews do not rank in the
-  top 100 for the query. Here is what the data shows about source selection,
-  and which Google control actually governs it.
+description: More than a third of pages cited in AI Overviews do not rank in the top 100. What decides source selection, and which Google control actually governs it.
 coverImage: /assets/blog-reddit-marketing.jpg
 draft: false
 tags:

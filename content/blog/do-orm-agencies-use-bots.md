@@ -3,9 +3,7 @@ title: "Do reputation agencies use bots and fake accounts?"
 seoTitle: "Do Reputation Agencies Use Bots? | Vaeral"
 slug: do-orm-agencies-use-bots
 date: 2026-10-21
-description: Some do, and it is the fastest way to make a reputation problem
-  permanent. What the platforms actually prohibit, why manipulation backfires
-  mechanically rather than morally, and how to vet an agency before you hire it.
+description: Some do, and it is the fastest way to make a reputation problem permanent. What platforms actually prohibit, and how to vet an agency before hiring one.
 coverImage: /assets/blog-viral-negative.jpg
 draft: false
 tags:

@@ -3,9 +3,7 @@ title: "How to track whether AI engines mention your brand"
 seoTitle: "How to Track Brand Mentions in AI Search | Vaeral"
 slug: track-brand-mentions-ai-search
 date: 2026-10-21
-description: There is no native dashboard for AI citations, and the attribution
-  is genuinely poor. Here is what you can measure honestly, and what no tool
-  can currently tell you.
+description: There is no native dashboard for AI citations and the attribution is poor. What you can measure honestly, and what no tool can currently tell you.
 coverImage: /assets/blog-reddit-marketing.jpg
 draft: false
 tags:
