@@ -48,7 +48,7 @@ Two readings follow, and both matter. Holding position three no longer reserves 
 
 ## Which domains get cited
 
-[Ahrefs' September 2026 ranking of the most-cited domains](https://ahrefs.com/blog/most-cited-domains-ai-overviews/), across more than three million US queries, is topped by YouTube at 22.9% of citations. Quora sits sixth at 4.7%.
+[Ahrefs' September 2026 ranking of the most-cited domains](https://ahrefs.com/blog/most-cited-domains-ai-overviews/), across more than three million US queries, is topped by YouTube on a 22.9% mention share, with Quora sixth on 4.7%. Ahrefs measures mention share against the combined citations of the top 50 sources, not against every citation.
 
 The pattern is that platforms where identifiable people answer questions are quoted out of all proportion to a single company website. That is partly a format effect and partly a corroboration effect, and we cover the Quora case in [why Quora answers get cited by AI search engines](/blog/quora-ai-citations).
 

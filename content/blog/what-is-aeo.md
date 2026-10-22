@@ -27,7 +27,7 @@ faqs:
   - question: Does a page have to rank well to be cited by AI?
     answer: Not any more. Ahrefs found in March 2026 that only 37.1% of URLs cited
       in Google AI Overviews also ranked in the organic top ten for the same
-      query, down from 76% in its previous analysis. Ranking still helps, but it
+      query, down from 76% in its previous analysis, which used a different parsing method. Ranking still helps, but it
       is no longer the gate it was.
   - question: Do we need an llms.txt file for AEO?
     answer: Not for Google. Google's AI optimisation guidance says you do not need
@@ -61,7 +61,7 @@ For dedicated implementation, see how our [AI Search Visibility service](/servic
 
 This is the part that genuinely changed, and it is measurable.
 
-In 2025, being cited in an AI Overview mostly meant you already ranked. By 2026 that had stopped being true: [Ahrefs' March 2026 study of 863,000 search results pages and four million AI Overview URLs](https://ahrefs.com/blog/ai-overview-citations-top-10) found only 37.1% of cited URLs also ranked in the organic top ten for the same query, down from 76% in its previous analysis.
+In 2025, being cited in an AI Overview mostly meant you already ranked. By 2026 that had stopped being true: [Ahrefs' March 2026 study of 863,000 search results pages and four million AI Overview URLs](https://ahrefs.com/blog/ai-overview-citations-top-10) found only 37.1% of cited URLs also ranked in the organic top ten for the same query, down from 76% in its previous analysis, which used a different parsing method.
 
 Ranking well still helps. It is no longer the gate it was, which is why a page can be pulled into an answer without winning the blue links, and why a page can own the blue links and never be quoted.
 
@@ -81,7 +81,7 @@ The formats most useful for answer extraction are:
 4. **Comparison content**, where "X versus Y" pages answer evaluation queries.
 5. **Statistics with sources**, because cited figures are more trustworthy than unsupported claims.
 
-Format is not the whole story. In [Ahrefs' September 2026 ranking of the most-cited domains in AI Overviews](https://ahrefs.com/blog/most-cited-domains-ai-overviews/), YouTube took 22.9% of citations and Quora was sixth at 4.7%. Platforms where real people answer questions are quoted heavily, which is a point about where the answer sits as much as how it is written. We cover that in detail in [why Quora answers get cited by AI search engines](/blog/quora-ai-citations).
+Format is not the whole story. In [Ahrefs' September 2026 ranking of the most-cited domains in AI Overviews](https://ahrefs.com/blog/most-cited-domains-ai-overviews/), YouTube led on a 22.9% mention share and Quora was sixth on 4.7%, each measured against the combined citations of the top 50 sources. Platforms where real people answer questions are quoted heavily, which is a point about where the answer sits as much as how it is written. We cover that in detail in [why Quora answers get cited by AI search engines](/blog/quora-ai-citations).
 
 ## What does not work
 
@@ -95,7 +95,7 @@ Worth saying plainly, because a lot of AEO advice sells it.
 
 Entity building is the off-site component. AI engines synthesise information from many sources. When LinkedIn, directories, press coverage and the company website agree on the same description, an engine has stronger evidence for identifying and recommending the brand.
 
-This is usually the real constraint. A site can be perfectly structured and still go uncited because nothing outside it corroborates what it says. It connects into broader [Brand Search Result and Autocomplete Management](/services/brand-search-results). Learn more about our approach on the [About Vaeral page](/about) and explore our verified client outcomes in our [ORM Case Studies](/casestudies).
+This is usually the real constraint. A site can be perfectly structured and still go uncited because nothing outside it corroborates what it says. It connects into broader [Brand Search Result and Autocomplete Management](/services/brand-search-results). Learn more about our approach on the [About Vaeral page](/about) and explore our client outcomes in our [ORM Case Studies](/casestudies).
 
 ## How do you measure AEO performance?
 

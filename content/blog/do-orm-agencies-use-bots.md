@@ -18,10 +18,10 @@ faqs:
       with every legitimate contribution attached to it. We do not use bot
       accounts, sockpuppets or vote services.
   - question: Is brand participation on Reddit against the rules?
-    answer: No, provided it is transparent. Reddit's content policy prohibits
-      undisclosed coordinated promotion and vote manipulation, not brands taking
-      part. Many subreddits welcome a company that answers questions honestly and
-      says who it is.
+    answer: No, provided it is transparent. Reddit's rules ask you to participate
+      authentically and not to engage in content manipulation. They do not bar
+      brands from taking part. Many subreddits welcome a company that answers
+      questions honestly and says who it is.
   - question: Do I have to say I work for the company?
     answer: On Quora, yes, explicitly. Its policy is that a user should disclose any
       relevant affiliation in the answer or in the credential shown with it. On
@@ -47,7 +47,7 @@ The argument against manipulation here is mechanical, not moral. It does not wor
 
 The rules are narrower than most brands assume, and the distinction matters.
 
-[Reddit's content policy](https://www.redditinc.com/policies/content-policy) prohibits vote manipulation and undisclosed coordinated promotion. It does not prohibit companies taking part. A brand that answers a question in its own name, in a subreddit that permits it, is doing something explicitly allowed.
+[Reddit's rules](https://redditinc.com/policies/reddit-rules) tell you to "participate authentically in communities where you have a personal interest", and not to "spam or engage in disruptive behaviors (including content manipulation)". They do not prohibit companies taking part. A brand that answers a question in its own name, in a subreddit that permits it, is doing something explicitly allowed.
 
 On Quora the bar is stated directly: [a user should disclose any relevant affiliations explicitly in an answer or in the credential that appears with the answer](https://help.quora.com/hc/en-us/articles/360055133711-What-is-Quora-s-policy-on-disclosing-affiliations-in-answers).
 

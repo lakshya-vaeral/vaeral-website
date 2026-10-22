@@ -90,7 +90,7 @@ This is ordinary [Answer Engine Optimisation](/blog/what-is-aeo) rather than any
 
 A model assembling an answer about your company weighs whether independent sources agree. One website asserting something about itself is the weakest possible evidence, however well marked up.
 
-This is why community platforms matter out of proportion to their traffic. In [Ahrefs' September 2026 analysis](https://ahrefs.com/blog/most-cited-domains-ai-overviews/) YouTube took 22.9% of AI Overview citations and Quora sixth place at 4.7%. The pattern is that places where identifiable people answer questions get quoted heavily. We cover the Quora side of that in [why Quora answers get cited by AI search engines](/blog/quora-ai-citations).
+This is why community platforms matter out of proportion to their traffic. In [Ahrefs' September 2026 analysis](https://ahrefs.com/blog/most-cited-domains-ai-overviews/) YouTube led on a 22.9% mention share and Quora was sixth on 4.7%, each measured against the combined citations of the top 50 sources. The pattern is that places where identifiable people answer questions get quoted heavily. We cover the Quora side of that in [why Quora answers get cited by AI search engines](/blog/quora-ai-citations).
 
 Off-site corroboration is the slow part and usually the real constraint. It is the bulk of what our [AI Search Visibility service](/services/ai-search-visibility) actually does.
 

@@ -42,13 +42,13 @@ faqs:
       answer is edited or the question is merged.
 ---
 
-**Quora is the sixth most-cited domain in Google AI Overviews**, with a 4.7% share of citations across more than three million US queries in [Ahrefs' September 2026 analysis](https://ahrefs.com/blog/most-cited-domains-ai-overviews/). YouTube leads at 22.9%.
+**Quora is the sixth most-cited domain in Google AI Overviews**, with a 4.7% mention share, measured against the combined citations of the top 50 sources, across more than three million US queries in [Ahrefs' September 2026 analysis](https://ahrefs.com/blog/most-cited-domains-ai-overviews/). YouTube leads at 22.9%.
 
 That is interesting on its own. It becomes useful because of a second finding: AI engines increasingly cite pages that are not ranking well.
 
 ## Why does being cited no longer require ranking?
 
-In 2025, being cited in an AI Overview mostly meant you already ranked. By 2026 that had stopped being true: [Ahrefs' March 2026 study of 863,000 search results pages and four million AI Overview URLs](https://ahrefs.com/blog/ai-overview-citations-top-10) found only 37.1% of cited URLs also ranked in the organic top ten for the same query, down from 76% in its previous analysis.
+In 2025, being cited in an AI Overview mostly meant you already ranked. By 2026 that had stopped being true: [Ahrefs' March 2026 study of 863,000 search results pages and four million AI Overview URLs](https://ahrefs.com/blog/ai-overview-citations-top-10) found only 37.1% of cited URLs also ranked in the organic top ten for the same query, down from 76% in its previous analysis, which used a different parsing method.
 
 The practical reading is that the AI answer and the ten blue links are no longer the same contest. A page can be pulled into an answer without winning the ranking, and a page can win the ranking and never be pulled in.
 

@@ -89,7 +89,7 @@ This is slow. It is measured in months, and anyone offering it in days is descri
 
 ## What never to do
 
-**Do not mass downvote.** [Reddit's content policy](https://www.redditinc.com/policies/content-policy) prohibits vote manipulation. It is detectable, and enforcement can reach the brand's domain rather than just the accounts.
+**Do not mass downvote.** [Reddit's rules](https://redditinc.com/policies/reddit-rules) bar "disruptive behaviors (including content manipulation)". It is detectable, and enforcement can reach the brand's domain rather than just the accounts.
 
 **Do not ask moderators to remove accurate criticism.** Moderators talk to each other. The thread about a brand trying to suppress a complaint travels considerably further than the complaint.
 
