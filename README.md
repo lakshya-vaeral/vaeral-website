@@ -49,3 +49,21 @@ dev flow is documented in [docs/CMS-PLAN.md](docs/CMS-PLAN.md) §10.
 
 Deployed on **Vercel**; source of truth is this Git repo. Pushing to `main` triggers a
 rebuild. CMS work happens on the `feature/proper-cms` branch.
+
+## After publishing new or changed pages
+
+Vercel runs `npm run build`, which does **not** notify any search engine. Two pings are
+manual, and both are worth doing when a page is added or substantially rewritten:
+
+```bash
+npm run deploy     # verify, then submit every sitemap URL to IndexNow
+```
+
+That covers Bing, Yandex, Seznam and Naver. Run it locally *after* the Vercel deploy is
+live, because IndexNow fetches the URLs it is given.
+
+**Google does not participate in IndexNow.** Its Indexing API is restricted to
+JobPosting/BroadcastEvent, so Google is notified by hand in Search Console: resubmit
+`https://www.vaeral.com/sitemap.xml` under *Indexing → Sitemaps*, and for a rewritten page
+that is already indexed, use *URL Inspection → Request Indexing*, since a sitemap alone
+will not pull a re-crawl forward.

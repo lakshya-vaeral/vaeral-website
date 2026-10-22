@@ -9,6 +9,7 @@
     "check": "node scripts/validate-schema.mjs && node scripts/check-content.mjs",
     "check:render": "node scripts/render-check.mjs",
     "verify": "npm run build && npm run check && npm run check:render",
+    "deploy": "npm run verify && node scripts/indexnow-submit.mjs",
     "health": "node scripts/health-check.mjs"
   },
   "dependencies": {
