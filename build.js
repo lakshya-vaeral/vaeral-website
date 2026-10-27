@@ -3855,8 +3855,37 @@ function main() {
 })();
 <\/script>
 `;
+    // The hero graphic ("Header Assets", .framer-byxt38) is the LCP element at every width, and
+    // the export ships it at opacity:0 with a "Layer in view" appear effect: fade to 1 over 0.5s,
+    // ease [.44,0,.56,1], no delay, once. That effect is not one of Framer's optimised appear
+    // animations (no data-framer-appear-id), so only the hydrated runtime can start it — about
+    // 700KB of JS later. Measured: the image is downloaded by 160ms and then waits 1.7s to paint
+    // on a fast connection, and Lighthouse's phone simulation turns that into a 12s LCP.
+    //
+    // The same fade, run by CSS from first paint instead. An animation outranks the inline
+    // opacity:0, and with fill "both" it keeps outranking it after it ends, so when the runtime
+    // later animates the inline opacity 0 -> 1 there is nothing to see. Opacity only: the 13deg
+    // tilt and the rest of the inline style are untouched.
+    //
+    // Only the server-rendered element is marked. On a phone, hydration swaps in a NEW
+    // .framer-byxt38 (measured: two element instances, the swap ~9s in at 4x CPU) and an unscoped
+    // animation restarts on it, so the graphic blinks out and fades in a second time. The
+    // replacement is already in view and the fade already played, so it is simply shown. Desktop
+    // hydration keeps the original node, marker and all.
+    const heroRevealStyle = `
+<style>
+  @keyframes vaeral-hero-in { from { opacity: 0; } to { opacity: 1; } }
+  .framer-byxt38[data-vaeral-hero] { animation: vaeral-hero-in 0.5s cubic-bezier(0.44, 0, 0.56, 1) both; }
+  .framer-byxt38:not([data-vaeral-hero]) { opacity: 1 !important; }
+</style>
+`;
+    const HERO_OPEN = '<div class="framer-byxt38" data-framer-name="Header Assets"';
+    if (indexHtml.split(HERO_OPEN).length !== 2) {
+      throw new Error('hero reveal: expected exactly one Header Assets element — the export changed shape');
+    }
+    indexHtml = indexHtml.replace(HERO_OPEN, `${HERO_OPEN} data-vaeral-hero`);
     if (indexHtml.includes('</head>')) {
-      indexHtml = indexHtml.replace('</head>', preloads + desktopEagerScript + '</head>');
+      indexHtml = indexHtml.replace('</head>', preloads + desktopEagerScript + heroRevealStyle + '</head>');
     }
 
     indexHtml = lazyLoadBelowFold(indexHtml);
