@@ -172,6 +172,21 @@ function stripFramerPageRuntime(html) {
   return html.replace(re, '<!-- framer page-render runtime removed: it discards injected CMS content -->');
 }
 
+// The "Go back" button's arrow is a Framer Phosphor icon that only the runtime draws, into an
+// empty <div style="display:contents">. With the runtime stripped above, the arrow never showed
+// at any width and "Go back" sat after a blank 16px gap. This is the same icon, inlined: CaretLeft,
+// weight bold, path from framer.com/m/phosphor-icons/CaretLeft.js@0.0.57, colour token from the
+// button component (JRXooJ7jw). Its hover colour is in INTERACTION_STYLES.
+const BACK_ICON_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" focusable="false" aria-hidden="true" ' +
+  'style="display:block;width:100%;height:100%;fill:var(--token-d072d1f5-ef86-4b7c-bae1-6c9f6238e10b, rgb(204, 204, 204))">' +
+  '<path d="M168.49,199.51a12,12,0,0,1-17,17l-80-80a12,12,0,0,1,0-17l80-80a12,12,0,0,1,17,17L97,128Z"/></svg>';
+
+function restoreBackIcon(html) {
+  const empty = '<div class="framer-krllin-container"><div style="display:contents"></div></div>';
+  if (!html.includes(empty)) throw new Error('back icon: empty icon slot not found — the export changed shape');
+  return html.split(empty).join(`<div class="framer-krllin-container">${BACK_ICON_SVG}</div>`);
+}
 
 // The export explicitly kills the focus ring on its form fields:
 //
@@ -337,6 +352,10 @@ const INTERACTION_STYLES = `
     a[data-framer-name="In-Active"]:hover,
     a.framer-oc284j:hover {
       filter: brightness(1.35);
+    }
+    /* The back arrow's own hover colour, from the button component's hover variant. */
+    a.framer-oc284j:hover .framer-krllin-container svg {
+      fill: var(--token-55fce8bf-ab86-42dc-8b77-6335cf9cf588, rgb(255, 255, 255));
     }
   }
   a[data-framer-name="Primary"]:focus-visible,
@@ -2979,7 +2998,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
+  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html))))));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -3066,7 +3085,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ].filter(Boolean)),
   });
 
-  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(stripFramerPageRuntime(disableSPARouting(html)))));
+  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html))))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   // `category` is the short label ("Comment Management") as opposed to the full page title
   // ("Comment Management for Social and Community Platforms"). The homepage services grid needs
