@@ -458,7 +458,6 @@ re-verified on 2026-10-28 against the Vercel API and the live site:
   (2026-09-09). The check is wrong, not the site.
 - About 47 one-off scripts have collected at the root again since the Phase 1 cleanup, plus the
   legacy `blog/` folder. Nothing imports them.
-- The top half of `README.md` and the header comment in `build.js` still describe the July state.
 
 ## 10. Running locally
 

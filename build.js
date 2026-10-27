@@ -1,15 +1,20 @@
-// Vaeral CMS build pipeline (Phase 4).
+// Vaeral build pipeline.
 //
 // Reads structured content (Markdown + frontmatter) from content/ and renders it
 // into the Framer-exported page templates by replacing explicit <!--CMS:*--> markers.
 // NO text-matching content injection (the old build_blog.js "Reddit has a way" hack is gone).
 //
-//   content/blog/<slug>.md          -> dist/blog/<slug>/index.html
-//   content/case-studies/<slug>.md  -> dist/<slug>/index.html   (top-level, matches homepage links)
-//   (all non-draft blog posts)      -> dist/blog/index.html      (listing)
+//   content/blog/<slug>.md          -> dist/blog/<slug>/index.html   (templates/blog.html)
+//   content/case-studies/<slug>.md  -> dist/<slug>/index.html        (templates/case-study.html, top level)
+//   content/services/<slug>.md      -> dist/services/<slug>/index.html  (same template)
+//   content/pages/<slug>.md         -> dist/<slug>/index.html        (same template; today /about)
+//   listings                        -> dist/blog, dist/casestudies, dist/services
+//   also                            -> sitemap.xml, robots.txt, llms.txt, the IndexNow key
 //
-// The homepage (dist/index.html) is NOT touched here — it is the deployed Framer export
-// and is out of CMS scope. public/assets is synced into dist/assets so CMS image uploads ship.
+// The homepage is the Framer export in the root index.html: it is copied into dist/ and then
+// patched (SEO head, the services section, team wheel, forms, nav, phone and speed fixes) at the
+// end of this file. public/assets and public/admin are copied into dist/ so CMS uploads and the
+// editor ship.
 
 import fs from 'node:fs';
 import path from 'node:path';

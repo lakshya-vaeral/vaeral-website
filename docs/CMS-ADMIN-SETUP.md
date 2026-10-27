@@ -8,7 +8,7 @@ Code lives in `public/admin/` (the editor) and `api/auth.js` + `api/callback.js`
 ## How it works
 
 ```
-Marketer → vaeral.com/admin  (Decap CMS, public/admin/index.html + config.yml)
+Marketer → www.vaeral.com/admin  (Decap CMS, public/admin/index.html + config.yml)
   → "Login with GitHub" → popup to /api/auth
   → /api/auth redirects to GitHub authorize (asks for `repo` scope)
   → GitHub → /api/callback?code=… → exchanges code for token (uses client secret)
@@ -29,8 +29,11 @@ GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**
 | Field | Value |
 |---|---|
 | Application name | `Vaeral CMS` (any name) |
-| Homepage URL | `https://vaeral.com` |
-| Authorization callback URL | `https://vaeral.com/api/callback` |
+| Homepage URL | `https://www.vaeral.com` |
+| Authorization callback URL | `https://www.vaeral.com/api/callback` |
+
+Use the `www` host. The apex `vaeral.com` redirects to `www`, and an apex callback broke the
+OAuth handshake with a cross-origin block (fixed in `3af51bd`, 2026-07-15).
 
 Click **Register application**, then **Generate a new client secret**. Copy the
 **Client ID** and **Client secret** (the secret is shown once).
@@ -47,8 +50,9 @@ Vercel project → **Settings → Environment Variables** (Production + Preview)
 | `OAUTH_GITHUB_CLIENT_ID` | the Client ID from step 1 |
 | `OAUTH_GITHUB_CLIENT_SECRET` | the Client secret from step 1 |
 
-Redeploy so the functions pick them up. (The old `ADMIN_PASSWORD`, `GITHUB_PAT`,
-`GITHUB_REPO` vars from the legacy CMS are no longer used and can be deleted.)
+Redeploy so the functions pick them up. (The legacy CMS's `ADMIN_PASSWORD`, `GITHUB_PAT` and
+`GITHUB_REPO` have been deleted; checked 2026-10-28. The `GMAIL_*` variables belong to the site's
+forms, not the CMS.)
 
 ### 3. Add the marketer as a repo collaborator
 
@@ -56,25 +60,24 @@ GitHub repo → **Settings → Collaborators → Add people** → invite the mar
 GitHub account with **Write** access. They sign into `/admin` with that account.
 Write access to the repo is what authorizes them to publish.
 
-## Branch / cutover note
+## Branch: publishing goes live immediately
 
-`config.yml` `backend.branch` is currently **`feature/proper-cms`** so the CMS can
-be tested before the new system is merged to production. Vercel's *production*
-deploy builds `main`, so until this branch is merged, edits made in the CMS land
-on `feature/proper-cms` and show up on that branch's **preview** deployment, not
-on `vaeral.com`. At cutover (Phase 6): merge to `main`, then flip
-`backend.branch` to `main`.
+Since the July cutover `config.yml` has `backend.branch: main` and
+`base_url: https://www.vaeral.com`. Decap's editorial workflow is off, so **Publish** commits
+straight to `main`, and Vercel deploys `main` to production. There is no draft or review step in
+between; the only safety net is the entry's **Draft** checkbox, which keeps it off the site.
 
 ## Testing on a Vercel preview (before production DNS)
 
 The OAuth callback URL is host-specific. To test on a preview URL
-(`https://<deployment>.vercel.app`) instead of `vaeral.com`:
+(`https://<deployment>.vercel.app`) instead of `www.vaeral.com`:
 
 1. Add a second **Authorization callback URL** to the OAuth App:
    `https://<deployment>.vercel.app/api/callback` (GitHub OAuth Apps allow one
    callback per app — either create a separate "Vaeral CMS (preview)" OAuth App,
    or temporarily switch the callback URL).
-2. Set `backend.base_url` in `config.yml` to that preview origin.
+2. Set `backend.base_url` in `config.yml` to that preview origin, **and** `backend.branch` to the
+   preview's branch. Left on `main`, anything published while testing goes straight to production.
 3. Visit `https://<deployment>.vercel.app/admin`.
 
 `/api/auth` builds its `redirect_uri` from the request host automatically, so the
