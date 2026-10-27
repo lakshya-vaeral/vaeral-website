@@ -1,9 +1,12 @@
 # Vaeral CMS — Implementation Plan
 
-**Status:** Approved; Phases 1–5 DONE (Phase 5: 2026-06-29 — Decap CMS live + tested on the Vercel branch deploy). Phase 6 (cutover to `main`/`vaeral.com`) remaining. **Branch:** `feature/proper-cms` (all work here, never `main`).
-**Editor end-user:** non-technical marketer. **Last updated:** 2026-06-29.
-**Workflow:** atomic Conventional Commits, commit early/often, no AI signature, keep this plan updated
-each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices).
+**Status:** Phases 1–6 DONE. The CMS has been live on `www.vaeral.com` since July 2026: Decap commits
+to `main` from 2026-06-29, and OAuth runs on the www domain from 2026-07-15. Work after the cutover
+(SEO, service pages, forms, phone layout, speed) is in §12; open issues are in §9.
+**Editor end-user:** non-technical marketer. **Last updated:** 2026-10-28.
+**Workflow:** short-lived branch off `main`, atomic Conventional Commits, no AI signature, keep this
+plan updated each step (full conventions in [CLAUDE.md](../CLAUDE.md) → Working practices). The
+"all work on `feature/proper-cms`" rule applied until the cutover.
 
 This is the single source of truth for the CMS work. It is written to survive across many chat
 sessions: anyone (human or AI) should be able to read this and continue. Keep it updated as
@@ -20,7 +23,7 @@ code, while the **design stays exactly as the current Framer export**.
 | Decision | Choice | Why |
 |---|---|---|
 | Framer | Keep the static export, **no rebuild** | Design is fine; rebuild is out of scope/budget |
-| Content types | Blog posts + Case studies | Per stakeholder |
+| Content types | Blog posts, case studies, service pages, pages (About) | Per stakeholder. Service pages and /about added 2026-07-27 with the SEO work |
 | Editor persona | Non-technical marketer | No-code UI required |
 | CMS tool | **Decap CMS** | Git-based, free, no DB, fits Vercel+GitHub, content stays in repo |
 | Storage | Markdown + frontmatter in this repo | Versioned, portable, no vendor lock-in |
@@ -31,7 +34,7 @@ removing the Framer CDN dependency; multi-user editing.
 
 ---
 
-## 2. How it will work (target architecture)
+## 2. How it works
 
 ```
 Marketer → Decap admin (/admin) → edits form/rich-text
@@ -45,6 +48,10 @@ Marketer → Decap admin (/admin) → edits form/rich-text
 
 Key property: **content is structured data**; the Framer HTML is a **dumb template** with marked
 holes. No `contenteditable`, no raw-HTML capture, no fragile sentence matching.
+
+Since the cutover the same build also produces the service pages, /about, the three listing pages
+and sitemap/robots/llms.txt, and it patches the homepage. The current output map is in
+[CLAUDE.md](../CLAUDE.md) → How a page gets built.
 
 ---
 
@@ -92,12 +99,30 @@ homepage links like `./online-pharmacy`).
 > sections, switch `problem/whatWeDid/results` to a repeatable `sections: [{heading, body}]`
 > list widget (noted as a known tradeoff).
 
+### Fields added since the first release
+- Blog: `seoTitle`, `coverAlt`, `readTime` (computed from word count when blank), and `faqs` (a list
+  of question/answer, shown on the page and emitted as FAQ schema). `updated:` feeds the schema's
+  `dateModified` but is **not** in the CMS form; the 2 posts that carry it were edited by hand.
+- Case study: `seoTitle`.
+
+### Service page — `content/services/<slug>.md` → `/services/<slug>`
+Built on the case-study template. Fields: title, seoTitle, slug, category, tags, date, description,
+coverImage, draft, three headed sections (`sectionOneHeading`/`sectionOne` through
+`sectionThreeHeading`/`sectionThree`) and `faqs`.
+
+### Page — `content/pages/<slug>.md` → `/<slug>` (today only `/about`)
+Same template and the same fields as a service page.
+
 ---
 
-## 4. The 5 case studies (routes linked from homepage)
+## 4. Case studies (5 migrated, 7 today)
 
 `online-pharmacy`, `silver-jewellery`, `holiday-membership`, `premium-pet-nutrition`,
 `b2b-fintech-platform`.
+
+> **Now 7 (2026-08-13).** `on-demand-services-app` and `ott-streaming-app` were added as content
+> only; they have no source export. The homepage shows four case-study cards from the export plus a
+> "View all case studies" button to `/casestudies`.
 
 > **Updated 2026-07-27 (SEO Phase 2).** This slug was previously `holiday-memebership` (sic), and
 > this plan said to keep the typo "so links don't break". It has now been corrected to
@@ -327,6 +352,11 @@ across tags):**
   legitimate sibling related-post card Framer embeds for navigation.
 - **Case studies: SAFE (unchanged).** They are static pages — body text appears **0 times** in any
   `<script>`, so their handover has nothing to re-render and needs no patch.
+- **Superseded 2026-08-13 (`1d68443`):** the runtime did replace injected content on the 13 pages
+  then built from `case-study.html`. The build now strips the page-render runtime from every page on
+  that template (`stripFramerPageRuntime`). What only the runtime drew was restored by hand
+  afterwards: hover and focus states (`f2e537e`), the phone header (`c550171`, which only took
+  effect with `536b579`), the Go back arrow (`86b2cd4`).
 - Re-verify after any change on a real browser: open `/blog/using-reddit-marketing`, let JS run, and
   confirm the body stays the reddit-marketing article (not viral-negative).
 
@@ -373,88 +403,30 @@ preview testing requires temporarily pointing `base_url` + the OAuth App callbac
 rule "never touch main" holds until cutover. Setup steps a human must do are in CMS-ADMIN-SETUP.md (the
 OAuth App + secrets + collaborator invite can't be done from code).
 
-### Phase 6 — Cutover to production (`main` / `vaeral.com`)  ☐
+### Phase 6 — Cutover to production (`main` / `www.vaeral.com`)  ☑ (July 2026)
 
-Goal: move the CMS from the pre-cutover test setup (Production Branch =
-`feature/proper-cms`, everything pointed at `vaeral-website.vercel.app`) to real
-production (Production Branch = `main`, everything on `vaeral.com`) **with no
-broken login window and a clean rollback**. Most steps are Vercel/GitHub dashboard
-actions by a human; the two repo edits are flagged **[repo]** (a dev/AI does them).
+Done. The step-by-step cutover plan written on 2026-06-29 is in git history (`5a18d1c`). State,
+re-verified on 2026-10-28 against the Vercel API and the live site:
 
-**Who/what holds the moving parts (so nothing is forgotten):**
-- **Vercel project** — Production Branch, domains/DNS, env vars, build settings.
-- **GitHub** — the repo, the OAuth App (Client ID/secret), the marketer's collaborator access.
-- **This repo** — `public/admin/config.yml` (`base_url`, `backend.branch`).
-- The Framer CDN dependency and homepage hardcoded cards are unchanged (see §9).
-
-#### 6.0 Pre-flight (before touching anything)
-- [ ] Confirm Phase 5 still green on `vaeral-website.vercel.app/admin` (login + publish).
-- [ ] Note the **current production** that `vaeral.com` serves today (the old Framer
-      site on a different host, or nothing). Have its DNS records saved so rollback is possible.
-- [ ] Decide OAuth App strategy: **(A)** reuse the one OAuth App and repoint its
-      callback to `vaeral.com` (simplest; briefly breaks login on the `.vercel.app`
-      URL), or **(B)** create a second "Vaeral CMS (prod)" OAuth App for `vaeral.com`
-      and keep the test app for `.vercel.app`. **Recommended: A** (one source of truth).
-
-#### 6.1 Cutover sequence (ordered to avoid a broken-login window)
-1. [ ] **Add the domain in Vercel** (Project → Settings → Domains → add `vaeral.com`,
-       and `www.vaeral.com` if used). Update DNS at the registrar per Vercel's
-       instructions; wait for Vercel to show **Valid Configuration** + issued SSL.
-       At this point `vaeral.com` serves the *current production deployment* (still
-       the `feature/proper-cms` branch build — fine, it's the same code).
-2. [ ] **[repo]** Edit `public/admin/config.yml`: `base_url: https://vaeral.com` and
-       `backend.branch: main`. Commit on `feature/proper-cms`.
-       (Exact diff: the two lines changed from `https://vaeral-website.vercel.app`
-       and `feature/proper-cms`. `npm run build` to refresh `dist/admin/config.yml`,
-       commit both. **Do this just before the merge** — once changed, `/admin` only
-       works at `vaeral.com`, so don't apply it while still testing on `.vercel.app`.)
-3. [ ] **Open PR `feature/proper-cms` → `main` and merge** (the first time `main` is
-       touched — Phase-6-only, per house rules). After merge, `main` contains the full
-       CMS incl. the `vaeral.com` config.
-4. [ ] **Update the GitHub OAuth App** (strategy A): Homepage `https://vaeral.com`,
-       Authorization callback `https://vaeral.com/api/callback`.
-5. [ ] **Flip Vercel Production Branch → `main`** (Settings → Git). Trigger/await the
-       production build of `main`. `vaeral.com` now serves `main`.
-6. [ ] **Verify env vars** still set on Production scope: `OAUTH_GITHUB_CLIENT_ID`,
-       `OAUTH_GITHUB_CLIENT_SECRET` (redeploy if you changed them).
-
-#### 6.2 Post-cutover verification (do all on `vaeral.com`)
-- [ ] `vaeral.com/admin` loads the config (no 404), shows **Login with GitHub**.
-- [ ] Login round-trips through `vaeral.com/api/auth` → GitHub → `/api/callback` → editor.
-- [ ] Both collections list existing entries (now read from `main`).
-- [ ] Make a trivial edit → **Publish** → confirm the commit lands on **`main`** →
-      Vercel production rebuilds → change is live on `vaeral.com`.
-- [ ] Image upload: add a cover via the CMS → confirm it commits to `public/assets`
-      and renders at `/assets/...` after rebuild.
-- [ ] Spot-check a blog post and a case study page render correctly (hydration intact —
-      see §5/Phase-4 hydration note) on **mobile + desktop**.
-- [ ] All 5 case-study routes + 2 blog routes resolve (incl. `holiday-membership`, and the
-      old `holiday-memebership` path still 301-ing to it). `/blog` listing renders.
-
-#### 6.3 Cleanup
-- [ ] Delete unused legacy Vercel env vars: `ADMIN_PASSWORD`, `GITHUB_PAT`, `GITHUB_REPO`.
-- [ ] (Optional) Delete the merged `feature/proper-cms` branch, or keep it for history.
-- [ ] (Optional) Restrict/secure `/admin` further if desired (it's `noindex`; access is
-      already gated by GitHub repo write-access — only collaborators can publish).
-
-#### 6.4 Polish (can ship before or after cutover)
-- [ ] **SEO/OG:** per-post `og:image`/`canonical`/`og:url` already generated by `build.js`
-      (Phase 4). Confirm they're correct on a couple of live pages; add a default OG image
-      check. GA stays **`G-NYP7J14402`** (present in templates + blog listing).
-- [ ] **Sitemap/robots:** add `dist/sitemap.xml` (+ reference in `robots.txt`) if SEO wants
-      one — not currently generated. Low priority; note as a follow-up if skipped.
-- [ ] **Redirects:** no URL changes are expected (blog `/blog/<slug>`, case studies `/<slug>`
-      match the old routes). If any slug changed, add a Vercel redirect. Verify no 404s from
-      external inbound links.
-- [ ] **Homepage cards** for new content stay manual (§9, accepted) — brief the marketer that
-      new posts appear on `/blog` and at their own URL, but the homepage feature cards are a
-      dev task until/unless the build is extended.
-
-#### 6.5 Rollback (if cutover misbehaves)
-- [ ] Flip Vercel **Production Branch back to `feature/proper-cms`** (instant revert to the
-      known-good test build) — or repoint `vaeral.com` DNS back to the old host using the saved
-      records. Revert the OAuth App callback to `vaeral-website.vercel.app` if you changed it.
-      `main` already has the code, so re-cutover later is just the branch flip again.
+- [x] Domain: `www.vaeral.com` serves production; the apex `vaeral.com` redirects to it.
+- [x] `public/admin/config.yml`: `backend.branch: main` (`aa3c7f7`, 2026-06-29) and
+      `base_url: https://www.vaeral.com` (`3af51bd`, 2026-07-15; the www host fixed a cross-origin
+      block in the OAuth handshake).
+- [x] Vercel Production Branch is `main`.
+- [x] OAuth: `/api/auth` sends GitHub `redirect_uri=https://www.vaeral.com/api/callback`, and
+      `/admin/` and `/admin/config.yml` return 200.
+- [x] Publishing works on production: the Decap commit `e9f5b4e` ("Update Blog posts “what-is-aeo”",
+      2026-08-21) landed on `main` and deployed. Most content since then was added through git.
+- [x] Legacy env vars `ADMIN_PASSWORD`, `GITHUB_PAT` and `GITHUB_REPO` are gone. Production env holds
+      only `GMAIL_*` (forms) and `OAUTH_GITHUB_*` (CMS login).
+- [x] Sitemap and robots generated by the build since `fa14e2b` (2026-07-27), plus `llms.txt`.
+- [x] Redirects: the old `holiday-memebership` slug and the old WordPress URLs 301 in `vercel.json`;
+      `npm run health` checks a sample of them.
+- [x] Per-page SEO/OG tags and JSON-LD on every page (`schema.js`). GA stays `G-NYP7J14402`.
+- [ ] Optional, not done: delete the merged `feature/proper-cms` branch. It is still on `origin`, as
+      are `feature/cms-integration` and `feature/google-preferred-sources`.
+- Homepage cards: the services section is now built from `content/services`. The case-study and
+  blog cards are still the export's and change only by hand (§9).
 
 ---
 
@@ -462,19 +434,39 @@ actions by a human; the two repo edits are flagged **[repo]** (a dev/AI does the
 
 - ~~OAuth onboarding~~ — **CONFIRMED 2026-06-28:** Decap + GitHub login accepted (§7).
 - ~~Missing case-study source pages~~ — **RESOLVED:** all 5 provided 2026-06-28 (§4).
-- **Homepage cards** for new blog posts / case studies are hardcoded in `index.html`; v1 does NOT
-  auto-update them. New entries get their own page + appear on `/blog`, but adding a homepage
-  card stays a manual/dev task unless we extend the build later. **ACCEPTED by stakeholder
-  2026-06-28.**
+- **Homepage cards:** the services section is generated from `content/services`, and a nav link and
+  a "View all case studies" button lead to `/casestudies`. The case-study and blog cards are still
+  the export's and change only by hand. **ACCEPTED by stakeholder 2026-06-28.**
 - **Framer CDN dependency** remains (fonts/images/runtime). Out of scope but a standing fragility.
+- **`updated:` is not editable in the CMS.** The build uses it, but the marketer cannot set it.
+- **PageSpeed measures the homepage hero late.** It runs an older Chrome (153 on 2026-10-28) that
+  counts the hero image only when Framer re-renders it, so its LCP stays near 10s although visitors
+  see the hero at about 0.5s. Test with PageSpeed's own Chrome version before promising a score.
+
+**Found by the phone audit of 2026-10-28, waiting on a decision:**
+- Homepage blog cards: the titles sit on busy photos with nothing behind them and are hard to read,
+  at every width. A dark gradient behind the text would fix it, but it is a design change.
+- The homepage "93% of consumers…" banner is an image with its text baked in, too small to read on
+  a phone. It needs a phone-sized asset from the designer.
+- Copy typos from the export: "Response Managment" (homepage case-study card) and "Write you email
+  here…" (newsletter placeholder, every page).
+- The header on the 18 template pages works on phones but is tall (logo, two rows of links, button).
+  A menu button like the homepage's would need a small script, since those pages have no runtime.
+
+**Housekeeping:**
+- `npm run health` still expects founding year 2022; the site has said 2020 since `c718d0f`
+  (2026-09-09). The check is wrong, not the site.
+- About 47 one-off scripts have collected at the root again since the Phase 1 cleanup, plus the
+  legacy `blog/` folder. Nothing imports them.
+- The top half of `README.md` and the header comment in `build.js` still describe the July state.
 
 ## 10. Running locally
 
-- **View the site:** `npx serve dist` → homepage + localized assets. (Blog/admin need the build
-  or the `public/` copy.)
-- **Full build:** after Phase 4, `npm run build` → regenerates `dist/`.
-- **Decap admin locally:** `npx decap-server` + open `/admin` (after Phase 5), or test on a
-  Vercel preview deploy. `vercel dev` runs serverless functions (the OAuth proxy) locally.
+See [CLAUDE.md](../CLAUDE.md) → Commands. In short: `npm install`, `npm run build`, then
+`npx serve dist` for the whole site, blog and `/admin` included. `npm run check:render` needs Chrome:
+point `CHROME_PATH` at a Chrome or chrome-headless-shell binary. Decap locally: `npx decap-server`,
+then open `/admin` (the config has `local_backend: true`). `vercel dev` runs the API functions
+(OAuth, forms) locally.
 
 ## 11. Handover — onboarding a new developer
 
@@ -487,6 +479,8 @@ A new dev can read those and pick up with full context.
 
 **What is deliberately NOT in the repo (must be transferred out-of-band — these
 are secrets/access, not code):**
+- **Gmail OAuth** for the forms (`GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`,
+  `GMAIL_REFRESH_TOKEN`) — Vercel env only; `scripts/get-refresh-token.cjs` mints a new token.
 - **GitHub OAuth App** Client ID + **Client secret** — live only in the GitHub
   OAuth App settings and the Vercel env vars (`OAUTH_GITHUB_CLIENT_ID`,
   `OAUTH_GITHUB_CLIENT_SECRET`). A new dev needs access to the GitHub account/org
@@ -500,14 +494,50 @@ are secrets/access, not code):**
 
 **First-15-minutes checklist for the new dev:**
 1. Read [CLAUDE.md](../CLAUDE.md) then this plan top-to-bottom.
-2. `npm install` (package-lock is gitignored; deps: cheerio/marked/front-matter/dotenv).
+2. `npm install` (package-lock is gitignored; deps: cheerio/marked/front-matter/dotenv/nodemailer).
 3. `npm run build` → confirm `dist/` regenerates clean (incl. `dist/admin/`).
 4. Get invited to the **Vercel project** and **GitHub repo**; locate the OAuth App.
-5. Current state: **Phases 1–5 done**, CMS live + tested on `vaeral-website.vercel.app`
-   (Production Branch temporarily on `feature/proper-cms`). **Phase 6 (cutover) is next** — §8.
+5. Current state: **all six phases done**, live on `www.vaeral.com` from `main`. Later work is in
+   §12, open items in §9.
 
 **Gotchas already paid for (don't rediscover them):** `/admin` must be copied into
 `dist/` by the build; Decap needs the absolute `cms-config-url` link or it 404s the
 config at `/admin`; blog pages need the `framer/handover` CMS record patched or
 hydration clobbers injected content (Phase 4); local `blog-*.jpg` covers are actually
-WebP; the `holiday-memebership` slug was corrected to `holiday-membership` on 2026-07-27 (301 in place).
+WebP; the `holiday-memebership` slug was corrected to `holiday-membership` on 2026-07-27 (301 in place);
+pages built on `case-study.html` have no Framer runtime, so anything the runtime drew (nav variants,
+icons, hover states) has to be restored at build time; Framer's CSS is scoped to the page root
+(`.framer-y31P2` on those pages) and its inline layout beats any stylesheet, so overrides need the
+same scope or must target the parent.
+
+## 12. After the cutover (July–October 2026)
+
+What changed once the CMS was live, by theme. Commit messages carry the measurements and reasoning.
+
+- **SEO programme (2026-07-27, PRs #5–#15):** metadata and slug fixes, JSON-LD on every page
+  (`schema.js`), service pages, /about, /services, sitemap and robots (`fa14e2b`), real nav routes,
+  IndexNow, blog structure fixes, `llms.txt`, AI crawlers named in robots, the live health check and
+  Search Console report (`830a592`), and homepage copy brought inside policy (`778c150`).
+- **Rendering safety (2026-08-13):** the page runtime stripped from template pages (`1d68443`), CMS
+  content made to fail loudly rather than ship invisible (`9afa050`), a page root clipped at a
+  hard-coded height (`7fd82ca`), and a real-browser render check (`c550171`).
+- **Content:** case studies `on-demand-services-app` (`85170f0`) and `ott-streaming-app`
+  (`98fb0e4`); four more service pages (`78f0803`), ten in all; the AI-search and Quora clusters
+  (`35492db`, `29908c9`, `54496b2`), eleven posts in all; em dashes taken out of the copy (`0706b63`).
+- **Homepage:** the services section generated from `content/services` (`6033b0c`, rebuilt as a
+  split layout in `d541691` and as a haloed-ring list in `cb5b196`); a case-studies nav link and CTA
+  (`1be0ae1`); the team wheel grown to 16 (`24efc0a` onwards); the Play Store card animation
+  (`86d0c10` onwards); the Google Preferred Sources button (`c74bd28` onwards).
+- **Forms (2026-09-19 to 09-23):** every form goes to our own endpoints (`cb6c837`), Framer's form
+  backend removed from everything served and guarded by the build (`d9d89fa`, `e5479e3`), spam
+  handling (`9dbd3ee`), several notification mailboxes (`54cc062`).
+- **Phone layout and speed:** one content rail and swipe decks (`e6c8011`, `16f60e6`, `2ab48a5`),
+  lazy loading and per-breakpoint preloads (`8a74504`, `bfc7f46`, `64ed98c`), resized photos
+  (`b316382`), the homepage hero faded in by CSS rather than after hydration (`f07300e`,
+  2026-10-28), and the template-page header, tag chips and Go back arrow fixed (`536b579`,
+  `86b2cd4`, 2026-10-28).
+- **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
+  `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
+- **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits
+  from 2026-09-19 to 2026-10-22 used plain-sentence messages. From 2026-10-28, short-lived branches
+  off `main` again, with Conventional Commits.
