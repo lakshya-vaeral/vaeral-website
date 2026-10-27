@@ -741,6 +741,25 @@
       min-width: 0;
       row-gap: 8px;
     }
+    /* None of the wrapping above could show, because the header never grew to hold it. The nav
+       carries an inline height:100% (Framer passes instance layout inline, so the height:auto
+       rule above loses to it) and its container is pinned at height:91px. Measured at 390: the
+       wrapped content is 162px tall, centred in 91px, so the logo sat at y=-25, off the top of
+       the screen, and Get Started hung across the divider below. Freeing the container lets
+       the nav's 100% follow its content. Scoped like the export's own (0,2,0) rule, or it loses. */
+    .framer-y31P2 .framer-1cpr4qi-container {
+      height: auto;
+    }
+    /* The vertical rule between the logo and the links only means something when they share a
+       row. Wrapped, it stands alone beside the logo. */
+    .framer-Ikdsk .framer-xxb16c {
+      display: none;
+    }
+    /* Tag chips: a single nowrap row with overflow:hidden, so on a phone the third chip was cut
+       mid-word ("Working globa", "Response M"). Wrapping keeps every chip whole. */
+    .framer-y31P2 .framer-7hye3u {
+      flex-wrap: wrap;
+    }
   }
 </style>
 <script type="importmap">{"imports":{"https://framerusercontent.com/sites/5p7kq1Z1Vb5AjJ64xQUs96/wNXZ4UOCC.C37vtuCG.mjs":"/assets/framer/forms-shared.mjs"}}</script></head>
