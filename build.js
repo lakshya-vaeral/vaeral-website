@@ -3314,15 +3314,48 @@ function patchNavHrefs(html, { isHomepage = false } = {}) {
   return html;
 }
 
-// At </body> NAV_SCRIPT runs after the header has painted with Framer's three links, and the two
-// it adds wrap the phone nav onto a second line: a 34px layout shift on every case study, service
-// page and /about (PageSpeed CLS 0.16-0.23 on /about). Where stripFramerPageRuntime removed the
-// runtime nothing re-renders the nav, so the script runs straight after it, before any paint.
-// Hydrated pages keep it at </body>: a <script> inside React's root would break hydration.
+// Where stripFramerPageRuntime removed the runtime nothing re-renders the nav, so the final nav is
+// written into the HTML itself: crawlers that never run JS (most AI crawlers) then see /blog and
+// /services, and the header cannot change after first paint (the two extra links wrap the phone nav
+// onto a second line, a 34px shift on every case study, service page and /about when a script
+// added them). It produces exactly what NAV_SCRIPT's syncNav would. Each step asserts the markup
+// it expects and throws when the export changes shape, like patchNavHrefs.
+// Hydrated pages keep NAV_SCRIPT at </body>: React would revert static changes, and a <script>
+// inside React's root would break hydration.
+const RUNTIME_STRIPPED = '<!-- framer page-render runtime removed';
+
+function staticNavLinks(html) {
+  const navs = html.match(/<nav [^>]*>[\s\S]*?<\/nav>/g) || [];
+  if (!navs.length) throw new Error('runtime-stripped page has no <nav> — export changed');
+  for (const nav of navs) {
+    if (nav.split('>Portfolio</span>').length !== 2) throw new Error('nav has no single Portfolio label — export changed');
+    // The Contact link sits in a "-container" div inside the row that also holds About; it is the
+    // template for the new links, as in NAV_SCRIPT.
+    const label = nav.indexOf('>Contact</span>');
+    const openers = [...nav.slice(0, label).matchAll(/<div class="[^"]*-container">/g)];
+    const start = openers.length ? openers[openers.length - 1].index : -1;
+    const tail = '</a><!--/$--><!--/$--></div>';
+    const end = nav.indexOf('</a>', label);
+    const contact = nav.slice(start, end + tail.length);
+    if (label < 0 || !/^<div class="[^"]*-container">/.test(contact) || !contact.endsWith(tail)
+      || contact.split('<a ').length !== 2 || !contact.includes('href="/#contact"')
+      || nav.indexOf('>About</span>') < 0 || nav.indexOf('>About</span>') > label) {
+      throw new Error('nav Contact link has an unexpected shape — export changed');
+    }
+    const extra = (cls, text, href) => contact
+      .replace('-container">', `-container ${cls}">`)
+      .replace('href="/#contact"', `href="${href}" target="_top"`)
+      .replace('>Contact</span>', `>${text}</span>`);
+    const fixed = nav.replace('>Portfolio</span>', '>Case Studies</span>')
+      .replace(contact, () => extra('vaeral-blogs-link', 'Blogs', '/blog') + extra('vaeral-services-link', 'Services', '/services') + contact);
+    html = html.replace(nav, () => fixed);
+  }
+  return html;
+}
+
 function injectNavScript(html) {
-  if (!html.includes('<!-- framer page-render runtime removed')) return html.replace('</body>', `${NAV_SCRIPT}</body>`);
-  const at = html.lastIndexOf('</nav>') + '</nav>'.length;
-  return html.slice(0, at) + NAV_SCRIPT + html.slice(at);
+  if (html.includes(RUNTIME_STRIPPED)) return staticNavLinks(html);
+  return html.replace('</body>', `${NAV_SCRIPT}</body>`);
 }
 
 // Replaces the previous approach, which cloned the Contact link on a 500ms
