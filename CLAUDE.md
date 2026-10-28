@@ -109,6 +109,9 @@ npx serve dist         # view the built site locally
   (`style="height:100%"`) beats any stylesheet rule, so change the parent instead.
 - **Runtime-stripped pages** lose everything only the runtime draws (nav variants, icons, hover
   states). Each one has to be put back at build time.
+- **A script that changes the first screen** must run where that element is, not at `</body>`:
+  the browser paints these 250 KB pages long before it reaches the end, so a late change is a
+  layout shift (the nav links, 2026-10-28).
 - **Check phones** (360–430px) as well as desktop for any visual change.
 
 ## Credentials (never commit values)

@@ -2535,9 +2535,7 @@ function writePage(dir, html) {
   // Nav anchors are relative in the Framer export and resolve against the current
   // page, which breaks them everywhere except the homepage. Rewrite to absolute,
   // and re-assert at runtime since hydration reverts DOM changes.
-  const patched = hasFramerNav(html)
-    ? patchNavHrefs(html).replace('</body>', `${NAV_SCRIPT}</body>`)
-    : html;
+  const patched = hasFramerNav(html) ? injectNavScript(patchNavHrefs(html)) : html;
   if (!FORM_CHUNK_MAP) throw new Error('writePage ran before the Framer form chunks were built');
   const noFramer = applyFormChunkMap(patched, FORM_CHUNK_MAP);
   const withForms = noFramer.includes('</body>')
@@ -3288,6 +3286,17 @@ function patchNavHrefs(html, { isHomepage = false } = {}) {
     throw new Error('page has a nav but no known anchors to rewrite — export changed');
   }
   return html;
+}
+
+// At </body> NAV_SCRIPT runs after the header has painted with Framer's three links, and the two
+// it adds wrap the phone nav onto a second line: a 34px layout shift on every case study, service
+// page and /about (PageSpeed CLS 0.16-0.23 on /about). Where stripFramerPageRuntime removed the
+// runtime nothing re-renders the nav, so the script runs straight after it, before any paint.
+// Hydrated pages keep it at </body>: a <script> inside React's root would break hydration.
+function injectNavScript(html) {
+  if (!html.includes('<!-- framer page-render runtime removed')) return html.replace('</body>', `${NAV_SCRIPT}</body>`);
+  const at = html.lastIndexOf('</nav>') + '</nav>'.length;
+  return html.slice(0, at) + NAV_SCRIPT + html.slice(at);
 }
 
 // Replaces the previous approach, which cloned the Contact link on a 500ms

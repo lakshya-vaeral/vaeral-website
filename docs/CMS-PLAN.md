@@ -534,7 +534,9 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   lazy loading and per-breakpoint preloads (`8a74504`, `bfc7f46`, `64ed98c`), resized photos
   (`b316382`), the homepage hero faded in by CSS rather than after hydration (`f07300e`,
   2026-10-28), and the template-page header, tag chips and Go back arrow fixed (`536b579`,
-  `86b2cd4`, 2026-10-28).
+  `86b2cd4`, 2026-10-28). The taller header that fix allowed turned the late-added Blogs and
+  Services links into a layout shift (PageSpeed CLS 0.16-0.23 on /about); on template pages
+  `NAV_SCRIPT` now runs straight after the nav instead of at `</body>` (2026-10-28).
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits
