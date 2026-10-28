@@ -193,6 +193,25 @@ function restoreBackIcon(html) {
   return html.split(empty).join(`<div class="framer-krllin-container">${BACK_ICON_SVG}</div>`);
 }
 
+// The tag chips are set in Figtree, which the browser only requests once layout first needs it, so
+// a fast load paints the chips in the fallback face and swaps Figtree in a frame later. The two
+// differ by a few px per chip, and on /about at 412px (PageSpeed's phone) the row is within those
+// few px of wrapping: the third chip jumped rows on the swap and carried the "Who we are" block
+// 43px with it, CLS 0.100. Preloading from the top of <head> starts the fetch with the document, and
+// Chrome holds first paint for a preloaded font (capped at about 100ms), so the chips are laid out
+// once, in Figtree. It is the file the export's @font-face already loads (one variable woff2 serves
+// 500 and 700), so the look is unchanged. The cost: first paint can wait up to that 100ms on a slow
+// connection, and a font slower than that still swaps in late.
+const CHIP_FONT_URL = 'https://fonts.gstatic.com/s/figtree/v9/_Xms-HUzqDCFdgfMm4S9DQ.woff2';
+
+function preloadChipFont(html) {
+  const charset = '<meta charset="utf-8">';
+  if (!html.includes(charset) || !html.includes(`url(${CHIP_FONT_URL})`)) {
+    throw new Error('chip font preload: charset meta or Figtree latin @font-face not found — the export changed shape');
+  }
+  return html.replace(charset, `${charset}\n\t<link rel="preload" as="font" type="font/woff2" crossorigin href="${CHIP_FONT_URL}">`);
+}
+
 // The export explicitly kills the focus ring on its form fields:
 //
 //   .framer-form-input:focus-visible { outline: none }
@@ -3001,7 +3020,7 @@ function buildCaseStudy({ attributes: a }) {
       ]),
     ]),
   });
-  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html))))));
+  html = preloadChipFont(injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html)))))));
   writePage(path.join(DIST, a.slug), html);
   return { 
     slug: a.slug, 
@@ -3088,7 +3107,7 @@ function buildStandardPage({ attributes: a }, { dir, breadcrumbParent, schemaTyp
     ].filter(Boolean)),
   });
 
-  html = injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html))))));
+  html = preloadChipFont(injectInteractionStyles(injectContentStyles(patchRelativeHomeLinks(restoreBackIcon(stripFramerPageRuntime(disableSPARouting(html)))))));
   writePage(path.join(DIST, ...(dir ? [dir] : []), a.slug), html);
   // `category` is the short label ("Comment Management") as opposed to the full page title
   // ("Comment Management for Social and Community Platforms"). The homepage services grid needs
