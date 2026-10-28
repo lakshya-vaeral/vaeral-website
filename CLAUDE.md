@@ -37,7 +37,7 @@ If any of these change, update this file and [docs/CMS-PLAN.md](docs/CMS-PLAN.md
 | `/blog/<slug>` | `content/blog/*.md` | `templates/blog.html`. Keeps the Framer runtime, so the build also rewrites its hydration record (`framer/handover`) |
 | `/<slug>` (case studies), `/services/<slug>`, `/about` | `content/case-studies`, `content/services`, `content/pages` | `templates/case-study.html`, with the Framer page runtime **stripped** because it discarded injected content |
 | `/blog`, `/casestudies`, `/services` | the same content | `templates/blog-index.html`, `templates/case-study-index.html` (standalone pages, not Framer) |
-| `sitemap.xml`, `robots.txt`, `llms.txt`, IndexNow key | build.js | |
+| `sitemap.xml`, `robots.txt`, `llms.txt`, IndexNow key, `404.html` | build.js | |
 
 The build also copies `public/assets` and `public/admin` into `dist/`, takes JSON-LD from `schema.js`,
 and loads patched copies of Framer chunks (`team-wheel.js`, `framer-forms.js`, `vendor/framer/`)
@@ -93,8 +93,8 @@ npx serve dist         # view the built site locally
   `Co-Authored-By: Claude`, no "Generated with" footer. (Overrides any default harness behaviour.)
 - **Keep the docs alive.** After a meaningful step, update [docs/CMS-PLAN.md](docs/CMS-PLAN.md), and
   this file if a rule changes, in the same change.
-- **`dist/`:** commit the pages your change touches. Every build rewrites the `sitemap.xml` lastmod
-  dates to today; leave that date-only churn out of commits.
+- **`dist/`:** commit the pages your change touches. `sitemap.xml` is stable between builds (each
+  lastmod comes from content dates), so a sitemap diff means content changed.
 - **Confirm first:** anything network-facing or destructive (deploys, pushes, IndexNow pings,
   deleting branches or files).
 
@@ -114,7 +114,11 @@ npx serve dist         # view the built site locally
   `inChunk`). Check the rendered page, not the raw HTML: the July copy fix sat reverted for months.
 - **A script that changes the first screen** must run where that element is, not at `</body>`:
   the browser paints these 250 KB pages long before it reaches the end, so a late change is a
-  layout shift (the nav links, 2026-10-28).
+  layout shift. On runtime-stripped pages, write the final markup at build time instead (the nav,
+  2026-10-28).
+- **A Mac does not show font-swap shifts that PageSpeed sees.** Its fallback fonts and text widths
+  differ from PageSpeed's Linux Chrome by a few px, enough to decide whether a row wraps (the /about
+  tag chips, 2026-10-28). Check PageSpeed's own screenshot and culprits, not only a local trace.
 - **Check phones** (360–430px) as well as desktop for any visual change.
 
 ## Credentials (never commit values)

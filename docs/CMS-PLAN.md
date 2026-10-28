@@ -458,10 +458,19 @@ re-verified on 2026-10-28 against the Vercel API and the live site:
   and claims "an average 2-star rating improvement within 90 days" without a source. July's
   approved copy changes did not cover these. The "Response Management" card's description is
   LinkedIn copy ("Build founder authority and thought leadership").
+- `/services/reddit-marketing` ranks 2-3 for "reddit marketing agency" (US, UK) with 0 clicks
+  from 115 impressions since July: its meta description needs a rewrite.
+- Posts and case studies credit the organisation as author; a named author (the founder, with his
+  own LinkedIn in `sameAs`) needs his URL and consent.
+- `/blog/remove-reddit-post-google` is "Crawled - currently not indexed" (since 2026-08-25); it is
+  a 2-minute read and probably needs expanding before Request Indexing.
+- Off-site, and the largest lever for AI answers: Vaeral is absent from the directories and "best
+  Reddit/Quora agency" lists AI engines cite. Clutch reviews, DesignRush/GoodFirms listings, Bing
+  Webmaster Tools.
+- The homepage's raw HTML repeats its text 2.5x (Framer's per-breakpoint copies; testimonials 8x),
+  which CSS-blind crawlers read as repetition. Hard to fix safely inside the export.
 
 **Housekeeping:**
-- `npm run health` still expects founding year 2022; the site has said 2020 since `c718d0f`
-  (2026-09-09). The check is wrong, not the site.
 - About 47 one-off scripts have collected at the root again since the Phase 1 cleanup, plus the
   legacy `blog/` folder. Nothing imports them.
 
@@ -546,6 +555,13 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   `86b2cd4`, 2026-10-28). The taller header that fix allowed turned the late-added Blogs and
   Services links into a layout shift (PageSpeed CLS 0.16-0.23 on /about); on template pages
   `NAV_SCRIPT` now runs straight after the nav instead of at `</body>` (2026-10-28).
+- **SEO/GEO audit fixes (2026-10-28):** the 18 runtime-stripped pages carry their final nav (with
+  Blogs and Services) in the HTML, so crawlers that skip JS see it and `NAV_SCRIPT` now runs only on
+  hydrated pages; the Figtree file is preloaded on those pages, because the /about tag chips sat
+  within a few px of wrapping and the font swap moved them (PageSpeed CLS 0.100); trailing-slash
+  URLs 308 to the canonical form (`vercel.json`); a real `404.html` (noindex); sitemap hub dates
+  taken from content, so the sitemap no longer changes on every build; `npm run health` expects
+  founding year 2020 and reports a timeout as a FAIL instead of crashing.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits
