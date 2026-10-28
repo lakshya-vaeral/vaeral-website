@@ -3230,6 +3230,32 @@ function buildBlogIndex(posts) {
   writePage(path.join(DIST, 'blog'), disableSPARouting(html));
 }
 
+// Vercel serves dist/404.html with a 404 status for any unknown URL. Reuses the case-study
+// index template; canonical/og:url are dropped and noindex added. Not in sitemap/llms/IndexNow.
+function buildNotFound() {
+  const link = (href, label) =>
+    `    <a class="card" href="${href}"><div class="body"><h2>${label}</h2><span class="more">Go &rarr;</span></div></a>`;
+  const html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
+    TITLE: 'Page not found | Vaeral',
+    H1: 'Page not found',
+    DESCRIPTION: 'That page does not exist or has moved. Try one of these instead.',
+    URL: '',
+    CASES: [
+      link('/', 'Home'),
+      link('/services', 'Services'),
+      link('/casestudies', 'Case Studies'),
+      link('/blog', 'Blog'),
+      link('/#contact', 'Contact'),
+    ].join('\n'),
+    JSONLD: '',
+  })
+    .replace(/<link rel="canonical"[^>]*>\n/, '')
+    .replace(/<meta property="og:url"[^>]*>\n/, '')
+    .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex">');
+  fs.writeFileSync(path.join(DIST, '404.html'), html);
+  console.log('  ✓ 404 page -> dist/404.html');
+}
+
 // --- navigation ---------------------------------------------------------------
 
 // The nav shipped as homepage anchors (./#about, ./#casestudies), which means the
@@ -3810,14 +3836,18 @@ function main() {
   buildCaseStudyIndex(publishedCases);
   console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
 
+  // Hub pages take the newest date of what they list, so lastmod only moves when content does.
+  const newest = (list) => list.map((p) => (p.date ? isoDate(p.date).slice(0, 10) : '')).sort().pop() || today;
+  const allContent = [...publishedPages, ...publishedServices, ...publishedCases, ...publishedPosts];
+  buildNotFound();
   writeSitemap([
-    { loc: `${SITE}/`, priority: '1.0', lastmod: today },
+    { loc: `${SITE}/`, priority: '1.0', lastmod: newest(allContent) },
     ...publishedPages.map((p) => ({ loc: p.url, priority: '0.8', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
-    { loc: `${SITE}/services`, priority: '0.9', lastmod: today },
+    { loc: `${SITE}/services`, priority: '0.9', lastmod: newest(publishedServices) },
     ...publishedServices.map((p) => ({ loc: p.url, priority: '0.9', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
-    { loc: `${SITE}/casestudies`, priority: '0.7', lastmod: today },
+    { loc: `${SITE}/casestudies`, priority: '0.7', lastmod: newest(publishedCases) },
     ...publishedCases.map((c) => ({ loc: `${SITE}/${c.slug}`, priority: '0.7', lastmod: c.date ? isoDate(c.date).slice(0, 10) : today })),
-    { loc: `${SITE}/blog`, priority: '0.7', lastmod: today },
+    { loc: `${SITE}/blog`, priority: '0.7', lastmod: newest(publishedPosts) },
     ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
   ]);
   writeLlmsTxt({
