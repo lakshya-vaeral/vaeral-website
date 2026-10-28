@@ -3271,6 +3271,11 @@ function buildNotFound() {
     .replace(/<link rel="canonical"[^>]*>\n/, '')
     .replace(/<meta property="og:url"[^>]*>\n/, '')
     .replace('<meta charset="utf-8">', '<meta charset="utf-8">\n<meta name="robots" content="noindex">');
+  // The replaces above are silent on a miss, and a 404 page that is indexable or claims a
+  // canonical URL is worse than the default one.
+  if (!html.includes('<meta name="robots" content="noindex">') || /rel="canonical"|og:url|<!--CMS:/.test(html)) {
+    throw new Error('404 page: noindex missing, or canonical/og:url/unfilled marker left — the index template changed');
+  }
   fs.writeFileSync(path.join(DIST, '404.html'), html);
   console.log('  ✓ 404 page -> dist/404.html');
 }
