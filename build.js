@@ -3609,57 +3609,70 @@ const HOME_DESCRIPTION =
 // form that does not depend on an unpublished number. Uncited precision is
 // discounted by answer engines, and a 100%-success claim sat badly next to a
 // service page saying nobody can guarantee a Wikipedia page.
+//
+// `count` is per index.html, `inChunk` per the page module team-wheel.js serves. Patching
+// only the HTML held until hydration: React rebuilds these sections from that module, so
+// from July to October every visitor and Googlebot saw the original copy and only
+// crawlers that skip JS saw the corrected one. Replacements must not contain a backtick
+// or `${`: in the module they sit inside template literals.
 const HOMEPAGE_COPY = [
   {
     what: 'proxy-backed clusters',
     count: 1,
+    inChunk: 1,
     from: 'With proxy-backed clusters, original ideas, and tailored blueprints, we turn crises into non‑events stopping trouble before it starts.',
     to: 'With community strategy, original research and tailored response playbooks, we turn crises into non‑events, stopping trouble before it starts.',
   },
   {
     what: 'seeding reviews',
     count: 2,
+    inChunk: 2,
     from: 'We seed authentic reviews and craft balanced, rapid-fire responses',
     to: 'We help you earn reviews from real customers and craft balanced, rapid-fire responses',
   },
   {
     what: 'Quora lifespan statistic',
     count: 3,
+    inChunk: 2,
     from: 'Our Quora answers have Google ranking lifespan of 13 months. Most ads last 13 days.',
     to: 'A well-placed Quora answer keeps earning views years after it is written. A paid ad stops the day you stop paying.',
   },
   {
     what: 'Wikipedia success-rate statistic',
     count: 3,
+    inChunk: 2,
     from: '100% of our Wikipedia pages have passed editorial review on the first attempt.',
     to: 'We assess notability before we write. If the independent coverage is not there yet, we say so: a declined draft costs months.',
   },
   {
     what: 'AI-answers statistic',
     count: 3,
+    inChunk: 2,
     from: '95% of our clients appear in AI-generated answers on ChatGPT, Google AI Overview, and Perplexity within 60 days.',
     to: 'We track whether your brand appears in AI answers across ChatGPT, Google AI Overviews and Perplexity, measured on a fixed prompt set, re-run on a schedule, so you can see it change.',
   },
   {
-    // Missing space, visible to every reader, repeated once per testimonial copy.
+    // Missing space, visible to every reader, repeated once per testimonial copy. Matched
+    // without the "Mayank &" before it, which the HTML escapes and the module does not.
     what: 'teamgot typo',
     count: 8,
-    from: 'Mayank &amp; teamgot it done',
-    to: 'Mayank &amp; team got it done',
+    inChunk: 1,
+    from: 'teamgot it done',
+    to: 'team got it done',
   },
 ];
 
-function patchHomepageCopy(html) {
-  for (const { what, from, to, count } of HOMEPAGE_COPY) {
-    const found = html.split(from).length - 1;
+function patchHomepageCopy(src, where = 'count') {
+  for (const { what, from, to, [where]: count } of HOMEPAGE_COPY) {
+    const found = src.split(from).length - 1;
     if (found !== count) {
       // Fail the build rather than ship half-corrected copy: a Framer re-export that
       // reworded one of these would otherwise reinstate it silently.
-      throw new Error(`homepage copy patch "${what}": expected ${count} occurrence(s), found ${found}`);
+      throw new Error(`homepage copy patch "${what}" (${where}): expected ${count} occurrence(s), found ${found}`);
     }
-    html = html.split(from).join(to);
+    src = src.split(from).join(to);
   }
-  return html;
+  return src;
 }
 
 function patchHomepageSeo(html) {
@@ -3722,7 +3735,11 @@ function main() {
 
   // Ship CMS-uploaded / localized images into the deploy root.
   copyDir(PUBLIC_ASSETS, DIST_ASSETS);
-  const teamMembers = buildTeamWheelChunk({ root: ROOT, distAssets: DIST_ASSETS });
+  const teamMembers = buildTeamWheelChunk({
+    root: ROOT,
+    distAssets: DIST_ASSETS,
+    patch: (src) => patchHomepageCopy(src, 'inChunk'),
+  });
   FORM_CHUNK_MAP = buildFormChunks({ root: ROOT, distAssets: DIST_ASSETS });
   console.log(`  ✓ team wheel chunk: ${teamMembers} members`);
 

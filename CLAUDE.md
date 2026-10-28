@@ -109,6 +109,9 @@ npx serve dist         # view the built site locally
   (`style="height:100%"`) beats any stylesheet rule, so change the parent instead.
 - **Runtime-stripped pages** lose everything only the runtime draws (nav variants, icons, hover
   states). Each one has to be put back at build time.
+- **On hydrated pages (homepage, blog posts) an HTML-only change is undone by hydration.**
+  Homepage copy must also change in the page module `team-wheel.js` serves (`HOMEPAGE_COPY`'s
+  `inChunk`). Check the rendered page, not the raw HTML: the July copy fix sat reverted for months.
 - **A script that changes the first screen** must run where that element is, not at `</body>`:
   the browser paints these 250 KB pages long before it reaches the end, so a late change is a
   layout shift (the nav links, 2026-10-28).

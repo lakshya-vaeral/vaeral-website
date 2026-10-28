@@ -453,6 +453,12 @@ re-verified on 2026-10-28 against the Vercel API and the live site:
 - The header on the 18 template pages works on phones but is tall (logo, two rows of links, button).
   A menu button like the homepage's would need a small script, since those pages have no runtime.
 
+**Found by the SEO/GEO audit of 2026-10-28, waiting on a decision:**
+- The homepage card is still titled "Review Seeding", with "Insert Review" buttons in its graphic,
+  and claims "an average 2-star rating improvement within 90 days" without a source. July's
+  approved copy changes did not cover these. The "Response Management" card's description is
+  LinkedIn copy ("Build founder authority and thought leadership").
+
 **Housekeeping:**
 - `npm run health` still expects founding year 2022; the site has said 2020 since `c718d0f`
   (2026-09-09). The check is wrong, not the site.
@@ -526,7 +532,10 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
 - **Homepage:** the services section generated from `content/services` (`6033b0c`, rebuilt as a
   split layout in `d541691` and as a haloed-ring list in `cb5b196`); a case-studies nav link and CTA
   (`1be0ae1`); the team wheel grown to 16 (`24efc0a` onwards); the Play Store card animation
-  (`86d0c10` onwards); the Google Preferred Sources button (`c74bd28` onwards).
+  (`86d0c10` onwards); the Google Preferred Sources button (`c74bd28` onwards). The July copy
+  corrections (`778c150`) reached only the HTML, so hydration put the original wording back ("we
+  seed authentic reviews", the 95%/100%/13-month stats) for every visitor and Googlebot until
+  2026-10-28, when they were applied to the page module `team-wheel.js` serves as well.
 - **Forms (2026-09-19 to 09-23):** every form goes to our own endpoints (`cb6c837`), Framer's form
   backend removed from everything served and guarded by the build (`d9d89fa`, `e5479e3`), spam
   handling (`9dbd3ee`), several notification mailboxes (`54cc062`).

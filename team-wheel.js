@@ -181,7 +181,9 @@ const memberLiteral = (m) =>
   `{bio:\`${m.bio}\`,name:\`${m.name}\`,profile:ip({pixelHeight:303,pixelWidth:303,src:\`/assets/team/${m.photo}\`},\`\`),role:\`${m.role}\`}`;
 
 // Writes dist/assets/framer/team-wheel.mjs from the vendored chunk. Returns the member count.
-export function buildTeamWheelChunk({ root, distAssets }) {
+// `patch` gets the finished source: the chunk is the whole homepage module, so the build's
+// homepage copy corrections have to land here too or hydration reverts them.
+export function buildTeamWheelChunk({ root, distAssets, patch = (s) => s }) {
   let src = fs.readFileSync(path.join(root, 'vendor', 'framer', TEAM_CHUNK), 'utf8');
 
   // sibling modules keep coming from the CDN; relative imports would resolve to our host
@@ -221,7 +223,7 @@ export function buildTeamWheelChunk({ root, distAssets }) {
   }
 
   src = enlargeOrbit(src);
-  src = dropFramerFormBackend(src);
+  src = patch(dropFramerFormBackend(src));
 
   const out = path.join(distAssets, 'framer', 'team-wheel.mjs');
   fs.mkdirSync(path.dirname(out), { recursive: true });
