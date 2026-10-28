@@ -561,7 +561,11 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   within a few px of wrapping and the font swap moved them (PageSpeed CLS 0.100); trailing-slash
   URLs 308 to the canonical form (`vercel.json`); a real `404.html` (noindex); sitemap hub dates
   taken from content, so the sitemap no longer changes on every build; `npm run health` expects
-  founding year 2020 and reports a timeout as a FAIL instead of crashing.
+  founding year 2020 and reports a timeout as a FAIL instead of crashing. Homepage alt text
+  (Bing site scan, 2026-10-29): team photos carry each member's name and the content
+  illustrations a description (`HOMEPAGE_ALTS`, in the HTML and the page module), cutting empty
+  alts from 71 to 22; the rest are decoration and correctly stay empty, plus the Review Seeding
+  grid until that card is decided.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

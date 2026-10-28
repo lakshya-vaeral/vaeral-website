@@ -90,6 +90,10 @@ export const TEAM_EXTRA = [
   },
 ];
 
+// photo id -> member name, read from the vendored chunk by buildTeamWheelChunk and used by
+// patchHomepageTeam to give the server-rendered photos the same alt text as the chunk.
+const TEAM_NAMES = {};
+
 // Exact-count replacement: the chunk is minified, so a miss means the bundle changed.
 function swap(src, from, to, times, what) {
   const n = src.split(from).length - 1;
@@ -199,6 +203,13 @@ export function buildTeamWheelChunk({ root, distAssets, patch = (s) => s }) {
     throw new Error('team wheel: chunk gained a relative dynamic import — chunk changed');
   }
 
+  for (const [, name, id] of src.matchAll(/name:`([^`]+)`,profile:ip\(\{[^{}]*images\/([A-Za-z0-9]+)\.png/g)) {
+    TEAM_NAMES[id] = name;
+  }
+  for (const id of Object.keys(TEAM_PHOTOS)) {
+    if (!TEAM_NAMES[id]) throw new Error(`team wheel: no name found for photo ${id} — chunk changed`);
+  }
+
   // the ten photos become ours; each appears once per array, so twice
   for (const [id, file] of Object.entries(TEAM_PHOTOS)) {
     const cdn = `https://framerusercontent.com/images/${id}.png?width=303&height=303`;
@@ -222,6 +233,16 @@ export function buildTeamWheelChunk({ root, distAssets, patch = (s) => s }) {
     src = src.slice(0, end - 1) + ',' + extra + src.slice(end - 1);
   }
 
+  // Every photo shipped with an empty alt (ip's second argument), so a screen reader heard
+  // nothing and Bing's site scan counted each one as missing. The member's name is the alt.
+  const total = 2 * (existing + TEAM_EXTRA.length);
+  let named = 0;
+  src = src.replace(/name:`([^`]+)`,profile:ip\((\{[^{}]*\}),``\)/g, (_, name, image) => {
+    named++;
+    return `name:\`${name}\`,profile:ip(${image},\`${name}\`)`;
+  });
+  if (named !== total) throw new Error(`team wheel: expected ${total} photos to name, found ${named} — chunk changed`);
+
   src = enlargeOrbit(src);
   src = patch(dropFramerFormBackend(src));
 
@@ -241,6 +262,19 @@ export function patchHomepageTeam(html) {
     throw new Error(`homepage team: expected the export to preload ${TEAM_CHUNK} once, found ${refs} — re-vendor the chunk`);
   }
   html = html.replace(cdnChunk, TEAM_CHUNK_LOCAL); // do not preload a copy we never import
+
+  // The server-rendered photos get the same alt as the chunk gives them after hydration.
+  const ids = Object.keys(TEAM_NAMES);
+  if (!ids.length) throw new Error('homepage team: buildTeamWheelChunk must run first');
+  const seen = new Set();
+  html = html.replace(/<img\b[^>]*>/g, (tag) => {
+    const id = ids.find((i) => tag.includes(`framerusercontent.com/images/${i}.png`));
+    if (!id || !/\salt(?=[\s>])/.test(tag)) return tag;
+    seen.add(id);
+    return tag.replace(/\salt(?=[\s>])/, ` alt="${TEAM_NAMES[id].replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`);
+  });
+  const missing = ids.filter((i) => !seen.has(i));
+  if (missing.length) throw new Error(`homepage team: no server-rendered photo found for ${missing.join(', ')} — re-check the export`);
   const firstPreload = html.indexOf('<link rel="modulepreload"');
   const firstModule = html.indexOf('type="module"');
   if (firstPreload < 0 || firstModule < firstPreload) throw new Error('homepage team: head layout changed');

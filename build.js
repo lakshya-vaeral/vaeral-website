@@ -3758,6 +3758,72 @@ function patchHomepageCopy(src, where = 'count') {
   return src;
 }
 
+// Alt text for the homepage images that carry meaning. The export ships every image with an
+// empty alt, and Bing's site scan flagged all 70 of them. Decoration (glows, badges, background
+// textures, the hero streaks and #V mark, section header icons) keeps its empty alt, which is
+// what accessibility guidelines ask for, so a screen reader skips it. The Review Seeding grid
+// stays empty until that card's wording is decided. Team photos are named in team-wheel.js.
+//
+// Same two targets as HOMEPAGE_COPY: `count` img tags in the final HTML, matched on `html`, and
+// `inChunk` image objects in the page module, matched on `chunk`, because hydration rebuilds
+// these images from the module. robot_nodes and negative_post are matched by size, as
+// patchImages does, since the module still carries Framer's original sources for them.
+const HOMEPAGE_ALTS = [
+  { html: 'src="/assets/robot_nodes.png"', chunk: 'pixelHeight:698,pixelWidth:608', count: 1, inChunk: 3,
+    alt: 'Alert: new negative post detected, posted by an anonymous Reddit account' },
+  { html: 'sNKeQAU4GFrqfgvCqAIvZCU1KRA', chunk: 'sNKeQAU4GFrqfgvCqAIvZCU1KRA', count: 1, inChunk: 3,
+    alt: 'Quora answer flagged as a new mention, calling the service a scam' },
+  { html: 'jR3xO4UqNnOFOYBwWcdiZoSo4Uk', chunk: 'jR3xO4UqNnOFOYBwWcdiZoSo4Uk', count: 2, inChunk: 3,
+    alt: 'Play Store panel showing a spike in new negative reviews' },
+  { html: 'tCjvg32sA5rFsqvwvMVEYvz5NI', chunk: 'tCjvg32sA5rFsqvwvMVEYvz5NI', count: 1, inChunk: 2,
+    alt: "93% of consumers say online reviews drive purchase decisions. Funny thing is, you did nothing wrong. You just didn't protect what you built. That's the gap Vaeral closes." },
+  { html: 'RqU9sGCifMNneNUVRVsBVJRRTQ', chunk: 'RqU9sGCifMNneNUVRVsBVJRRTQ', count: 3, inChunk: 4,
+    alt: 'Reputation dashboard: a sentiment trend chart and an alert flagging a negative-sentiment spike' },
+  { html: 'src="/assets/negative_post.png"', chunk: 'pixelHeight:415,pixelWidth:820', count: 2, inChunk: 2,
+    alt: 'Reddit logo at the centre of a network of connected conversations' },
+  { html: 'PWRrtbAmsdt9057TfZaX8kmNpUo', chunk: 'PWRrtbAmsdt9057TfZaX8kmNpUo', count: 1, inChunk: 3,
+    alt: 'Diagram linking Quora answers to brand authority and search volume' },
+  { html: 'DDUBRMSIXXMIdJzciyGIWROGGPc', chunk: 'DDUBRMSIXXMIdJzciyGIWROGGPc', count: 1, inChunk: 2,
+    alt: 'Diagram: online legitimacy, compliance and ongoing upkeep leading to a Wikipedia page' },
+  { html: 'pCyLylRWkSgSEhqp1aZ0cXJIGlM', chunk: 'pCyLylRWkSgSEhqp1aZ0cXJIGlM', count: 2, inChunk: 2,
+    alt: 'LinkedIn profile mock-up with reputation audit and enhance-presence actions' },
+  { html: 'obxRHKKkVUyCKXbHAXaX1q5JPI', chunk: 'obxRHKKkVUyCKXbHAXaX1q5JPI', count: 1, inChunk: 1,
+    alt: 'LinkedIn profile mock-up with reputation audit and enhance-presence actions' },
+  { html: 'UuTkzMFhUu7L8CrTmmnSc7bOV8', chunk: 'UuTkzMFhUu7L8CrTmmnSc7bOV8', count: 1, inChunk: 2,
+    alt: 'Vaeral hub connecting community, trust, support and messaging channels' },
+];
+
+function patchHomepageAlts(src, where = 'count') {
+  const found = new Map(HOMEPAGE_ALTS.map((a) => [a, 0]));
+  if (where === 'count') {
+    // An img tag naming the image, with the export's bare (empty) alt attribute.
+    src = src.replace(/<img\b[^>]*>/g, (tag) => {
+      const a = HOMEPAGE_ALTS.find((e) => tag.includes(e.html));
+      if (!a || !/\salt(?=[\s>])/.test(tag)) return tag;
+      found.set(a, found.get(a) + 1);
+      return tag.replace(/\salt(?=[\s>])/, ` alt="${escapeHtml(a.alt)}"`);
+    });
+  } else {
+    // A module image object opens with alt:`` and names its file a few hundred characters on,
+    // before the next object starts. Its sizes field can hold ${...}, so braces cannot bound it.
+    src = src.replace(/\{alt:``,/g, (open, at, whole) => {
+      const next = whole.indexOf('{alt:', at + 1);
+      const body = whole.slice(at, next === -1 ? at + 900 : Math.min(next, at + 900));
+      const a = HOMEPAGE_ALTS.find((e) => body.includes(e.chunk));
+      if (!a) return open;
+      if (/[`$]/.test(a.alt)) throw new Error(`homepage alt "${a.alt}" cannot sit inside a template literal`);
+      found.set(a, found.get(a) + 1);
+      return `{alt:\`${a.alt}\`,`;
+    });
+  }
+  for (const [a, n] of found) {
+    if (n !== a[where]) {
+      throw new Error(`homepage alt for ${a.html} (${where}): expected ${a[where]} image(s), found ${n} — the export changed`);
+    }
+  }
+  return src;
+}
+
 function patchHomepageSeo(html) {
   const before = html;
 
@@ -3821,7 +3887,7 @@ function main() {
   const teamMembers = buildTeamWheelChunk({
     root: ROOT,
     distAssets: DIST_ASSETS,
-    patch: (src) => patchHomepageCopy(src, 'inChunk'),
+    patch: (src) => patchHomepageAlts(patchHomepageCopy(src, 'inChunk'), 'inChunk'),
   });
   FORM_CHUNK_MAP = buildFormChunks({ root: ROOT, distAssets: DIST_ASSETS });
   console.log(`  ✓ team wheel chunk: ${teamMembers} members`);
@@ -4056,7 +4122,8 @@ function main() {
     indexHtml = disableSPARouting(indexHtml, true);
     fs.writeFileSync(
       indexFile,
-      addMainLandmark(nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')))),
+      // Alts last: patchImages rewrites the robot_nodes and negative_post tags wholesale.
+      patchHomepageAlts(addMainLandmark(nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))))),
     );
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }
