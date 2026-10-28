@@ -35,6 +35,9 @@ async function get(url, { redirect = 'follow' } = {}) {
     const res = await fetch(url, { headers: { 'User-Agent': UA }, redirect, signal: ac.signal });
     const body = res.status < 400 || redirect === 'manual' ? await res.text() : '';
     return { status: res.status, body, headers: res.headers, url: res.url };
+  } catch {
+    // Timeout or network error: status 0 makes every caller's existing check FAIL instead of crashing the run.
+    return { status: 0, body: '', headers: new Headers(), url };
   } finally {
     clearTimeout(t);
   }
@@ -149,7 +152,7 @@ if (!orgBlock) {
   bad('organisation record present', 'schema', 'ProfessionalService block missing from the homepage');
 } else {
   const expect = {
-    name: 'Vaeral', legalName: 'House of Swing', foundingDate: '2022',
+    name: 'Vaeral', legalName: 'House of Swing', foundingDate: '2020',
     '@id': 'https://www.vaeral.com/#organization',
   };
   const wrong = Object.entries(expect).filter(([k, v]) => orgBlock[k] !== v);
