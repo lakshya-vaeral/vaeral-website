@@ -566,6 +566,10 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   illustrations a description (`HOMEPAGE_ALTS`, in the HTML and the page module), cutting empty
   alts from 71 to 22; the rest are decoration and correctly stay empty, plus the Review Seeding
   grid until that card is decided.
+- **CMS outage (2026-09-23 → 2026-11-11):** the site-wide CSP (`8344cea`) also covers `/admin`,
+  and its `connect-src` left out `https://api.github.com`, so after sign-in the browser refused
+  every Decap call and Decap fell back to the login screen without an error. Fixed by allowing
+  that origin; `npm run health` now fails if `/admin`'s CSP stops allowing it.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

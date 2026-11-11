@@ -179,6 +179,17 @@ for (const p of legacy) {
 }
 if (!redirFails) ok(`all ${legacy.length} sampled legacy URLs still redirect`);
 
+// --- 7. The CMS can reach GitHub ---------------------------------------------
+
+// Decap reads and publishes through api.github.com. The site-wide CSP blocked it from
+// 2026-09-23 to 2026-11-11: sign-in "worked" and then dropped back to the login screen.
+console.log('\nCMS');
+const admin = await get(BASE + '/admin');
+const connectSrc = ((admin.headers.get('content-security-policy') || '').match(/connect-src([^;]*)/) || [, ''])[1];
+if (admin.status !== 200) bad('/admin reachable', 'cms', `/admin returned ${admin.status}`);
+else if (connectSrc && !connectSrc.includes('https://api.github.com')) bad('/admin may call api.github.com', 'cms', 'the CSP connect-src on /admin does not allow https://api.github.com, so the CMS cannot load or publish');
+else ok('/admin may call api.github.com (CSP)');
+
 // --- summary -----------------------------------------------------------------
 
 console.log(`\n${'─'.repeat(64)}`);
