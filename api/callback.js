@@ -1,16 +1,20 @@
-// GitHub OAuth proxy for Decap CMS — step 2 of 2.
+// Google sign-in for Decap CMS — step 2 of 2.
 //
-// GitHub redirects back here with `?code=...&state=...`. We verify the state
-// against the cookie set by /api/auth, exchange the code for an access token
-// using the OAuth App's client secret, then hand the token back to the Decap
-// window via the postMessage handshake it expects.
+// Google redirects back here with `?code=...&state=...`. We verify the state
+// against the cookie set by /api/auth, exchange the code for the user's ID token,
+// and let in only verified Google Workspace accounts on vaeral.com. Those get the
+// CMS's GitHub token (a fine-grained token for this one repo, held in Vercel),
+// handed to the Decap window via the postMessage handshake its `github` backend
+// expects. Decap then reads and commits through the GitHub API as usual.
 //
 // Required env vars:
-//   OAUTH_GITHUB_CLIENT_ID
-//   OAUTH_GITHUB_CLIENT_SECRET
+//   OAUTH_GOOGLE_CLIENT_ID
+//   OAUTH_GOOGLE_CLIENT_SECRET
+//   CMS_GITHUB_TOKEN
 // See docs/CMS-ADMIN-SETUP.md.
 
-const PROVIDER = 'github';
+const PROVIDER = 'github'; // Decap's backend, not the sign-in provider
+const DOMAIN = 'vaeral.com';
 
 function parseCookies(header = '') {
   return Object.fromEntries(
@@ -41,10 +45,11 @@ function renderHandshake(status, content) {
 }
 
 export default async function handler(req, res) {
-  const clientId = process.env.OAUTH_GITHUB_CLIENT_ID;
-  const clientSecret = process.env.OAUTH_GITHUB_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    res.status(500).send('OAuth is not configured: OAUTH_GITHUB_CLIENT_ID / OAUTH_GITHUB_CLIENT_SECRET missing.');
+  const clientId = process.env.OAUTH_GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.OAUTH_GOOGLE_CLIENT_SECRET;
+  const githubToken = process.env.CMS_GITHUB_TOKEN;
+  if (!clientId || !clientSecret || !githubToken) {
+    res.status(500).send('OAuth is not configured: OAUTH_GOOGLE_CLIENT_ID / OAUTH_GOOGLE_CLIENT_SECRET / CMS_GITHUB_TOKEN missing.');
     return;
   }
 
@@ -67,25 +72,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
         client_id: clientId,
         client_secret: clientSecret,
-        code,
+        redirect_uri: `${proto}://${host}/api/callback`,
+        grant_type: 'authorization_code',
       }),
     });
     const data = await tokenRes.json();
 
-    if (data.error || !data.access_token) {
+    if (data.error || !data.id_token) {
       res.setHeader('Content-Type', 'text/html');
       res.status(401).send(renderHandshake('error', { message: data.error_description || data.error || 'Token exchange failed.' }));
       return;
     }
 
+    // The ID token came straight from Google over TLS, so its signature needs no check
+    // (Google's OpenID docs allow this); its claims do. `hd` is set only for Workspace
+    // accounts, so an ordinary Google account registered with a vaeral.com address fails.
+    const claims = JSON.parse(Buffer.from(data.id_token.split('.')[1], 'base64url').toString());
+    if (claims.aud !== clientId || claims.hd !== DOMAIN || claims.email_verified !== true) {
+      res.setHeader('Content-Type', 'text/html');
+      res.status(403).send(renderHandshake('error', { message: `Sign in with your @${DOMAIN} Google account. ${claims.email || 'This account'} is not allowed.` }));
+      return;
+    }
+
     res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(renderHandshake('success', { token: data.access_token, provider: PROVIDER }));
+    res.status(200).send(renderHandshake('success', { token: githubToken, provider: PROVIDER }));
   } catch (err) {
     res.setHeader('Content-Type', 'text/html');
     res.status(500).send(renderHandshake('error', { message: err.message }));

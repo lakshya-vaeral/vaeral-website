@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "preview": "npx serve dist",
-    "check": "node scripts/validate-schema.mjs && node scripts/check-content.mjs",
+    "check": "node scripts/validate-schema.mjs && node scripts/check-content.mjs && node scripts/check-cms-auth.mjs",
     "check:render": "node scripts/render-check.mjs",
     "verify": "npm run build && npm run check && npm run check:render",
     "deploy": "npm run verify && node scripts/indexnow-submit.mjs",

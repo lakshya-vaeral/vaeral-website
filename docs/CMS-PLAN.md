@@ -189,6 +189,11 @@ template fill; drop the "Reddit has a way" matching):
   **GitHub account added as a repo collaborator** (write access). One-time setup; after that the
   editor just sees a normal CMS. Escape hatch if GitHub login ever becomes a problem: swap the
   editor layer to Sanity/TinaCloud (email/password) without redoing the rest.
+- **Auth — CHANGED (2026-11-11): Google sign-in.** Editors sign in with a vaeral.com Google
+  Workspace account; `api/callback.js` checks the ID token (`hd`, `email_verified`, `aud`) and
+  hands Decap a fine-grained GitHub token for this repo only (`CMS_GITHUB_TOKEN`). Decap stays on
+  `backend: github`. Editors no longer need GitHub accounts, and every CMS commit is authored by
+  the token's owner. See [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md).
 - Editorial workflow (drafts/PRs) optional; can enable later.
 
 ---
@@ -495,22 +500,20 @@ A new dev can read those and pick up with full context.
 are secrets/access, not code):**
 - **Gmail OAuth** for the forms (`GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`,
   `GMAIL_REFRESH_TOKEN`) — Vercel env only; `scripts/get-refresh-token.cjs` mints a new token.
-- **GitHub OAuth App** Client ID + **Client secret** — live only in the GitHub
-  OAuth App settings and the Vercel env vars (`OAUTH_GITHUB_CLIENT_ID`,
-  `OAUTH_GITHUB_CLIENT_SECRET`). A new dev needs access to the GitHub account/org
-  (`lakshya-vaeral`) that owns the OAuth App, or must register a new one.
+- **CMS sign-in** (since 2026-11-11): the Google OAuth client (`OAUTH_GOOGLE_CLIENT_ID`,
+  `OAUTH_GOOGLE_CLIENT_SECRET`) and the fine-grained GitHub token (`CMS_GITHUB_TOKEN`), in
+  Vercel env only. The client lives in the Google Cloud project; the token under
+  `lakshya-vaeral`'s GitHub developer settings.
 - **Vercel project access** — Production Branch, domains/DNS, env vars, build
   settings all live in the Vercel dashboard. Invite the new dev to the Vercel team.
-- **GitHub repo admin** — to manage the marketer's collaborator access and the
-  OAuth App. Invite the new dev with appropriate rights.
-- The **marketer's GitHub account** (the publishing identity) — just needs Write
-  collaborator access on the repo; not a secret, but worth noting who it is.
+- **GitHub repo admin** — to manage the repo and the CMS token. Invite the new dev with
+  appropriate rights. The marketer needs no GitHub account, only a vaeral.com Google account.
 
 **First-15-minutes checklist for the new dev:**
 1. Read [CLAUDE.md](../CLAUDE.md) then this plan top-to-bottom.
 2. `npm install` (package-lock is gitignored; deps: cheerio/marked/front-matter/dotenv/nodemailer).
 3. `npm run build` → confirm `dist/` regenerates clean (incl. `dist/admin/`).
-4. Get invited to the **Vercel project** and **GitHub repo**; locate the OAuth App.
+4. Get invited to the **Vercel project** and **GitHub repo**; locate the CMS's Google client and token.
 5. Current state: **all six phases done**, live on `www.vaeral.com` from `main`. Later work is in
    §12, open items in §9.
 
@@ -570,6 +573,9 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   and its `connect-src` left out `https://api.github.com`, so after sign-in the browser refused
   every Decap call and Decap fell back to the login screen without an error. Fixed by allowing
   that origin; `npm run health` now fails if `/admin`'s CSP stops allowing it.
+- **CMS sign-in moved to Google (2026-11-11):** see §7. `npm run check` runs
+  `scripts/check-cms-auth.mjs`, which asserts that only a verified vaeral.com Workspace account
+  gets the GitHub token.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

@@ -11,6 +11,16 @@
   <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
+  <!-- Sign-in is Google (api/auth.js), but Decap's github backend labels its button for GitHub. -->
+  <script>
+    new MutationObserver(function () {
+      var b = document.querySelector('button[class*="LoginButton"]');
+      if (!b) return;
+      b.childNodes.forEach(function (n) { if (n.nodeType === 3 && n.nodeValue === 'Login with GitHub') n.nodeValue = 'Sign in with Google'; });
+      var icon = b.querySelector('[class*="LoginButtonIcon"]');
+      if (icon) icon.style.display = 'none';
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  </script>
   <!-- Decap CMS — the entire editor UI. Config lives in ./config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </body>

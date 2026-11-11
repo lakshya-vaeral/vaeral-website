@@ -23,7 +23,7 @@ and pages such as /about. [CLAUDE.md](CLAUDE.md) is the orientation map;
 - `index.html` — the homepage Framer export, the build's input for `/`.
 - `dist/` — the build output Vercel serves.
 - `public/admin/` (Decap), `public/assets/` (images, including CMS uploads).
-- `api/` — Vercel functions: the CMS's GitHub OAuth proxy and the contact/newsletter forms.
+- `api/` — Vercel functions: the CMS's Google sign-in proxy and the contact/newsletter forms.
 - `scripts/` — validation, the live health check, the render check, IndexNow.
 
 ## Dependencies

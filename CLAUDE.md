@@ -18,9 +18,10 @@ non-technical marketer edits content in Decap CMS at `/admin`.
 
 - **Path:** keep the Framer export; **no rebuild**. Keep the design byte-for-byte: fix breakage,
   don't restyle.
-- **CMS:** **Decap CMS** (`public/admin/`), GitHub backend on `main`, signed in through our own OAuth
-  proxy (`api/auth.js`, `api/callback.js`). Content types: blog posts, case studies, service pages,
-  pages (About).
+- **CMS:** **Decap CMS** (`public/admin/`), GitHub backend on `main`. Editors sign in with a
+  **Google Workspace account on vaeral.com** through our own proxy (`api/auth.js`, `api/callback.js`),
+  which then hands Decap a GitHub token scoped to this repo (since 2026-11-11; GitHub sign-in before).
+  Content types: blog posts, case studies, service pages, pages (About).
 - **Editor:** a **non-technical marketer**, so the CMS stays no-code.
 - **Host:** Vercel project `vaeral-website`, production branch `main`, domain `www.vaeral.com`
   (the apex redirects to www). **Source of truth:** this Git repo.
@@ -120,13 +121,16 @@ npx serve dist         # view the built site locally
   differ from PageSpeed's Linux Chrome by a few px, enough to decide whether a row wraps (the /about
   tag chips, 2026-10-28). Check PageSpeed's own screenshot and culprits, not only a local trace.
 - **Check phones** (360–430px) as well as desktop for any visual change.
+- **The site-wide CSP in `vercel.json` also covers `/admin`.** Its `connect-src` must keep
+  `https://api.github.com`, or the CMS signs in and then silently drops back to the login screen
+  (broken 2026-09-23 to 2026-11-11). `npm run health` checks it.
 
 ## Credentials (never commit values)
 
-- Local `.env` (gitignored): `VERCEL_TOKEN` for the Vercel API, and the Gmail variables from
-  `.env.example` for testing forms locally.
+- Local `.env` (gitignored): `VERCEL_TOKEN` for the Vercel API, the CMS's Google client
+  (`OAUTH_GOOGLE_*`), and the Gmail variables from `.env.example` for testing forms locally.
 - Vercel project env: `GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`
-  (forms) and `OAUTH_GITHUB_CLIENT_ID`, `OAUTH_GITHUB_CLIENT_SECRET` (CMS login). Optional:
+  (forms) and `OAUTH_GOOGLE_CLIENT_ID`, `OAUTH_GOOGLE_CLIENT_SECRET`, `CMS_GITHUB_TOKEN` (CMS login). Optional:
   `FORM_NOTIFY_TO`, `CONTACT_BLOCKLIST`.
 - Google APIs (PageSpeed, Search Console, Analytics): a user OAuth credential in
   `~/.vaeral-google.json`, outside the repo. Its tooling lives outside the repo too (decided 2026-10-07).
