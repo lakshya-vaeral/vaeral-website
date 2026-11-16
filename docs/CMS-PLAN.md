@@ -194,6 +194,10 @@ template fill; drop the "Reddit has a way" matching):
   hands Decap a fine-grained GitHub token for this repo only (`CMS_GITHUB_TOKEN`). Decap stays on
   `backend: github`. Editors no longer need GitHub accounts, and every CMS commit is authored by
   the token's owner. See [CMS-ADMIN-SETUP.md](CMS-ADMIN-SETUP.md).
+- **Auth — ADDED (2026-11-16): per-person passwords.** For people who work with us without a
+  vaeral.com account, the sign-in popup also takes a username and password, checked against scrypt
+  hashes in `CMS_USERS` (Vercel env). Passwords are generated, not chosen, because there is no
+  lockout. First account: `gajanand`.
 - Editorial workflow (drafts/PRs) optional; can enable later.
 
 ---
@@ -501,8 +505,8 @@ are secrets/access, not code):**
 - **Gmail OAuth** for the forms (`GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`,
   `GMAIL_REFRESH_TOKEN`) — Vercel env only; `scripts/get-refresh-token.cjs` mints a new token.
 - **CMS sign-in** (since 2026-11-11): the Google OAuth client (`OAUTH_GOOGLE_CLIENT_ID`,
-  `OAUTH_GOOGLE_CLIENT_SECRET`) and the fine-grained GitHub token (`CMS_GITHUB_TOKEN`), in
-  Vercel env only. The client lives in the Google Cloud project; the token under
+  `OAUTH_GOOGLE_CLIENT_SECRET`), the fine-grained GitHub token (`CMS_GITHUB_TOKEN`) and the
+  password hashes (`CMS_USERS`), in Vercel env only. The client lives in the Google Cloud project; the token under
   `lakshya-vaeral`'s GitHub developer settings.
 - **Vercel project access** — Production Branch, domains/DNS, env vars, build
   settings all live in the Vercel dashboard. Invite the new dev to the Vercel team.
@@ -576,6 +580,8 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
 - **CMS sign-in moved to Google (2026-11-11):** see §7. `npm run check` runs
   `scripts/check-cms-auth.mjs`, which asserts that only a verified vaeral.com Workspace account
   gets the GitHub token.
+- **Password sign-in added (2026-11-16):** for people without a vaeral.com account; see §7. The
+  same check covers right, wrong and unknown logins.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

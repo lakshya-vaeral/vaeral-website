@@ -1,6 +1,9 @@
-// Google sign-in for Decap CMS — step 2 of 2.
+// Sign-in for Decap CMS — step 2 of 2.
 //
-// Google redirects back here with `?code=...&state=...`. We verify the state
+// Two ways in, both ending in the same token handoff:
+// - POST: the username and password form from /api/auth, checked against CMS_USERS,
+//   for people who work with us but have no vaeral.com account.
+// - GET: Google redirects back here with `?code=...&state=...`. We verify the state
 // against the cookie set by /api/auth, exchange the code for the user's ID token,
 // and let in only verified Google Workspace accounts on vaeral.com. Those get the
 // CMS's GitHub token (a fine-grained token for this one repo, held in Vercel),
@@ -11,10 +14,21 @@
 //   OAUTH_GOOGLE_CLIENT_ID
 //   OAUTH_GOOGLE_CLIENT_SECRET
 //   CMS_GITHUB_TOKEN
+//   CMS_USERS  — JSON {"username": "<salt hex>:<scrypt hash hex>"}; see docs/CMS-ADMIN-SETUP.md
 // See docs/CMS-ADMIN-SETUP.md.
+
+import crypto from 'node:crypto';
 
 const PROVIDER = 'github'; // Decap's backend, not the sign-in provider
 const DOMAIN = 'vaeral.com';
+
+// Hashes even for an unknown user, so the response time doesn't reveal which usernames exist.
+function passwordOk(username, password) {
+  const users = JSON.parse(process.env.CMS_USERS || '{}');
+  const [salt, hash] = (Object.hasOwn(users, username) ? users[username] : ':').split(':');
+  const actual = crypto.scryptSync(String(password), salt || 'no-such-user', 64);
+  return hash?.length === 128 && crypto.timingSafeEqual(actual, Buffer.from(hash, 'hex'));
+}
 
 function parseCookies(header = '') {
   return Object.fromEntries(
@@ -50,6 +64,21 @@ export default async function handler(req, res) {
   const githubToken = process.env.CMS_GITHUB_TOKEN;
   if (!clientId || !clientSecret || !githubToken) {
     res.status(500).send('OAuth is not configured: OAUTH_GOOGLE_CLIENT_ID / OAUTH_GOOGLE_CLIENT_SECRET / CMS_GITHUB_TOKEN missing.');
+    return;
+  }
+
+  if (req.method === 'POST') {
+    const { username = '', password = '' } = req.body || {};
+    if (!passwordOk(String(username).trim().toLowerCase(), password)) {
+      // ponytail: no lockout (no store to count attempts). Fine while passwords are long and
+      // generated; add a rate limit (e.g. Vercel KV) if people ever choose their own.
+      await new Promise((r) => setTimeout(r, 1000));
+      res.writeHead(303, { Location: '/api/auth?error=1' });
+      res.end();
+      return;
+    }
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(renderHandshake('success', { token: githubToken, provider: PROVIDER }));
     return;
   }
 

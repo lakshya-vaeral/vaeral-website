@@ -1,7 +1,7 @@
-# CMS Admin Setup — Decap + Google sign-in
+# CMS Admin Setup — Decap + Google or password sign-in
 
 How the `/admin` editor is wired, and the one-time steps a human must do (the Google OAuth
-client, the GitHub token, the Vercel env vars). Code lives in `public/admin/` (the editor) and
+client, the GitHub token, the Vercel env vars, password accounts). Code lives in `public/admin/` (the editor) and
 `api/auth.js` + `api/callback.js` (the sign-in proxy). Architecture rationale is in
 [CMS-PLAN.md](CMS-PLAN.md) §7.
 
@@ -9,18 +9,20 @@ client, the GitHub token, the Vercel env vars). Code lives in `public/admin/` (t
 
 ```
 Editor → www.vaeral.com/admin  (Decap CMS, public/admin/index.html + config.yml)
-  → "Sign in with Google" → popup to /api/auth
-  → /api/auth redirects to Google sign-in (asks only for `openid email`)
-  → Google → /api/callback?code=… → exchanges the code for the user's ID token
-  → only a verified Google Workspace account on vaeral.com passes (`hd`, `email_verified`, `aud`)
+  → "Sign in" → popup to /api/auth, which offers two ways in:
+     a) "Continue with Google" → Google sign-in (asks only for `openid email`)
+        → Google → /api/callback?code=… → exchanges the code for the user's ID token
+        → only a verified Google Workspace account on vaeral.com passes (`hd`, `email_verified`, `aud`)
+     b) username + password → POST /api/callback → checked against the hashes in CMS_USERS
+        (wrong → back to the form with an error, after a 1 s delay)
   → the CMS's GitHub token is postMessaged back to Decap → Decap commits Markdown to GitHub
   → Vercel rebuilds (npm run build) → live
 ```
 
-Decap still runs its `github` backend; only the sign-in in front of it is Google. The Google
-client secret and the GitHub token live only in Vercel env. The GitHub token does reach the
+Decap still runs its `github` backend; only the sign-in in front of it is ours. The Google
+client secret, the GitHub token and the password hashes live only in Vercel env. The GitHub token does reach the
 signed-in editor's browser (Decap calls the GitHub API directly), which is why it is scoped to this
-one repo. The button's "Sign in with Google" label is set by a small script in
+one repo. The button's "Sign in" label is set by a small script in
 `public/admin/index.html`; Decap's own label says GitHub.
 
 Every CMS commit is authored by the token's owner, not by the editor who published.
@@ -58,14 +60,29 @@ Vercel project → **Settings → Environment Variables** (Production + Preview)
 | `OAUTH_GOOGLE_CLIENT_ID` | the Google client ID from step 1 |
 | `OAUTH_GOOGLE_CLIENT_SECRET` | the Google client secret from step 1 |
 | `CMS_GITHUB_TOKEN` | the token from step 2 |
+| `CMS_USERS` | the password accounts, see step 4 |
 
 Redeploy so the functions pick them up. (`OAUTH_GITHUB_CLIENT_ID`/`_SECRET` belonged to the GitHub
 sign-in used until 2026-11-11. The `GMAIL_*` variables belong to the site's forms, not the CMS.)
 
 ### 4. Who can sign in
 
-Anyone with a Google Workspace account on vaeral.com. To remove someone, suspend or delete their
-Workspace account; to change the domain, edit `DOMAIN` in `api/callback.js`.
+- **Google:** anyone with a Google Workspace account on vaeral.com. To remove someone, suspend or
+  delete their Workspace account; to change the domain, edit `DOMAIN` in `api/callback.js`.
+- **Username and password:** the accounts in `CMS_USERS`, for people who work with us without a
+  vaeral.com account (the first: `gajanand`, 2026-11-16). Usernames are lowercase and matched
+  case-insensitively. There is no self-service reset, and no lockout after wrong guesses (nothing
+  to store a count in), which is why every password is generated, never chosen.
+
+To add someone, or reset a password, generate a password and its hash:
+
+```bash
+node -e 'const c=require("crypto"),p=c.randomBytes(15).toString("base64url"),s=c.randomBytes(16).toString("hex");console.log("password:",p);console.log("hash:",s+":"+c.scryptSync(p,s,64).toString("hex"))'
+```
+
+Then set `CMS_USERS` in Vercel to the JSON map of every account, e.g.
+`{"gajanand":"<hash>","newperson":"<hash>"}`, and redeploy. To remove someone, delete their entry.
+Give the password to the person directly, not in a shared channel.
 
 ## Branch: publishing goes live immediately
 

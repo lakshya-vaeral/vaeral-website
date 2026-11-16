@@ -19,8 +19,10 @@ non-technical marketer edits content in Decap CMS at `/admin`.
 - **Path:** keep the Framer export; **no rebuild**. Keep the design byte-for-byte: fix breakage,
   don't restyle.
 - **CMS:** **Decap CMS** (`public/admin/`), GitHub backend on `main`. Editors sign in with a
-  **Google Workspace account on vaeral.com** through our own proxy (`api/auth.js`, `api/callback.js`),
-  which then hands Decap a GitHub token scoped to this repo (since 2026-11-11; GitHub sign-in before).
+  **Google Workspace account on vaeral.com**, or, if they work with us without one, a **per-person
+  username and password** (`CMS_USERS`, scrypt hashes, since 2026-11-16), through our own proxy
+  (`api/auth.js`, `api/callback.js`). It then hands Decap a GitHub token scoped to this repo
+  (since 2026-11-11; GitHub sign-in before).
   Content types: blog posts, case studies, service pages, pages (About).
 - **Editor:** a **non-technical marketer**, so the CMS stays no-code.
 - **Host:** Vercel project `vaeral-website`, production branch `main`, domain `www.vaeral.com`
@@ -49,8 +51,9 @@ OAuth), never to Framer, and the build fails if a Framer form endpoint ever ship
 
 A floating `contenteditable` "LIVE ADMIN" bar, a password-protected publish route committing raw page
 HTML, and a build that injected posts by **string-matching the sentence "Reddit has a way…"**. All of
-it was removed on 2026-06-29. Do not bring back password auth, raw-HTML capture, or text-matching
-injection.
+it was removed on 2026-06-29. Do not bring back the shared admin password, raw-HTML capture, or
+text-matching injection. (Per-person CMS logins in front of Decap are a different thing, approved
+2026-11-16: each user has their own generated password, stored only as a hash in Vercel env.)
 
 ## Repo layout (current)
 
@@ -130,7 +133,8 @@ npx serve dist         # view the built site locally
 - Local `.env` (gitignored): `VERCEL_TOKEN` for the Vercel API, the CMS's Google client
   (`OAUTH_GOOGLE_*`), and the Gmail variables from `.env.example` for testing forms locally.
 - Vercel project env: `GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`
-  (forms) and `OAUTH_GOOGLE_CLIENT_ID`, `OAUTH_GOOGLE_CLIENT_SECRET`, `CMS_GITHUB_TOKEN` (CMS login). Optional:
+  (forms) and `OAUTH_GOOGLE_CLIENT_ID`, `OAUTH_GOOGLE_CLIENT_SECRET`, `CMS_GITHUB_TOKEN`, `CMS_USERS` (CMS
+  login). Optional:
   `FORM_NOTIFY_TO`, `CONTACT_BLOCKLIST`.
 - Google APIs (PageSpeed, Search Console, Analytics): a user OAuth credential in
   `~/.vaeral-google.json`, outside the repo. Its tooling lives outside the repo too (decided 2026-10-07).
