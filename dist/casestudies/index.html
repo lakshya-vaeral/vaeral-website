@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ORM Case Studies: Reddit &amp; Quora Results | Vaeral</title>
-<meta name="description" content="Explore our portfolio of successful projects and case studies.">
+<meta name="description" content="How Vaeral has helped fintech, e-pharmacy, streaming, pet nutrition, jewellery, holiday and on-demand app brands on Reddit, Quora, Google and the Play Store.">
 <link rel="canonical" href="https://www.vaeral.com/casestudies">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ORM Case Studies: Reddit &amp; Quora Results | Vaeral">
-<meta property="og:description" content="Explore our portfolio of successful projects and case studies.">
+<meta property="og:description" content="How Vaeral has helped fintech, e-pharmacy, streaming, pet nutrition, jewellery, holiday and on-demand app brands on Reddit, Quora, Google and the Play Store.">
 <meta property="og:url" content="https://www.vaeral.com/casestudies">
 <meta property="og:image" content="https://www.vaeral.com/assets/og-image.png">
 <link rel="icon" href="/assets/favicon.png">
@@ -20,7 +20,7 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-NYP7J14402');
+  if (location.hostname === 'www.vaeral.com') gtag('config', 'G-NYP7J14402');
 </script>
 <style>
   :root { color-scheme: dark; }
@@ -213,14 +213,14 @@
   </div>
   <main>
   <h1 class="title">Case Studies</h1>
-  <p class="lede">Explore our portfolio of successful projects and case studies.</p>
+  <p class="lede">How Vaeral has helped fintech, e-pharmacy, streaming, pet nutrition, jewellery, holiday and on-demand app brands on Reddit, Quora, Google and the Play Store.</p>
   <div class="grid">
     <a class="card" href="/on-demand-services-app">
       <img class="cover" src="/assets/case-study-hero.jpg" alt="From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack" loading="lazy">
       <div class="body">
         <div class="meta"><span>On-Demand Home Services</span></div>
         <h2>From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack</h2>
-        <p class="excerpt">The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.</p>
+        <p class="excerpt">The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.</p>
         <span class="more">Read case study &rarr;</span>
       </div>
     </a>
@@ -229,7 +229,7 @@
       <div class="body">
         <div class="meta"><span>OTT Streaming / Entertainment</span></div>
         <h2>From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable</h2>
-        <p class="excerpt">In a category dominated by Netflix, Prime and Disney+, the app had decent fundamentals but no visibility. Over 11 months it went from invisible to a fixture in the comparison conversations users were already having.</p>
+        <p class="excerpt">Up against Netflix, Prime and Disney+, the app had decent fundamentals but no visibility. In 11 months it became a fixture in users&#39; comparison conversations.</p>
         <span class="more">Read case study &rarr;</span>
       </div>
     </a>
@@ -365,6 +365,9 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
         });
         
         if (res.ok) {
+          // A key event in GA, so inquiries can be traced to pages and channels. GA's own form
+          // tracking never sees these: the form is sent by fetch, not submitted.
+          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form_name: 'contact' });
           if (submitBtn) {
             submitBtn.textContent = "Message Sent!";
             submitBtn.style.opacity = "1";
@@ -446,6 +449,7 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
           });
 
           if (res.ok) {
+            if (typeof gtag === 'function') gtag('event', 'newsletter_signup');
             if (submitBtn) {
               submitBtn.textContent = "Subscribed ✓";
               submitBtn.style.opacity = "1";
@@ -491,6 +495,11 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
     // The header link is named "Logo" and the footer one "Logo Wrap".
     document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
       .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+    // The footer's LinkedIn and Instagram links are icons only.
+    document.querySelectorAll('a[href*="linkedin.com/company/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on LinkedIn'));
+    document.querySelectorAll('a[href*="instagram.com/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on Instagram'));
   };
   const observer = new MutationObserver(() => {
     nameLogoLinks();

@@ -124,6 +124,8 @@ npx serve dist         # view the built site locally
   differ from PageSpeed's Linux Chrome by a few px, enough to decide whether a row wraps (the /about
   tag chips, 2026-10-28). Check PageSpeed's own screenshot and culprits, not only a local trace.
 - **Check phones** (360–430px) as well as desktop for any visual change.
+- **GA counts only `www.vaeral.com`.** The build wraps GA's config call in a hostname check
+  (`gaOnLiveSiteOnly`), so local builds and Vercel previews send nothing: test GA on production.
 - **The site-wide CSP in `vercel.json` also covers `/admin`.** Its `connect-src` must keep
   `https://api.github.com`, or the CMS signs in and then silently drops back to the login screen
   (broken 2026-09-23 to 2026-11-11). `npm run health` checks it.

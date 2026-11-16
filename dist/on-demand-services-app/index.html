@@ -10,7 +10,7 @@
 	<meta name="viewport" content="width=device-width">
 	<meta name="generator" content="Framer 53a99f7">
 	<title>On-Demand Services App Reputation Recovery — Case Study | Vaeral</title>
-    <meta name="description" content="The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.">
+    <meta name="description" content="The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.">
     <meta name="framer-search-index" content="https://framerusercontent.com/sites/5p7kq1Z1Vb5AjJ64xQUs96/searchIndex-OC655VLO68Fs.json">
     <meta name="framer-search-index-fallback" content="https://framerusercontent.com/sites/5p7kq1Z1Vb5AjJ64xQUs96/searchIndex-vZt7ukltPLsh.json">
     <link href="https://framerusercontent.com/images/xvfgPpvbsHYOSC0sX5ap2sPVC90.png" rel="icon" media="(prefers-color-scheme: light)">
@@ -18,12 +18,12 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="On-Demand Services App Reputation Recovery — Case Study | Vaeral">
-    <meta property="og:description" content="The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.">
+    <meta property="og:description" content="The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.">
     <meta property="og:image" content="https://www.vaeral.com/assets/case-study-hero.jpg">
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="On-Demand Services App Reputation Recovery — Case Study | Vaeral">
-    <meta name="twitter:description" content="The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.">
+    <meta name="twitter:description" content="The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.">
     <meta name="twitter:image" content="https://www.vaeral.com/assets/case-study-hero.jpg">
     
 	<!-- Global site tag (gtag.js) - Google Analytics -->
@@ -32,7 +32,7 @@
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){window.dataLayer.push(arguments);}
 	  gtag('js', new Date());
-	  gtag('config', 'G-NYP7J14402');
+	  if (location.hostname === 'www.vaeral.com') gtag('config', 'G-NYP7J14402');
 	</script>
 	
 	<style data-framer-font-css="">/* latin-ext */
@@ -421,7 +421,7 @@
     "@type": "Article",
     "@id": "https://www.vaeral.com/on-demand-services-app#article",
     "headline": "From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack",
-    "description": "The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews.",
+    "description": "The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.",
     "image": "https://www.vaeral.com/assets/case-study-hero.jpg",
     "datePublished": "2026-08-13T00:00:00.000Z",
     "dateModified": "2026-08-13T00:00:00.000Z",
@@ -876,6 +876,9 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
         });
         
         if (res.ok) {
+          // A key event in GA, so inquiries can be traced to pages and channels. GA's own form
+          // tracking never sees these: the form is sent by fetch, not submitted.
+          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form_name: 'contact' });
           if (submitBtn) {
             submitBtn.textContent = "Message Sent!";
             submitBtn.style.opacity = "1";
@@ -957,6 +960,7 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
           });
 
           if (res.ok) {
+            if (typeof gtag === 'function') gtag('event', 'newsletter_signup');
             if (submitBtn) {
               submitBtn.textContent = "Subscribed ✓";
               submitBtn.style.opacity = "1";
@@ -1025,6 +1029,11 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
     // The header link is named "Logo" and the footer one "Logo Wrap".
     document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
       .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+    // The footer's LinkedIn and Instagram links are icons only.
+    document.querySelectorAll('a[href*="linkedin.com/company/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on LinkedIn'));
+    document.querySelectorAll('a[href*="instagram.com/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on Instagram'));
   };
   const observer = new MutationObserver(() => {
     nameLogoLinks();

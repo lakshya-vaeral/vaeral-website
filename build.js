@@ -2117,6 +2117,11 @@ const IMAGE_SCRIPT = `
     // The header link is named "Logo" and the footer one "Logo Wrap".
     document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
       .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+    // The footer's LinkedIn and Instagram links are icons only.
+    document.querySelectorAll('a[href*="linkedin.com/company/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on LinkedIn'));
+    document.querySelectorAll('a[href*="instagram.com/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on Instagram'));
   };
   const observer = new MutationObserver(() => {
     nameLogoLinks();
@@ -2298,6 +2303,15 @@ const IMAGE_SCRIPT = `
 // "skip to content" target and no way to tell the page body from the chrome.
 // The hydration root is the right element for it: React renders into that div
 // rather than owning it, so an attribute set here survives hydration.
+// GA counts only the live site. Local builds, render checks and Vercel previews load the same
+// pages, and were 8% of GA's sessions in October-November 2026 (hostname localhost).
+const GA_CONFIG = "gtag('config', 'G-NYP7J14402');";
+function gaOnLiveSiteOnly(html) {
+  if (!html.includes('googletagmanager.com/gtag/js')) return html;
+  if (html.split(GA_CONFIG).length !== 2) throw new Error('gaOnLiveSiteOnly: expected one GA config call — the GA snippet changed');
+  return html.replace(GA_CONFIG, `if (location.hostname === 'www.vaeral.com') ${GA_CONFIG}`);
+}
+
 function addMainLandmark(html) {
   return html.split('<div id="main"').join('<div id="main" role="main"');
 }
@@ -2427,6 +2441,9 @@ const CONTACT_FORM_SCRIPT = `
         });
         
         if (res.ok) {
+          // A key event in GA, so inquiries can be traced to pages and channels. GA's own form
+          // tracking never sees these: the form is sent by fetch, not submitted.
+          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form_name: 'contact' });
           if (submitBtn) {
             submitBtn.textContent = "Message Sent!";
             submitBtn.style.opacity = "1";
@@ -2510,6 +2527,7 @@ const NEWSLETTER_FORM_SCRIPT = `
           });
 
           if (res.ok) {
+            if (typeof gtag === 'function') gtag('event', 'newsletter_signup');
             if (submitBtn) {
               submitBtn.textContent = "Subscribed ✓";
               submitBtn.style.opacity = "1";
@@ -2562,10 +2580,10 @@ function writePage(dir, html) {
     : noFramer;
   fs.writeFileSync(
     path.join(dir, 'index.html'),
-    addMainLandmark(
+    gaOnLiveSiteOnly(addMainLandmark(
       nameLogoLinks(
         patchImages(patchPhone(withForms).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))),
-      ),
+      )),
     );
 }
 
@@ -3148,7 +3166,7 @@ function buildCaseStudyIndex(cases) {
   let html = fill(fs.readFileSync(path.join(TEMPLATES, 'case-study-index.html'), 'utf8'), {
     TITLE: escapeHtml('ORM Case Studies: Reddit & Quora Results | Vaeral'),
     H1: 'Case Studies',
-    DESCRIPTION: escapeHtml('Explore our portfolio of successful projects and case studies.'),
+    DESCRIPTION: escapeHtml('How Vaeral has helped fintech, e-pharmacy, streaming, pet nutrition, jewellery, holiday and on-demand app brands on Reddit, Quora, Google and the Play Store.'),
     URL: escapeHtml(`${SITE}/casestudies`),
     CASES: cards,
     JSONLD: schema.renderJsonLd([
@@ -3276,7 +3294,7 @@ function buildNotFound() {
   if (!html.includes('<meta name="robots" content="noindex">') || /rel="canonical"|og:url|<!--CMS:/.test(html)) {
     throw new Error('404 page: noindex missing, or canonical/og:url/unfilled marker left — the index template changed');
   }
-  fs.writeFileSync(path.join(DIST, '404.html'), html);
+  fs.writeFileSync(path.join(DIST, '404.html'), gaOnLiveSiteOnly(html));
   console.log('  ✓ 404 page -> dist/404.html');
 }
 
@@ -3793,6 +3811,27 @@ const HOMEPAGE_ALTS = [
     alt: 'Vaeral hub connecting community, trust, support and messaging channels' },
 ];
 
+// Framer deleted two homepage images from its CDN (404 since at least 2026-11). patchImages and
+// IMAGE_SCRIPT already show our copies, but the module still asked for the dead URLs first:
+// two failed requests on every homepage load. Point the module at the copies too.
+const DELETED_IMAGES = [
+  { id: 'sNRPyFTcLx6lSXgb3zHBD7olQLI', count: 3,
+    from: 'src:`https://framerusercontent.com/images/sNRPyFTcLx6lSXgb3zHBD7olQLI.png?width=608&height=698`,srcSet:`https://framerusercontent.com/images/sNRPyFTcLx6lSXgb3zHBD7olQLI.png?width=608&height=698 608w`',
+    to: 'src:`/assets/robot_nodes.png`,srcSet:`/assets/robot_nodes.png 608w`' },
+  { id: 'u4hHbNu6CexwFHYVqPyhIIptLLY', count: 2,
+    from: 'src:`https://framerusercontent.com/images/u4hHbNu6CexwFHYVqPyhIIptLLY.png?width=820&height=415`,srcSet:`https://framerusercontent.com/images/u4hHbNu6CexwFHYVqPyhIIptLLY.png?scale-down-to=512&width=820&height=415 512w,https://framerusercontent.com/images/u4hHbNu6CexwFHYVqPyhIIptLLY.png?width=820&height=415 820w`',
+    to: 'src:`/assets/negative_post.png`,srcSet:`/assets/negative_post.png 820w`' },
+];
+function localizeDeletedImages(src) {
+  for (const { id, count, from, to } of DELETED_IMAGES) {
+    const found = src.split(from).length - 1;
+    if (found !== count) throw new Error(`localizeDeletedImages: expected ${count} of ${id} in the homepage module, found ${found} — chunk changed`);
+    src = src.split(from).join(to);
+    if (src.includes(id)) throw new Error(`localizeDeletedImages: ${id} still referenced in the homepage module`);
+  }
+  return src;
+}
+
 function patchHomepageAlts(src, where = 'count') {
   const found = new Map(HOMEPAGE_ALTS.map((a) => [a, 0]));
   if (where === 'count') {
@@ -3887,7 +3926,7 @@ function main() {
   const teamMembers = buildTeamWheelChunk({
     root: ROOT,
     distAssets: DIST_ASSETS,
-    patch: (src) => patchHomepageAlts(patchHomepageCopy(src, 'inChunk'), 'inChunk'),
+    patch: (src) => localizeDeletedImages(patchHomepageAlts(patchHomepageCopy(src, 'inChunk'), 'inChunk')),
   });
   FORM_CHUNK_MAP = buildFormChunks({ root: ROOT, distAssets: DIST_ASSETS });
   console.log(`  ✓ team wheel chunk: ${teamMembers} members`);
@@ -4123,7 +4162,7 @@ function main() {
     fs.writeFileSync(
       indexFile,
       // Alts last: patchImages rewrites the robot_nodes and negative_post tags wholesale.
-      patchHomepageAlts(addMainLandmark(nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com'))))),
+      gaOnLiveSiteOnly(patchHomepageAlts(addMainLandmark(nameLogoLinks(patchImages(patchPhone(indexHtml).replace(/https:\/\/vaeral\.com/g, 'https://www.vaeral.com')))))),
     );
     console.log(`  ✓ patched dist/index.html: SEO head tags, SPA routing, LCP preloads`);
   }

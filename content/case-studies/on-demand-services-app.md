@@ -5,7 +5,7 @@ slug: "on-demand-services-app"
 category: "On-Demand Home Services"
 tags: ["Reputation Recovery", "Competitive Review Attack", "Rating Restoration"]
 date: 2026-08-13
-description: "The app was performing well operationally, but its Play Store reputation was under pressure. Over a short period, the brand experienced a sudden surge in low-star reviews."
+description: "The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews."
 coverImage: "/assets/case-study-hero.jpg"
 draft: false
 problem: |

@@ -5,7 +5,7 @@ slug: "ott-streaming-app"
 category: "OTT Streaming / Entertainment"
 tags: ["Review Scale Strategy", "Market Penetration", "Category Dominance"]
 date: 2026-08-13
-description: "In a category dominated by Netflix, Prime and Disney+, the app had decent fundamentals but no visibility. Over 11 months it went from invisible to a fixture in the comparison conversations users were already having."
+description: "Up against Netflix, Prime and Disney+, the app had decent fundamentals but no visibility. In 11 months it became a fixture in users' comparison conversations."
 coverImage: "/assets/case-study-hero.jpg"
 draft: false
 problem: |

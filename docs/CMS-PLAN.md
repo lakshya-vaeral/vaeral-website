@@ -479,6 +479,15 @@ re-verified on 2026-10-28 against the Vercel API and the live site:
 - The homepage's raw HTML repeats its text 2.5x (Framer's per-breakpoint copies; testimonials 8x),
   which CSS-blind crawlers read as repetition. Hard to fix safely inside the export.
 
+**Found by the SEO and analytics audit of 2026-11-16, waiting on the owner (GA admin needs edit
+access; our Google credential is read-only):**
+- GA keeps event data for 2 months, its default. Set Admin → Data retention to 14 months.
+- Mark `generate_lead` (contact form) as a key event in GA; `newsletter_signup` too if wanted.
+- Still open from 2026-10-28: the reddit-marketing meta description (about 3rd for "reddit marketing
+  agency", 115 impressions and 0 clicks in 90 days) and the unindexed `/blog/remove-reddit-post-google`.
+- The homepage on desktop PageSpeed: a 0.13 layout shift in the About section and 340-470 ms of
+  blocking time. Lab only: the site has too little traffic for real-user (CrUX) data.
+
 **Housekeeping:**
 - About 47 one-off scripts have collected at the root again since the Phase 1 cleanup, plus the
   legacy `blog/` folder. Nothing imports them.
@@ -592,6 +601,14 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   newsletter submission returned 500 (visitors saw an error alert; nothing was mailed or stored).
   The last form email in Sent is from 2026-10-07. Fixed by minting a token on the CMS sign-in
   client; `npm run health` now fails if the Gmail token stops working.
+- **SEO and analytics audit (2026-11-16):** 33/33 pages healthy (200, one self-canonical, title,
+  description, valid JSON-LD, GA), 32/33 indexed, no broken internal links; Search Console clicks
+  +44% and impressions +60% on the previous 28 days. Fixed: the forms now send GA events
+  (`generate_lead`, `newsletter_signup`), since GA's own form tracking never sees a fetch; GA loads
+  its config only on www.vaeral.com, after localhost test runs made up 8% of its sessions; the
+  homepage module points at our copies of the two images Framer deleted, and blog posts no longer
+  request a malformed `favicon.png…` srcset; the footer LinkedIn and Instagram icons have names;
+  three over- or under-length descriptions. Open items in §9.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

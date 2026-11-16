@@ -62,7 +62,7 @@
 	  window.dataLayer = window.dataLayer || [];
 	  function gtag(){window.dataLayer.push(arguments);}
 	  gtag('js', new Date());
-	  gtag('config', 'G-NYP7J14402');
+	  if (location.hostname === 'www.vaeral.com') gtag('config', 'G-NYP7J14402');
 	</script>
 	
 	<style data-framer-font-css>/* latin-ext */
@@ -1857,6 +1857,9 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
         });
         
         if (res.ok) {
+          // A key event in GA, so inquiries can be traced to pages and channels. GA's own form
+          // tracking never sees these: the form is sent by fetch, not submitted.
+          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form_name: 'contact' });
           if (submitBtn) {
             submitBtn.textContent = "Message Sent!";
             submitBtn.style.opacity = "1";
@@ -1938,6 +1941,7 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
           });
 
           if (res.ok) {
+            if (typeof gtag === 'function') gtag('event', 'newsletter_signup');
             if (submitBtn) {
               submitBtn.textContent = "Subscribed ✓";
               submitBtn.style.opacity = "1";
@@ -2024,6 +2028,11 @@ form[data-vaeral-newsletter-injected] button[type="submit"] {
     // The header link is named "Logo" and the footer one "Logo Wrap".
     document.querySelectorAll('a[data-framer-name^="Logo"]:not([aria-label])')
       .forEach((a) => a.setAttribute('aria-label', 'Vaeral home'));
+    // The footer's LinkedIn and Instagram links are icons only.
+    document.querySelectorAll('a[href*="linkedin.com/company/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on LinkedIn'));
+    document.querySelectorAll('a[href*="instagram.com/vaeral"]:not([aria-label])')
+      .forEach((a) => a.setAttribute('aria-label', 'Vaeral on Instagram'));
   };
   const observer = new MutationObserver(() => {
     nameLogoLinks();

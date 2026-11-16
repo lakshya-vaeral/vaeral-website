@@ -39,9 +39,9 @@ Client work is described by sector rather than by name.
 
 - [How We Helped a B2B Fintech Platform Recover From a Public API Outage](https://www.vaeral.com/b2b-fintech-platform): This B2B fintech platform offered embedded lending and payment infrastructure to mid-size Indian businesses.
 - [How We Helped India's Most Recognised Holiday Membership Brand Change Its Image Online](https://www.vaeral.com/holiday-membership): This brand carried decades of family-vacation recall and a vast resort network.
-- [From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack](https://www.vaeral.com/on-demand-services-app): The app was performing well operationally, but its Play Store reputation was under pressure.
+- [From 3.6★ to 4.8★: How We Helped an On-Demand Services App Recover from a Coordinated Review Attack](https://www.vaeral.com/on-demand-services-app): The app was performing well operationally, but its Play Store reputation was under pressure: in a short period it saw a sudden surge in low-star reviews.
 - [How We Helped a Leading Indian E-Pharmacy Go From "Is This a Scam?" to Trusted Household Name](https://www.vaeral.com/online-pharmacy): When health-conscious Indian consumers searched for this e-pharmacy online, what they found wasn't reassuring.
-- [From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable](https://www.vaeral.com/ott-streaming-app): In a category dominated by Netflix, Prime and Disney+, the app had decent fundamentals but no visibility.
+- [From Underrated to Top-Rated: How a Streaming App Went from Unknown to Unavoidable](https://www.vaeral.com/ott-streaming-app): Up against Netflix, Prime and Disney+, the app had decent fundamentals but no visibility.
 - [How We Helped a Premium Pet Nutrition Brand Rebuild Trust After a Massive Reddit Backlash](https://www.vaeral.com/premium-pet-nutrition): This brand had strong vet-led positioning and a loyal customer base.
 - [How We Helped a Fast-Growing Indian Silver Jewellery Brand Fix Its Online Reputation?](https://www.vaeral.com/silver-jewellery): This D2C silver jewellery brand had real demand and strong designs, but Reddit threads questioned tarnishing and durability.
 
