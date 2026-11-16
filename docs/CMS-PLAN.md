@@ -484,7 +484,11 @@ access; our Google credential is read-only):**
 - GA keeps event data for 2 months, its default. Set Admin → Data retention to 14 months.
 - Mark `generate_lead` (contact form) as a key event in GA; `newsletter_signup` too if wanted.
 - Still open from 2026-10-28: the reddit-marketing meta description (about 3rd for "reddit marketing
-  agency", 115 impressions and 0 clicks in 90 days) and the unindexed `/blog/remove-reddit-post-google`.
+  agency", 115 impressions and 0 clicks in 90 days).
+- `/blog/remove-reddit-post-google` (Crawled - currently not indexed since 2026-08-25) was expanded
+  from about 600 to 1,800 words on 2026-11-16: the five routes in order (Reddit rules, legal,
+  Google's Refresh Outdated Content, replying, displacement). Once it is live, request indexing in
+  Search Console → URL Inspection.
 - The homepage on desktop PageSpeed: a 0.13 layout shift in the About section and 340-470 ms of
   blocking time. Lab only: the site has too little traffic for real-user (CrUX) data.
 
@@ -608,7 +612,8 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   its config only on www.vaeral.com, after localhost test runs made up 8% of its sessions; the
   homepage module points at our copies of the two images Framer deleted, and blog posts no longer
   request a malformed `favicon.png…` srcset; the footer LinkedIn and Instagram icons have names;
-  three over- or under-length descriptions. Open items in §9.
+  three over- or under-length descriptions. Open items in §9. A post's `updated:` date now moves its sitemap
+  lastmod (it already set the schema's dateModified), so a real revision tells Google to recrawl.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

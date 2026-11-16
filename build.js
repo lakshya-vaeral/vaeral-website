@@ -2989,6 +2989,7 @@ function buildBlogPost({ attributes: a, body }, allPosts = []) {
     slug: a.slug,
     title: a.title,
     date: a.date,
+    updated: a.updated,
     description: a.description,
     coverImage: a.coverImage,
     readTime: readTimeLabel(a, body),
@@ -3999,7 +4000,8 @@ function main() {
   console.log(`  ✓ case study listing -> dist/casestudies/index.html (${publishedCases.length} case studies)`);
 
   // Hub pages take the newest date of what they list, so lastmod only moves when content does.
-  const newest = (list) => list.map((p) => (p.date ? isoDate(p.date).slice(0, 10) : '')).sort().pop() || today;
+  // A real revision (`updated:` on a post) moves lastmod too, so Google knows to recrawl it.
+  const newest = (list) => list.map((p) => (p.updated || p.date ? isoDate(p.updated || p.date).slice(0, 10) : '')).sort().pop() || today;
   const allContent = [...publishedPages, ...publishedServices, ...publishedCases, ...publishedPosts];
   buildNotFound();
   writeSitemap([
@@ -4010,7 +4012,7 @@ function main() {
     { loc: `${SITE}/casestudies`, priority: '0.7', lastmod: newest(publishedCases) },
     ...publishedCases.map((c) => ({ loc: `${SITE}/${c.slug}`, priority: '0.7', lastmod: c.date ? isoDate(c.date).slice(0, 10) : today })),
     { loc: `${SITE}/blog`, priority: '0.7', lastmod: newest(publishedPosts) },
-    ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6', lastmod: p.date ? isoDate(p.date).slice(0, 10) : today })),
+    ...publishedPosts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, priority: '0.6', lastmod: isoDate(p.updated || p.date).slice(0, 10) })),
   ]);
   writeLlmsTxt({
     services: publishedServices,
