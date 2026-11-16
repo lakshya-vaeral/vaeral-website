@@ -10,7 +10,7 @@
     "check:render": "node scripts/render-check.mjs",
     "verify": "npm run build && npm run check && npm run check:render",
     "deploy": "npm run verify && node scripts/indexnow-submit.mjs",
-    "health": "node scripts/health-check.mjs"
+    "health": "node --env-file-if-exists=.env scripts/health-check.mjs"
   },
   "dependencies": {
     "cheerio": "^1.2.0",

@@ -503,7 +503,12 @@ A new dev can read those and pick up with full context.
 **What is deliberately NOT in the repo (must be transferred out-of-band — these
 are secrets/access, not code):**
 - **Gmail OAuth** for the forms (`GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`,
-  `GMAIL_REFRESH_TOKEN`) — Vercel env only; `scripts/get-refresh-token.cjs` mints a new token.
+  `GMAIL_REFRESH_TOKEN`) — Vercel env, plus a copy in the local `.env` for `npm run health`. Since
+  2026-11-16 the client is the CMS sign-in client below. To mint a new token, sign in to Google as
+  lakshya@vaeral.com with scope `https://mail.google.com/`, `access_type=offline`, `prompt=consent`,
+  and redirect `https://www.vaeral.com/api/callback` (the only one registered); copy the `code` from
+  the page Google returns to and exchange it. `scripts/get-refresh-token.cjs` does the same, but only
+  once `http://localhost:3000/callback` is added to the client's redirect URIs.
 - **CMS sign-in** (since 2026-11-11): the Google OAuth client (`OAUTH_GOOGLE_CLIENT_ID`,
   `OAUTH_GOOGLE_CLIENT_SECRET`), the fine-grained GitHub token (`CMS_GITHUB_TOKEN`) and the
   password hashes (`CMS_USERS`), in Vercel env only. The client lives in the Google Cloud project; the token under
@@ -582,6 +587,11 @@ What changed once the CMS was live, by theme. Commit messages carry the measurem
   gets the GitHub token.
 - **Password sign-in added (2026-11-16):** for people without a vaeral.com account; see §7. The
   same check covers right, wrong and unknown logins.
+- **Forms outage (about 2026-10-07 → 2026-11-16):** the forms' Google OAuth client was deleted from
+  the Cloud project, so Google refused the Gmail token (`deleted_client`) and every contact and
+  newsletter submission returned 500 (visitors saw an error alert; nothing was mailed or stored).
+  The last form email in Sent is from 2026-10-07. Fixed by minting a token on the CMS sign-in
+  client; `npm run health` now fails if the Gmail token stops working.
 - **Operations:** the Google API tooling moved out of the repo (`49500f1`, 2026-10-07);
   `npm run deploy` now verifies and pings IndexNow (`11ee17d`).
 - **Process:** one PR per feature until 2026-08-31, then direct commits to `main`; most commits

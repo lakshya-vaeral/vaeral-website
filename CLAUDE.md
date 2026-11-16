@@ -131,10 +131,14 @@ npx serve dist         # view the built site locally
 ## Credentials (never commit values)
 
 - Local `.env` (gitignored): `VERCEL_TOKEN` for the Vercel API, the CMS's Google client
-  (`OAUTH_GOOGLE_*`), and the Gmail variables from `.env.example` for testing forms locally.
+  (`OAUTH_GOOGLE_*`), the forms' Gmail login (`GMAIL_*`, the same values as Vercel's; `npm run health`
+  checks it).
 - Vercel project env: `GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`
   (forms) and `OAUTH_GOOGLE_CLIENT_ID`, `OAUTH_GOOGLE_CLIENT_SECRET`, `CMS_GITHUB_TOKEN`, `CMS_USERS` (CMS
   login). Optional:
   `FORM_NOTIFY_TO`, `CONTACT_BLOCKLIST`.
+- **The forms and the CMS share one Google OAuth client** (`GMAIL_CLIENT_ID` = `OAUTH_GOOGLE_CLIENT_ID`,
+  since 2026-11-16). Deleting it in the Cloud console breaks form mail and CMS Google sign-in at once;
+  deleting the old forms client is what killed the forms from about 2026-10-07 to 2026-11-16.
 - Google APIs (PageSpeed, Search Console, Analytics): a user OAuth credential in
   `~/.vaeral-google.json`, outside the repo. Its tooling lives outside the repo too (decided 2026-10-07).

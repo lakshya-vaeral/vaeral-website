@@ -190,6 +190,21 @@ if (admin.status !== 200) bad('/admin reachable', 'cms', `/admin returned ${admi
 else if (connectSrc && !connectSrc.includes('https://api.github.com')) bad('/admin may call api.github.com', 'cms', 'the CSP connect-src on /admin does not allow https://api.github.com, so the CMS cannot load or publish');
 else ok('/admin may call api.github.com (CSP)');
 
+// --- 8. The forms can send mail ----------------------------------------------
+// The contact and newsletter forms mail through Gmail. Their Google OAuth client was deleted
+// and every submission failed from about 2026-10-07 to 2026-11-16, with nothing here to say so.
+// Needs the GMAIL_* values, which `npm run health` reads from .env (they match Vercel's).
+console.log('\nForms');
+const { GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN } = process.env;
+if (!GMAIL_REFRESH_TOKEN) warn('forms', 'GMAIL_* not in .env, so the form mail login was not checked');
+else {
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams({
+    client_id: GMAIL_CLIENT_ID, client_secret: GMAIL_CLIENT_SECRET, refresh_token: GMAIL_REFRESH_TOKEN, grant_type: 'refresh_token',
+  }) }).then((x) => x.json());
+  if (r.access_token) ok('form mail can sign in to Gmail');
+  else bad('form mail can sign in to Gmail', 'forms', `Google refused the Gmail token (${r.error}: ${r.error_description}), so every form submission fails`);
+}
+
 // --- summary -----------------------------------------------------------------
 
 console.log(`\n${'─'.repeat(64)}`);
